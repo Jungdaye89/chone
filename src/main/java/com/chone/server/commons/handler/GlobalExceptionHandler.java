@@ -11,6 +11,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -60,6 +61,23 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
 
     ExceptionResponse response = createErrorResponse(servletRequest, exceptionCode, details);
+
+    logError(exc, exceptionCode);
+
+    return ResponseEntity.status(exceptionCode.getStatus()).body(response);
+  }
+
+  @Override
+  protected ResponseEntity<Object> handleHttpMessageNotReadable(
+      HttpMessageNotReadableException exc,
+      HttpHeaders headers,
+      HttpStatusCode status,
+      WebRequest request) {
+    HttpServletRequest servletRequest = ((ServletWebRequest) request).getRequest();
+    ExceptionCode exceptionCode = GlobalExceptionCode.NOT_READABLE;
+
+    ExceptionResponse response =
+        createErrorResponse(servletRequest, exceptionCode, Map.of("message", exc.getMessage()));
 
     logError(exc, exceptionCode);
 
