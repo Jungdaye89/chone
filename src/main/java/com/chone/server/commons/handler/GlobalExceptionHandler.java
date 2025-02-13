@@ -6,10 +6,17 @@ import com.chone.server.commons.exception.GlobalExceptionCode;
 import com.chone.server.commons.exception.dto.ExceptionResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.ServletWebRequest;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @Log4j2(topic = "Global Exception")
@@ -34,6 +41,25 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     ExceptionCode exceptionCode = GlobalExceptionCode.INTERNAL_ERROR;
 
     ExceptionResponse response = createErrorResponse(request, exceptionCode, null);
+
+    logError(exc, exceptionCode);
+
+    return ResponseEntity.status(exceptionCode.getStatus()).body(response);
+  }
+
+  @Override
+  protected ResponseEntity<Object> handleMethodArgumentNotValid(
+      MethodArgumentNotValidException exc,
+      HttpHeaders headers,
+      HttpStatusCode status,
+      WebRequest request) {
+    HttpServletRequest servletRequest = ((ServletWebRequest) request).getRequest();
+    ExceptionCode exceptionCode = GlobalExceptionCode.INVALID_INPUT;
+    Map<String, String> details =
+        exc.getBindingResult().getFieldErrors().stream()
+            .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
+
+    ExceptionResponse response = createErrorResponse(servletRequest, exceptionCode, details);
 
     logError(exc, exceptionCode);
 
