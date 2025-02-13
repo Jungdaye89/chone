@@ -1,5 +1,6 @@
 package com.chone.server.commons.handler;
 
+import com.chone.server.commons.exception.ApiBusinessException;
 import com.chone.server.commons.exception.ExceptionCode;
 import com.chone.server.commons.exception.GlobalExceptionCode;
 import com.chone.server.commons.exception.dto.ExceptionResponse;
@@ -14,6 +15,19 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @Log4j2(topic = "Global Exception")
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+
+  @ExceptionHandler(ApiBusinessException.class)
+  public final ResponseEntity<ExceptionResponse> handleApiBusinessException(
+      ApiBusinessException exc, HttpServletRequest request) {
+    ExceptionCode exceptionCode = exc.getExceptionCode();
+
+    ExceptionResponse response = createErrorResponse(request, exceptionCode, null);
+
+    logError(exc, exceptionCode);
+
+    return ResponseEntity.status(exceptionCode.getStatus()).body(response);
+  }
+
   @ExceptionHandler(RuntimeException.class)
   public ResponseEntity<ExceptionResponse> handleRuntimeException(
       RuntimeException exc, HttpServletRequest request) {
