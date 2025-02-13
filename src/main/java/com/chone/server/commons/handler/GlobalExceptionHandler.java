@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @Log4j2(topic = "Global Exception")
@@ -84,6 +85,23 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     return ResponseEntity.status(exceptionCode.getStatus()).body(response);
   }
 
+  @Override
+  protected ResponseEntity<Object> handleHandlerMethodValidationException(
+      HandlerMethodValidationException exc,
+      HttpHeaders headers,
+      HttpStatusCode status,
+      WebRequest request) {
+    HttpServletRequest servletRequest = ((ServletWebRequest) request).getRequest();
+    ExceptionCode exceptionCode = GlobalExceptionCode.INVALID_REQUEST;
+    Map<String, String> details = createMethodValidationErrors(exc);
+
+    ExceptionResponse response = createErrorResponse(servletRequest, exceptionCode, details);
+
+    logError(exc, exceptionCode);
+
+    return ResponseEntity.status(exceptionCode.getStatus()).body(response);
+  }
+
   private ExceptionResponse createErrorResponse(
       HttpServletRequest request, ExceptionCode exceptionCode, Map<String, String> details) {
     return ExceptionResponse.builder()
@@ -101,5 +119,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         "Exception occurred - Message: {}, Code: {}",
         exception.getMessage(),
         exceptionCode.getCode());
+  }
+
+  private Map<String, String> createMethodValidationErrors(HandlerMethodValidationException exc) {
+    return exc.getParameterValidationResults().stream()
+        .collect(
+            Collectors.toMap(
+                result -> result.getResolvableErrors().get(0).getCodes()[1],
+                result -> result.getResolvableErrors().get(0).getDefaultMessage(),
+                (existing, replacement) -> existing));
   }
 }
