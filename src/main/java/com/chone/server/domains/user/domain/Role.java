@@ -7,5 +7,4 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum Role {
     CUSTOMER, OWNER, MANAGER, MASTER
-
 }
