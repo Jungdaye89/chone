@@ -1,6 +1,8 @@
 package com.chone.server.domains.store.domain;
 
 import com.chone.server.commons.jpa.BaseEntity;
+import com.chone.server.domains.store.dto.request.CreateRequestDto;
+import com.chone.server.domains.store.dto.request.PutRequestDto;
 import com.chone.server.domains.user.domain.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -59,8 +61,21 @@ public class Store extends BaseEntity {
   private String name;
 
   @NotNull
+  @Column(nullable = false, length = 40)
+  @Comment("시도명")
+  private String sido;
+
+  @Column(length = 40)
+  @Comment("시군구명")
+  private String sigungu;
+
+  @Column(length = 40)
+  @Comment("동명")
+  private String dong;
+
+  @NotNull
   @Column(nullable = false, length = 150)
-  @Comment("가게 주소")
+  @Comment("가게 상세주소")
   private String address;
 
   @NotNull
@@ -75,4 +90,19 @@ public class Store extends BaseEntity {
   @Default
   @Comment("정보 공개 여부")
   private boolean isPublic = true;
+
+  public Store(User user, LegalDongCode legalDongCode, CreateRequestDto createRequestDto) {
+    this.user = user;
+    this.legalDongCode = legalDongCode;
+    this.name = createRequestDto.getName();
+    this.sido = createRequestDto.getSido();
+    this.sigungu = createRequestDto.getSigungu();
+    this.dong = createRequestDto.getDong();
+    this.address = createRequestDto.getAddress();
+    this.phoneNumber = createRequestDto.getPhoneNumber();
+  }
+
+  public void update(PutRequestDto putRequestDto) {
+    this.name = putRequestDto.getName();
+  }
 }
