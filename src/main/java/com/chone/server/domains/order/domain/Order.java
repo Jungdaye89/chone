@@ -2,6 +2,7 @@ package com.chone.server.domains.order.domain;
 
 import com.chone.server.commons.jpa.BaseEntity;
 import com.chone.server.domains.store.domain.Store;
+import com.chone.server.domains.user.domain.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -39,13 +40,13 @@ public class Order extends BaseEntity {
   private UUID id;
 
   @NotNull
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "store_id", nullable = false)
   @Comment("가게")
   private Store store;
 
   @NotNull
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "customer_id", nullable = false)
   @Comment("고객")
   private User user;
