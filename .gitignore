@@ -38,3 +38,6 @@ out/
 
 ### application
 application-dev.yml
+
+### Querydsl QFiles
+/src/main/generated/
