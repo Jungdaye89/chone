@@ -4,6 +4,7 @@ import com.chone.server.commons.jpa.BaseEntity;
 import com.chone.server.domains.user.domain.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -12,6 +13,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -37,19 +39,19 @@ public class Store extends BaseEntity {
   private UUID id;
 
   @NotNull
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "user_id", nullable = false)
   @Comment("가게 주인 고유번호")
   private User user;
 
   @NotNull
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "legal_dong_code_id", nullable = false)
   @Comment("지역 코드 아이디")
   private LegalDongCode legalDongCode;
 
   @OneToMany(mappedBy = "store")
-  private List<StoreCategoryMap> storeCategoryMaps;
+  private List<StoreCategoryMap> storeCategoryMaps = new ArrayList<>();
 
   @NotNull
   @Column(nullable = false, length = 50)
