@@ -1,14 +1,19 @@
 package com.chone.server.domains.user.domain;
 
 import com.chone.server.commons.jpa.BaseEntity;
+import com.chone.server.domains.order.domain.Order;
+import com.chone.server.domains.payment.domain.Payment;
+import com.chone.server.domains.review.domain.Review;
+import com.chone.server.domains.store.domain.Store;
 import jakarta.persistence.*;
-import jakarta.persistence.criteria.Order;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
-import org.hibernate.annotations.GenericGenerator;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -48,19 +53,15 @@ public class User extends BaseEntity {
     @Comment("휴면상태 여부")
     private Boolean isAvailable;
 
-//    @OneToMany(mappedBy = "user")
-//    private List<Order> order = new ArrayList<>();
-//
-//    @OneToMany(mappedBy = "user")
-//    private List<Store> store = new ArrayList<>();
-//
-//    @OneToMany(mappedBy = "user")
-//    private List<Payments> payments = new ArrayList<>();
-//
-//    @OneToMany(mappedBy = "user")
-//    private List<Review> review = new ArrayList<>();
+    @OneToMany(mappedBy = "user")
+    private List<Order> order = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user")
+    private List<Store> store = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user")
+    private List<Payment> payments = new ArrayList<>();
 
-
+    @OneToMany(mappedBy = "user")
+    private List<Review> review = new ArrayList<>();
 }
