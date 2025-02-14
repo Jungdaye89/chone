@@ -30,13 +30,11 @@ public class LegalDongCode {
   @Comment("시도명")
   private String sido;
 
-  @NotNull
-  @Column(nullable = false, length = 40)
+  @Column(length = 40)
   @Comment("시군구명")
   private String sigungu;
 
-  @NotNull
-  @Column(nullable = false, length = 40)
+  @Column(length = 40)
   @Comment("동명")
   private String dong;
 
