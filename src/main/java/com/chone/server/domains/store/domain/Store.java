@@ -1,5 +1,6 @@
 package com.chone.server.domains.store.domain;
 
+import com.chone.server.commons.jpa.BaseEntity;
 import com.chone.server.domains.user.domain.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -28,7 +29,7 @@ import org.hibernate.type.SqlTypes;
 @Getter
 @NoArgsConstructor
 @Table(name = "p_store")
-public class Store {
+public class Store extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
