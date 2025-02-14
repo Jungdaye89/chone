@@ -34,6 +34,7 @@ public class Ai extends BaseEntity {
     @Comment("가게 외래키")
     private Store store;
 
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     @Comment("상품 외래키")

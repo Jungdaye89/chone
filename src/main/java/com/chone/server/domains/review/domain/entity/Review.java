@@ -48,7 +48,7 @@ public class Review extends BaseEntity {
     @Comment("사용자 외래키")
     private User user;
 
-    @NotBlank
+    @NotNull
     @Column(name = "content", nullable = false, columnDefinition = "TEXT")
     @Comment("리뷰 내용")
     private String content;
@@ -58,8 +58,6 @@ public class Review extends BaseEntity {
     private String imageUrl;
 
     @NotNull
-    @DecimalMin(value = "1.00", message = "최소 평점은 1.00이어야 합니다.")
-    @DecimalMax(value = "5.00", message = "최대 평점은 5.00이어야 합니다.")
     @Column(name = "rating", nullable = false, precision = 10, scale = 2)
     @Comment("1~5점 범위의 평점")
     private BigDecimal rating;
