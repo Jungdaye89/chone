@@ -3,7 +3,7 @@ package com.chone.server.domains.user.domain;
 import com.chone.server.commons.jpa.BaseEntity;
 import com.chone.server.domains.order.domain.Order;
 import com.chone.server.domains.payment.domain.Payment;
-import com.chone.server.domains.review.domain.entity.Review;
+import com.chone.server.domains.review.domain.Review;
 import com.chone.server.domains.store.domain.Store;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
