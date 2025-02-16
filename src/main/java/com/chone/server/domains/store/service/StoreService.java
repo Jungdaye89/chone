@@ -6,6 +6,7 @@ import com.chone.server.domains.store.domain.LegalDongCode;
 import com.chone.server.domains.store.domain.Store;
 import com.chone.server.domains.store.domain.StoreCategoryMap;
 import com.chone.server.domains.store.dto.request.CreateRequestDto;
+import com.chone.server.domains.store.dto.request.UpdateRequestDto;
 import com.chone.server.domains.store.dto.response.CreateResponseDto;
 import com.chone.server.domains.store.dto.response.PageInfoDto;
 import com.chone.server.domains.store.dto.response.ReadResponseDto;
@@ -18,10 +19,12 @@ import com.chone.server.domains.store.repository.StoreRepository;
 import com.chone.server.domains.user.domain.User;
 import com.chone.server.domains.user.repository.UserRepository;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,12 +40,12 @@ public class StoreService {
 
   @Transactional
   public CreateResponseDto createStore(CreateRequestDto createRequestDto) {
+
     User user = userRepository.findById(createRequestDto.getUserId())
         .orElseThrow(() -> new ApiBusinessException(StoreExceptionCode.USER_NOT_FOUND));
 
-    LegalDongCode legalDongCode = legalDongCodeRepository.findBySidoAndSigunguAndDong(
-            createRequestDto.getSido(), createRequestDto.getSigungu(), createRequestDto.getDong())
-        .orElseThrow(() -> new ApiBusinessException(StoreExceptionCode.LEGAL_DONG_NOT_FOUND));
+    LegalDongCode legalDongCode = findLegalDongCodeBySidoAndSigunguAndDong(
+        createRequestDto.getSido(), createRequestDto.getSigungu(), createRequestDto.getDong());
 
     Store store = storeRepository.save(
         Store.builder(user, legalDongCode)
@@ -90,9 +93,83 @@ public class StoreService {
   @Transactional(readOnly = true)
   public ReadResponseDto getStore(UUID storeId) {
 
-    Store store = storeRepository.findById(storeId)
-        .orElseThrow(() -> new ApiBusinessException(StoreExceptionCode.STORE_NOT_FOUND));
+    Store store = findStoreById(storeId);
 
     return ReadResponseDto.from(store);
+  }
+
+  @Transactional
+  public void updateStore(UserDetails userDetails, UUID storeId,
+      UpdateRequestDto updateRequestDto) {
+
+    User user = findUserByUsername(userDetails.getUsername());
+
+    Store store = findStoreById(storeId);
+
+    LegalDongCode legalDongCode = findLegalDongCodeBySidoAndSigunguAndDong(
+        updateRequestDto.getSido(), updateRequestDto.getSigungu(), updateRequestDto.getDong());
+
+    switch (user.getRole()) {
+      case OWNER -> {
+        if (!store.getUser().equals(user)) {
+          throw new ApiBusinessException(StoreExceptionCode.USER_OWNED_STORE_NOT_FOUND);
+        }
+      }
+      case MANAGER, MASTER -> {
+      }
+      default -> {
+        throw new ApiBusinessException(StoreExceptionCode.USER_NO_AUTH);
+      }
+    }
+
+    store.update(updateRequestDto, legalDongCode);
+    updateStoreCategoryMap(store, updateRequestDto.getCategory());
+  }
+
+  private User findUserByUsername(String username) {
+
+    return userRepository.findByUsername(username)
+        .orElseThrow(() -> new ApiBusinessException(StoreExceptionCode.USER_NOT_FOUND));
+  }
+
+  private Store findStoreById(UUID id) {
+
+    return storeRepository.findById(id)
+        .orElseThrow(() -> new ApiBusinessException(StoreExceptionCode.STORE_NOT_FOUND));
+  }
+
+  private LegalDongCode findLegalDongCodeBySidoAndSigunguAndDong(String sido, String sigungu,
+      String dong) {
+
+    return legalDongCodeRepository.findBySidoAndSigunguAndDong(sido, sigungu, dong)
+        .orElseThrow(() -> new ApiBusinessException(StoreExceptionCode.LEGAL_DONG_NOT_FOUND));
+  }
+
+  private void updateStoreCategoryMap(Store store, List<String> categoryNames) {
+
+    List<StoreCategoryMap> oldMaps = store.getStoreCategoryMaps();
+
+    List<String> oldCategoryNames = oldMaps.stream()
+        .map(e -> e.getCategory().getName())
+        .collect(Collectors.toList());
+
+    // 기존의 카테고리가 수정하려는 카테고리 목록에 없을 경우 삭제
+    for (StoreCategoryMap map : oldMaps) {
+      String oldName = map.getCategory().getName();
+      if (!categoryNames.contains(oldName)) {
+        storeCategoryMapRepository.delete(map);
+      }
+    }
+
+    // 새로운 카테고리가 기존의 카테고리에 없을 경우 생성
+    for (String name : categoryNames) {
+      if (!oldCategoryNames.contains(name)) {
+        Category category = categoryRepository.findByName(name)
+            .orElseThrow(() -> new ApiBusinessException(StoreExceptionCode.CATEGORY_NOT_FOUND));
+
+        StoreCategoryMap map = new StoreCategoryMap(store, category);
+        storeCategoryMapRepository.save(map);
+      }
+    }
   }
 }
