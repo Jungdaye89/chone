@@ -12,6 +12,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SearchResponseDto {
 
-  List<ReadResponseDto> content;
+  private List<ReadResponseDto> content;
   private PageInfoDto pageInfo;
 }
