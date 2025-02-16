@@ -17,6 +17,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -26,11 +27,12 @@ import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
-@AllArgsConstructor
-@Builder
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder(access = AccessLevel.PUBLIC, builderMethodName = "innerBuilder")
+@Comment("가게")
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "p_store")
 public class Store extends BaseEntity {
 
@@ -89,6 +91,12 @@ public class Store extends BaseEntity {
   @Default
   @Comment("정보 공개 여부")
   private boolean isPublic = true;
+
+  public static StoreBuilder builder(User user, LegalDongCode legalDongCode) {
+    return Store.innerBuilder()
+        .user(user)
+        .legalDongCode(legalDongCode);
+  }
 
   public void update(PutRequestDto putRequestDto) {
     this.name = putRequestDto.getName();

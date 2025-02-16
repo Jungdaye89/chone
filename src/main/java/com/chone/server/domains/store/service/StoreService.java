@@ -45,9 +45,7 @@ public class StoreService {
         .orElseThrow(() -> new ApiBusinessException(StoreExceptionCode.LEGAL_DONG_NOT_FOUND));
 
     Store store = storeRepository.save(
-        Store.builder()
-            .user(user)
-            .legalDongCode(legalDongCode)
+        Store.builder(user, legalDongCode)
             .name(createRequestDto.getName())
             .sido(createRequestDto.getSido())
             .sigungu(createRequestDto.getSigungu())
