@@ -1,7 +1,6 @@
 package com.chone.server.domains.store.domain;
 
 import com.chone.server.commons.jpa.BaseEntity;
-import com.chone.server.domains.store.dto.request.CreateRequestDto;
 import com.chone.server.domains.store.dto.request.PutRequestDto;
 import com.chone.server.domains.user.domain.User;
 import jakarta.persistence.Column;
@@ -90,17 +89,6 @@ public class Store extends BaseEntity {
   @Default
   @Comment("정보 공개 여부")
   private boolean isPublic = true;
-
-  public Store(User user, LegalDongCode legalDongCode, CreateRequestDto createRequestDto) {
-    this.user = user;
-    this.legalDongCode = legalDongCode;
-    this.name = createRequestDto.getName();
-    this.sido = createRequestDto.getSido();
-    this.sigungu = createRequestDto.getSigungu();
-    this.dong = createRequestDto.getDong();
-    this.address = createRequestDto.getAddress();
-    this.phoneNumber = createRequestDto.getPhoneNumber();
-  }
 
   public void update(PutRequestDto putRequestDto) {
     this.name = putRequestDto.getName();
