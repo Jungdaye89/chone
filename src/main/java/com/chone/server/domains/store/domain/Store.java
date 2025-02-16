@@ -1,7 +1,7 @@
 package com.chone.server.domains.store.domain;
 
 import com.chone.server.commons.jpa.BaseEntity;
-import com.chone.server.domains.store.dto.request.PutRequestDto;
+import com.chone.server.domains.store.dto.request.UpdateRequestDto;
 import com.chone.server.domains.user.domain.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -93,12 +93,21 @@ public class Store extends BaseEntity {
   private boolean isPublic = true;
 
   public static StoreBuilder builder(User user, LegalDongCode legalDongCode) {
+
     return Store.innerBuilder()
         .user(user)
         .legalDongCode(legalDongCode);
   }
 
-  public void update(PutRequestDto putRequestDto) {
-    this.name = putRequestDto.getName();
+  public void update(UpdateRequestDto updateRequestDto, LegalDongCode legalDongCode) {
+
+    this.legalDongCode = legalDongCode;
+    this.name = updateRequestDto.getName();
+    this.sido = updateRequestDto.getSido();
+    this.sigungu = updateRequestDto.getSigungu();
+    this.address = updateRequestDto.getAddress();
+    this.phoneNumber = updateRequestDto.getPhoneNumber();
+    this.isOpen = updateRequestDto.isOpen();
+    this.isPublic = updateRequestDto.isPublic();
   }
 }
