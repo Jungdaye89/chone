@@ -3,9 +3,9 @@ package com.chone.server.domains.store.controller;
 import com.chone.server.domains.store.dto.request.CreateRequestDto;
 import com.chone.server.domains.store.dto.response.CreateResponseDto;
 import com.chone.server.domains.store.dto.response.ReadResponseDto;
+import com.chone.server.domains.store.dto.response.SearchResponseDto;
 import com.chone.server.domains.store.service.StoreService;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -36,7 +36,7 @@ public class StoreController {
   }
 
   @GetMapping
-  public ResponseEntity<List<ReadResponseDto>> getStores(
+  public ResponseEntity<SearchResponseDto> searchStores(
       @RequestParam(name = "page", required = false, defaultValue = "0") int page,
       @RequestParam(name = "size", required = false, defaultValue = "10") int size,
       @RequestParam(name = "sort", required = false, defaultValue = "created_at") String sort,
@@ -53,10 +53,10 @@ public class StoreController {
       startDate = LocalDate.now();
     }
 
-    List<ReadResponseDto> readResponseDto = storeService.getStores(page, size, sort, direction,
+    SearchResponseDto searchResponseDto = storeService.searchStores(page, size, sort, direction,
         startDate, endDate, category, sido, sigungu, dong, userId);
 
-    return ResponseEntity.ok(readResponseDto);
+    return ResponseEntity.ok(searchResponseDto);
   }
 
   @GetMapping("/{storeId}")
