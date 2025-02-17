@@ -139,7 +139,7 @@ public class StoreService {
 
   private Store findStoreById(UUID id) {
 
-    return storeRepository.findById(id)
+    return storeRepository.findByIdAndDeletedByIsNull(id)
         .orElseThrow(() -> new ApiBusinessException(StoreExceptionCode.STORE_NOT_FOUND));
   }
 
