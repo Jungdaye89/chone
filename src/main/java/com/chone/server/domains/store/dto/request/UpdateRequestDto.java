@@ -19,6 +19,6 @@ public class UpdateRequestDto {
   private String sigungu;
   private String dong;
   private String address;
-  private boolean isOpen;
-  private boolean isPublic;
+  private Boolean isOpen;
+  private Boolean isPublic;
 }

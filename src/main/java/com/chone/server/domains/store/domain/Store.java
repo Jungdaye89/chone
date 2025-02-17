@@ -86,11 +86,11 @@ public class Store extends BaseEntity {
 
   @Default
   @Comment("가게 오픈 여부")
-  private boolean isOpen = true;
+  private Boolean isOpen = true;
 
   @Default
   @Comment("정보 공개 여부")
-  private boolean isPublic = true;
+  private Boolean isPublic = true;
 
   public static StoreBuilder builder(User user, LegalDongCode legalDongCode) {
 
@@ -107,7 +107,7 @@ public class Store extends BaseEntity {
     this.sigungu = updateRequestDto.getSigungu();
     this.address = updateRequestDto.getAddress();
     this.phoneNumber = updateRequestDto.getPhoneNumber();
-    this.isOpen = updateRequestDto.isOpen();
-    this.isPublic = updateRequestDto.isPublic();
+    this.isOpen = updateRequestDto.getIsOpen();
+    this.isPublic = updateRequestDto.getIsPublic();
   }
 }

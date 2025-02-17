@@ -45,5 +45,5 @@ public class Category extends BaseEntity {
 
   @Default
   @Comment("현재 사용 여부")
-  private boolean isAvailable = true;
+  private Boolean isAvailable = true;
 }
