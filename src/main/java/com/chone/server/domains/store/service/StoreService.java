@@ -109,21 +109,22 @@ public class StoreService {
     LegalDongCode legalDongCode = findLegalDongCodeBySidoAndSigunguAndDong(
         updateRequestDto.getSido(), updateRequestDto.getSigungu(), updateRequestDto.getDong());
 
-    switch (user.getRole()) {
-      case OWNER -> {
-        if (!store.getUser().equals(user)) {
-          throw new ApiBusinessException(StoreExceptionCode.USER_OWNED_STORE_NOT_FOUND);
-        }
-      }
-      case MANAGER, MASTER -> {
-      }
-      default -> {
-        throw new ApiBusinessException(StoreExceptionCode.USER_NO_AUTH);
-      }
-    }
+    checkRoleWithStore(user, store);
 
     store.update(updateRequestDto, legalDongCode);
     updateStoreCategoryMap(store, updateRequestDto.getCategory());
+  }
+
+  @Transactional
+  public void deleteStore(UserDetails userDetails, UUID storeId) {
+
+    User user = findUserByUsername(userDetails.getUsername());
+
+    Store store = findStoreById(storeId);
+
+    checkRoleWithStore(user, store);
+
+    store.delete(user);
   }
 
   private User findUserByUsername(String username) {
@@ -169,6 +170,22 @@ public class StoreService {
 
         StoreCategoryMap map = new StoreCategoryMap(store, category);
         storeCategoryMapRepository.save(map);
+      }
+    }
+  }
+
+  private void checkRoleWithStore(User user, Store store) {
+
+    switch (user.getRole()) {
+      case OWNER -> {
+        if (!store.getUser().equals(user)) {
+          throw new ApiBusinessException(StoreExceptionCode.USER_OWNED_STORE_NOT_FOUND);
+        }
+      }
+      case MANAGER, MASTER -> {
+      }
+      default -> {
+        throw new ApiBusinessException(StoreExceptionCode.USER_NO_AUTH);
       }
     }
   }

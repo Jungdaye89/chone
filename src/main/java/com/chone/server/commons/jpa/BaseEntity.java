@@ -1,5 +1,6 @@
 package com.chone.server.commons.jpa;
 
+import com.chone.server.domains.user.domain.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
@@ -50,4 +51,10 @@ public abstract class BaseEntity {
   @Column(name = "deleted_by", length = 100, insertable = false)
   @Comment("삭제자")
   private String deletedBy;
+
+  public void delete(User user) {
+
+    this.deletedAt = LocalDateTime.now();
+    this.deletedBy = user.getUsername();
+  }
 }
