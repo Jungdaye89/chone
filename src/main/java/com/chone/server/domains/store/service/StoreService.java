@@ -146,7 +146,8 @@ public class StoreService {
   private LegalDongCode findLegalDongCodeBySidoAndSigunguAndDong(String sido, String sigungu,
       String dong) {
 
-    return legalDongCodeRepository.findBySidoAndSigunguAndDong(sido, sigungu, dong)
+    return legalDongCodeRepository.findBySidoAndSigunguAndDongAndIsAvailableIsTrue(sido, sigungu,
+            dong)
         .orElseThrow(() -> new ApiBusinessException(StoreExceptionCode.LEGAL_DONG_NOT_FOUND));
   }
 
