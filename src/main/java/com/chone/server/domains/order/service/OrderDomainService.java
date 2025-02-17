@@ -115,7 +115,16 @@ public class OrderDomainService {
   }
 
   private List<OrderItem> createOrderItems(
-      Order order, Map<UUID, Product> productMap, List<OrderItemRequest> itemRequests) {
-    return null;
+      Order order, Map<UUID, Product> productMap, List<OrderItemRequest> items) {
+    return items.stream()
+        .map(
+            item -> {
+              Product product = productMap.get(item.productId());
+              BigDecimal itemPrice =
+                  BigDecimal.valueOf(product.getPrice())
+                      .multiply(BigDecimal.valueOf(item.quantity()));
+              return OrderItem.builder(order, product, item.quantity(), itemPrice).build();
+            })
+        .toList();
   }
 }
