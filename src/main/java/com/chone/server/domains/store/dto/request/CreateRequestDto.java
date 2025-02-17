@@ -1,15 +1,15 @@
 package com.chone.server.domains.store.dto.request;
 
-import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
 @Builder
 @Getter
-@NotNull
+@NoArgsConstructor
 public class CreateRequestDto {
 
   private Long userId;
