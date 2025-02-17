@@ -5,10 +5,8 @@ import com.chone.server.domains.store.domain.QStore;
 import com.chone.server.domains.store.domain.QStoreCategoryMap;
 import com.chone.server.domains.store.domain.Store;
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.LocalDate;
 import java.util.List;
@@ -36,12 +34,19 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
 
     BooleanBuilder builder = new BooleanBuilder();
 
-    if (startDate != null) {
-      builder.and(qStore.createdAt.goe(startDate.atStartOfDay()));
+    builder.and(qStore.deletedBy.isNull());
+
+    if (startDate != null && endDate != null) {
+      builder.and(
+          qStore.createdAt.between(
+              startDate.atStartOfDay(),
+              endDate.plusDays(1).atStartOfDay()
+          )
+      );
     }
 
-    if (endDate != null) {
-      builder.and(qStore.createdAt.loe(endDate.plusDays(1).atStartOfDay()));
+    if (category != null) {
+      builder.and(qCategory.name.eq(category));
     }
 
     if (sido != null) {
@@ -60,10 +65,17 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
       builder.and(qStore.user.id.eq(userId));
     }
 
-    PathBuilder<Store> storePath = new PathBuilder<>(Store.class, "store");
+    OrderSpecifier<?> orderSpecifier;
     Order order = direction.equalsIgnoreCase("asc") ? Order.ASC : Order.DESC;
-    Expression<LocalDate> sortExpression = storePath.getComparable(sort, LocalDate.class);
-    OrderSpecifier<?> orderSpecifier = new OrderSpecifier<>(order, sortExpression);
+
+    switch (sort) {
+      case "name" -> {
+        orderSpecifier = (order == Order.ASC) ? qStore.name.asc() : qStore.name.desc();
+      }
+      default -> {
+        orderSpecifier = (order == Order.ASC) ? qStore.createdAt.asc() : qStore.createdAt.desc();
+      }
+    }
 
     List<Store> content = jpaQueryFactory
         .selectFrom(qStore)
@@ -90,6 +102,6 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
         sort
     );
 
-    return new PageImpl<>(content, pageRequest, total != null ? total : 0);
+    return new PageImpl<>(content, pageRequest, total);
   }
 }
