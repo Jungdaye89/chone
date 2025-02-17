@@ -52,6 +52,16 @@ public abstract class BaseEntity {
   @Comment("삭제자")
   private String deletedBy;
 
+  public void create(User user) {
+
+    this.createdBy = user.getUsername();
+  }
+
+  public void update(User user) {
+
+    this.updatedBy = user.getUsername();
+  }
+
   public void delete(User user) {
 
     this.deletedAt = LocalDateTime.now();
