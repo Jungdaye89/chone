@@ -1,6 +1,7 @@
 package com.chone.server.domains.store.exception;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 import com.chone.server.commons.exception.ExceptionCode;
 import lombok.Getter;
@@ -10,6 +11,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 @RequiredArgsConstructor
 public enum StoreExceptionCode implements ExceptionCode {
+  USER_NO_AUTH(UNAUTHORIZED, "필요한 권한이 없습니다."),
   USER_NOT_FOUND(NOT_FOUND, "존재하지 않는 사용자입니다."),
   CATEGORY_NOT_FOUND(NOT_FOUND, "존재하지 않는 카테고리입니다."),
   LEGAL_DONG_NOT_FOUND(NOT_FOUND, "존재하지 않는 법정동입니다."),
