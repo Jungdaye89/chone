@@ -31,7 +31,7 @@ public class ProductController {
   private final ProductService productService;
 
   @PostMapping
-  @PreAuthorize("hasAnyRole('OWNER', 'MASTER', 'MANAGER')")
+  @PreAuthorize("!hasRole('CUSTOMER')")
   public ResponseEntity<CreateResponseDto> createProduct(
       @AuthenticationPrincipal CustomUserDetails userDetails,
       @RequestBody CreateRequestDto createRequestDto) {
@@ -67,7 +67,7 @@ public class ProductController {
   }
 
   @PutMapping("/{productId}")
-  @PreAuthorize("hasAnyRole('OWNER', 'MASTER', 'MANAGER')")
+  @PreAuthorize("!hasRole('CUSTOMER')")
   public ResponseEntity<Void> updateProduct(@AuthenticationPrincipal CustomUserDetails userDetails,
       @RequestBody UpdateRequestDto updateRequestDto, @PathVariable UUID productId) {
 
@@ -77,7 +77,7 @@ public class ProductController {
   }
 
   @DeleteMapping("/{productId}")
-  @PreAuthorize("hasAnyRole('OWNER', 'MASTER', 'MANAGER')")
+  @PreAuthorize("!hasRole('CUSTOMER')")
   public ResponseEntity<Void> deleteProduct(
       @AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable UUID productId) {
 
