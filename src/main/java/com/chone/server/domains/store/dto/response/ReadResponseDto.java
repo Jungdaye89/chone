@@ -22,9 +22,10 @@ public class ReadResponseDto {
   private String dong;
   private String address;
   private List<String> category;
-  private boolean isOpen;
+  private Boolean isOpen;
 
   public static ReadResponseDto from(Store store) {
+
     List<String> categoryNames = store.getStoreCategoryMaps().stream()
         .map(scm -> scm.getCategory().getName())
         .collect(Collectors.toList());
@@ -37,7 +38,7 @@ public class ReadResponseDto {
         .dong(store.getDong())
         .address(store.getAddress())
         .category(categoryNames)
-        .isOpen(store.isOpen())
+        .isOpen(store.getIsOpen())
         .build();
   }
 }

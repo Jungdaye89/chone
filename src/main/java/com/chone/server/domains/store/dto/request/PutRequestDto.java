@@ -18,5 +18,5 @@ public class PutRequestDto {
   private String sigungu;
   private String dong;
   private String address;
-  private boolean isOpen;
+  private Boolean isOpen;
 }
