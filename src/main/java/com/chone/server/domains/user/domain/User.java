@@ -46,7 +46,7 @@ public class User extends BaseEntity {
   @Column(name = "role", nullable = false, unique = true)
   @Enumerated(EnumType.STRING)
   @Comment("사용자 역할")
-  private String role;
+  private Role role;
 
   @NotNull
   @Column(name = "is_available", nullable = false, unique = false)
