@@ -1,6 +1,7 @@
 package com.chone.server.domains.product.domain;
 
 import com.chone.server.commons.jpa.BaseEntity;
+import com.chone.server.domains.product.dto.request.UpdateRequestDto;
 import com.chone.server.domains.store.domain.Store;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -62,4 +63,19 @@ public class Product extends BaseEntity {
   @Default
   @Comment("판매 가능 여부")
   private boolean isAvailable = true;
+
+  public static ProductBuilder builder(Store store) {
+
+    return Product.innerBuilder()
+        .store(store);
+  }
+
+  public void update(UpdateRequestDto updateRequestDto) {
+
+    this.name = updateRequestDto.getName();
+    this.price = updateRequestDto.getPrice();
+    this.imageUrl = updateRequestDto.getImageUrl();
+    this.description = updateRequestDto.getDescription();
+    this.isAvailable = updateRequestDto.isAvailable();
+  }
 }
