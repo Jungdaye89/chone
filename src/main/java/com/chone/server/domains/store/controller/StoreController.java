@@ -1,5 +1,6 @@
 package com.chone.server.domains.store.controller;
 
+import com.chone.server.domains.auth.dto.CustomUserDetails;
 import com.chone.server.domains.store.dto.request.CreateRequestDto;
 import com.chone.server.domains.store.dto.request.UpdateRequestDto;
 import com.chone.server.domains.store.dto.response.CreateResponseDto;
@@ -13,7 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -74,7 +74,7 @@ public class StoreController {
   }
 
   @PutMapping("/{storeId}")
-  public ResponseEntity<?> updateStore(@AuthenticationPrincipal UserDetails userDetails,
+  public ResponseEntity<Void> updateStore(@AuthenticationPrincipal CustomUserDetails userDetails,
       @PathVariable UUID storeId, @RequestBody UpdateRequestDto updateRequestDto) {
 
     storeService.updateStore(userDetails, storeId, updateRequestDto);
@@ -83,7 +83,7 @@ public class StoreController {
   }
 
   @DeleteMapping("/{storeId}")
-  public ResponseEntity<?> deleteStore(@AuthenticationPrincipal UserDetails userDetails,
+  public ResponseEntity<Void> deleteStore(@AuthenticationPrincipal CustomUserDetails userDetails,
       @PathVariable UUID storeId) {
 
     storeService.deleteStore(userDetails, storeId);
