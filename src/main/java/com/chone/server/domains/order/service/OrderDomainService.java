@@ -16,7 +16,6 @@ import com.chone.server.domains.store.domain.Store;
 import com.chone.server.domains.user.domain.Role;
 import com.chone.server.domains.user.domain.User;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -54,7 +53,8 @@ public class OrderDomainService {
       User user,
       List<OrderItemRequest> itemRequests,
       List<Product> products,
-      OrderType orderType) {
+      OrderType orderType,
+      String requestText) {
 
     validateStoreOperationStatus(store);
     Map<UUID, Product> productMap = validateAndGetProductMap(itemRequests, products);
@@ -62,7 +62,7 @@ public class OrderDomainService {
 
     Order order =
         Order.builder(store, user, orderType, totalPrice.value(), OrderStatus.PENDING)
-            .orderItems(new ArrayList<>())
+            .request(requestText)
             .build();
 
     List<OrderItem> orderItems = createOrderItems(order, productMap, itemRequests);

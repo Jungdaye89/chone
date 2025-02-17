@@ -80,6 +80,7 @@ public class Order extends BaseEntity {
   @Comment("주문 요청 사항")
   private String request;
 
+  @Builder.Default
   @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<OrderItem> orderItems = new ArrayList<>();
 

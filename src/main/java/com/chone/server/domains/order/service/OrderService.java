@@ -40,7 +40,9 @@ public class OrderService {
     domainService.validateStoreAndProducts(store, products);
 
     OrderType orderType = domainService.determineOrderType(user.getRole(), request);
-    Order order = domainService.createOrder(store, user, request.orderItems(), products, orderType);
+    Order order =
+        domainService.createOrder(
+            store, user, request.orderItems(), products, orderType, request.requestText());
 
     Order savedOrder = repository.save(order);
 
