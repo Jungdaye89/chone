@@ -1,4 +1,4 @@
-package com.chone.server.domains.review.domain.entity;
+package com.chone.server.domains.review.domain;
 
 import com.chone.server.commons.jpa.BaseEntity;
 import com.chone.server.domains.order.domain.Order;
