@@ -1,6 +1,7 @@
 package com.chone.server.domains.store.service;
 
 import com.chone.server.commons.exception.ApiBusinessException;
+import com.chone.server.domains.auth.dto.CustomUserDetails;
 import com.chone.server.domains.store.domain.Category;
 import com.chone.server.domains.store.domain.LegalDongCode;
 import com.chone.server.domains.store.domain.Store;
@@ -24,7 +25,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,8 +41,7 @@ public class StoreService {
   @Transactional
   public CreateResponseDto createStore(CreateRequestDto createRequestDto) {
 
-    User user = userRepository.findById(createRequestDto.getUserId())
-        .orElseThrow(() -> new ApiBusinessException(StoreExceptionCode.USER_NOT_FOUND));
+    User user = findUserById(createRequestDto.getUserId());
 
     LegalDongCode legalDongCode = findLegalDongCodeBySidoAndSigunguAndDong(
         createRequestDto.getSido(), createRequestDto.getSigungu(), createRequestDto.getDong());
@@ -99,36 +98,37 @@ public class StoreService {
   }
 
   @Transactional
-  public void updateStore(UserDetails userDetails, UUID storeId,
+  public void updateStore(CustomUserDetails userDetails, UUID storeId,
       UpdateRequestDto updateRequestDto) {
 
-    User user = findUserByUsername(userDetails.getUsername());
+    User user = findUserById(userDetails.getUser().getId());
 
     Store store = findStoreById(storeId);
 
     LegalDongCode legalDongCode = findLegalDongCodeBySidoAndSigunguAndDong(
         updateRequestDto.getSido(), updateRequestDto.getSigungu(), updateRequestDto.getDong());
 
-    switch (user.getRole()) {
-      case OWNER -> {
-        if (!store.getUser().equals(user)) {
-          throw new ApiBusinessException(StoreExceptionCode.USER_OWNED_STORE_NOT_FOUND);
-        }
-      }
-      case MANAGER, MASTER -> {
-      }
-      default -> {
-        throw new ApiBusinessException(StoreExceptionCode.USER_NO_AUTH);
-      }
-    }
+    checkRoleWithStore(user, store);
 
     store.update(updateRequestDto, legalDongCode);
     updateStoreCategoryMap(store, updateRequestDto.getCategory());
   }
 
-  private User findUserByUsername(String username) {
+  @Transactional
+  public void deleteStore(CustomUserDetails userDetails, UUID storeId) {
 
-    return userRepository.findByUsername(username)
+    User user = findUserById(userDetails.getUser().getId());
+
+    Store store = findStoreById(storeId);
+
+    checkRoleWithStore(user, store);
+
+    store.delete(user);
+  }
+
+  private User findUserById(Long id) {
+
+    return userRepository.findById(id)
         .orElseThrow(() -> new ApiBusinessException(StoreExceptionCode.USER_NOT_FOUND));
   }
 
@@ -169,6 +169,22 @@ public class StoreService {
 
         StoreCategoryMap map = new StoreCategoryMap(store, category);
         storeCategoryMapRepository.save(map);
+      }
+    }
+  }
+
+  private void checkRoleWithStore(User user, Store store) {
+
+    switch (user.getRole()) {
+      case OWNER -> {
+        if (!store.getUser().equals(user)) {
+          throw new ApiBusinessException(StoreExceptionCode.USER_OWNED_STORE_NOT_FOUND);
+        }
+      }
+      case MANAGER, MASTER -> {
+      }
+      default -> {
+        throw new ApiBusinessException(StoreExceptionCode.USER_NO_AUTH);
       }
     }
   }
