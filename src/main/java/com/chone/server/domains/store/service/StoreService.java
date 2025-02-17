@@ -38,23 +38,28 @@ public class StoreService {
   private final CategoryRepository categoryRepository;
   private final StoreCategoryMapRepository storeCategoryMapRepository;
 
+  // MANAGER, MASTER 사용자가 OWNER 사용자의 ID로 가게 생성
   @Transactional
-  public CreateResponseDto createStore(CreateRequestDto createRequestDto) {
+  public CreateResponseDto createStore(CustomUserDetails userDetails,
+      CreateRequestDto createRequestDto) {
 
-    User user = findUserById(createRequestDto.getUserId());
+    User owner = findUserById(createRequestDto.getUserId());
+    User creator = userDetails.getUser();
 
     LegalDongCode legalDongCode = findLegalDongCodeBySidoAndSigunguAndDong(
         createRequestDto.getSido(), createRequestDto.getSigungu(), createRequestDto.getDong());
 
-    Store store = storeRepository.save(
-        Store.builder(user, legalDongCode)
-            .name(createRequestDto.getName())
-            .sido(createRequestDto.getSido())
-            .sigungu(createRequestDto.getSigungu())
-            .dong(createRequestDto.getDong())
-            .address(createRequestDto.getAddress())
-            .phoneNumber(createRequestDto.getPhoneNumber())
-            .build());
+    Store store = Store.builder(owner, legalDongCode)
+        .name(createRequestDto.getName())
+        .sido(createRequestDto.getSido())
+        .sigungu(createRequestDto.getSigungu())
+        .dong(createRequestDto.getDong())
+        .address(createRequestDto.getAddress())
+        .phoneNumber(createRequestDto.getPhoneNumber())
+        .build();
+
+    store.create(creator);
+    store = storeRepository.save(store);
 
     for (String categoryName : createRequestDto.getCategory()) {
       Category category = categoryRepository.findByName(categoryName)

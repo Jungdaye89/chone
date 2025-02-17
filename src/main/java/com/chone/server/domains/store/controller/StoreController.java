@@ -34,9 +34,10 @@ public class StoreController {
   @PostMapping
   @PreAuthorize("hasAnyRole('MASTER', 'MANAGER')")
   public ResponseEntity<CreateResponseDto> createStore(
+      @AuthenticationPrincipal CustomUserDetails userDetails,
       @RequestBody CreateRequestDto createRequestDto) {
 
-    CreateResponseDto createResponseDto = storeService.createStore(createRequestDto);
+    CreateResponseDto createResponseDto = storeService.createStore(userDetails, createRequestDto);
 
     return ResponseEntity.ok(createResponseDto);
   }
