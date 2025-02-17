@@ -15,6 +15,7 @@ import com.chone.server.domains.product.domain.Product;
 import com.chone.server.domains.store.domain.Store;
 import com.chone.server.domains.user.domain.Role;
 import com.chone.server.domains.user.domain.User;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -100,9 +101,17 @@ public class OrderDomainService {
     }
   }
 
-  private Price calculateTotalPrice(
-      Map<UUID, Product> productMap, List<OrderItemRequest> itemRequests) {
-    return null;
+  private Price calculateTotalPrice(Map<UUID, Product> productMap, List<OrderItemRequest> items) {
+    BigDecimal total =
+        items.stream()
+            .map(
+                item -> {
+                  Product product = productMap.get(item.productId());
+                  return BigDecimal.valueOf(product.getPrice())
+                      .multiply(BigDecimal.valueOf(item.quantity()));
+                })
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+    return new Price(total);
   }
 
   private List<OrderItem> createOrderItems(
