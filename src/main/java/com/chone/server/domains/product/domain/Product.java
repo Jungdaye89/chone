@@ -48,7 +48,7 @@ public class Product extends BaseEntity {
   @Comment("상품명")
   private String name;
 
-  @Comment("상품명")
+  @Comment("상품 설명")
   private String description;
 
   @NotNull
