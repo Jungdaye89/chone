@@ -69,7 +69,11 @@ public class OrderDomainService {
     return order;
   }
 
-  private void validateStoreOperationStatus(Store store) {}
+  private void validateStoreOperationStatus(Store store) {
+    if (!store.isOpen()) {
+      throw new ApiBusinessException(OrderExceptionCode.ORDER_STORE_CLOSED);
+    }
+  }
 
   private Map<UUID, Product> validateAndGetProductMap(
       List<OrderItemRequest> itemRequests, List<Product> products) {

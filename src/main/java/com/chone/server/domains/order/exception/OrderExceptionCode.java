@@ -3,6 +3,7 @@ package com.chone.server.domains.order.exception;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE;
 
 import com.chone.server.commons.exception.ExceptionCode;
 import lombok.Getter;
@@ -17,7 +18,8 @@ public enum OrderExceptionCode implements ExceptionCode {
   MISSING_DELIVERY_ADDRESS(BAD_REQUEST, "배송지 주소는 필수입니다."),
   FORBIDDEN_ORDER(FORBIDDEN, "주문은 사용자 또는 사장님이 할 수 있습니다."),
   NEGATIVE_PRICE(BAD_REQUEST, "가격은 음수일 수 없습니다."),
-  INVALID_QUANTITY(BAD_REQUEST, "수량은 0보다 커야 합니다.");
+  INVALID_QUANTITY(BAD_REQUEST, "수량은 0보다 커야 합니다."),
+  ORDER_STORE_CLOSED(SERVICE_UNAVAILABLE, "현재 가게가 영업 중이 아닙니다.");
 
   private final HttpStatus status;
   private final String message;
