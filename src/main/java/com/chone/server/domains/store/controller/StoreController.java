@@ -76,7 +76,7 @@ public class StoreController {
 
   @PutMapping("/{storeId}")
   public ResponseEntity<Void> updateStore(@AuthenticationPrincipal CustomUserDetails userDetails,
-      @PathVariable UUID storeId, @RequestBody UpdateRequestDto updateRequestDto) {
+      @PathVariable("storeId") UUID storeId, @RequestBody UpdateRequestDto updateRequestDto) {
 
     storeService.updateStore(userDetails, storeId, updateRequestDto);
 
@@ -85,7 +85,7 @@ public class StoreController {
 
   @DeleteMapping("/{storeId}")
   public ResponseEntity<Void> deleteStore(@AuthenticationPrincipal CustomUserDetails userDetails,
-      @PathVariable UUID storeId) {
+      @PathVariable("storeId") UUID storeId) {
 
     storeService.deleteStore(userDetails, storeId);
 
