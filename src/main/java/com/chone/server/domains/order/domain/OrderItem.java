@@ -51,7 +51,7 @@ public class OrderItem extends BaseEntity {
   @NotNull
   @Column(nullable = false)
   @Comment("주문한 상품의 개수")
-  private Long amount = 1L;
+  private int amount;
 
   @NotNull
   @Column(nullable = false, precision = 10, scale = 2)
@@ -59,7 +59,7 @@ public class OrderItem extends BaseEntity {
   private BigDecimal price = BigDecimal.ZERO;
 
   public static OrderItemBuilder builder(
-      Order order, Product product, Long amount, BigDecimal price) {
+      Order order, Product product, int amount, BigDecimal price) {
 
     return OrderItem.innerBuilder().order(order).product(product).amount(amount).price(price);
   }
