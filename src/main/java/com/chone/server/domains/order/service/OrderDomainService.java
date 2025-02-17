@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -77,7 +78,26 @@ public class OrderDomainService {
 
   private Map<UUID, Product> validateAndGetProductMap(
       List<OrderItemRequest> itemRequests, List<Product> products) {
-    return null;
+    if (products.size() != itemRequests.size()) {
+      throw new ApiBusinessException(OrderExceptionCode.ORDER_PRODUCT_MISMATCH);
+    }
+
+    if (products.isEmpty()) {
+      throw new ApiBusinessException(OrderExceptionCode.ORDER_PRODUCT_MISMATCH);
+    }
+
+    Map<UUID, Product> productMap =
+        products.stream().collect(Collectors.toMap(Product::getId, product -> product));
+
+    products.forEach(this::validateProduct);
+
+    return productMap;
+  }
+
+  private void validateProduct(Product product) {
+    if (!product.isAvailable()) {
+      throw new ApiBusinessException(OrderExceptionCode.ORDER_PRODUCT_UNAVAILABLE);
+    }
   }
 
   private Price calculateTotalPrice(
