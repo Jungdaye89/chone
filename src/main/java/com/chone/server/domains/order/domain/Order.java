@@ -68,11 +68,6 @@ public class Order extends BaseEntity {
   @Comment("주문 상태(대기, 승인, 완료, 취소)")
   private OrderStatus status;
 
-  @NotNull
-  @Column(length = 150, nullable = false)
-  @Comment("배송지")
-  private String address;
-
   @Column(length = 100)
   @Comment("주문 취소 사유")
   private String cancelReason;
@@ -82,19 +77,13 @@ public class Order extends BaseEntity {
   private String request;
 
   public static OrderBuilder builder(
-      Store store,
-      User user,
-      OrderType orderType,
-      BigDecimal totalPrice,
-      OrderStatus status,
-      String address) {
+      Store store, User user, OrderType orderType, BigDecimal totalPrice, OrderStatus status) {
 
     return Order.innerBuilder()
         .store(store)
         .user(user)
         .orderType(orderType)
         .totalPrice(totalPrice)
-        .status(status)
-        .address(address);
+        .status(status);
   }
 }
