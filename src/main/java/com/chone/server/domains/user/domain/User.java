@@ -10,14 +10,20 @@ import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
+import org.springframework.security.core.userdetails.User.UserBuilder;
 
 @Entity
 @Getter
-@Table(name = "p_user")
+@Builder(access = AccessLevel.PUBLIC, builderMethodName = "innerBuilder")
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "p_user")
+@Comment("사용자")
 public class User extends BaseEntity {
 
   @NotNull
@@ -46,7 +52,7 @@ public class User extends BaseEntity {
   @Column(name = "role", nullable = false, unique = true)
   @Enumerated(EnumType.STRING)
   @Comment("사용자 역할")
-  private String role;
+  private Role role;
 
   @NotNull
   @Column(name = "is_available", nullable = false, unique = false)
@@ -64,4 +70,14 @@ public class User extends BaseEntity {
 
   @OneToMany(mappedBy = "user")
   private List<Review> review = new ArrayList<>();
+
+  public static UserBuilder builder(
+      String username, String email, String hashedPassword, Role role, Boolean isAvailable) {
+    return User.innerBuilder()
+        .username(username)
+        .email(email)
+        .password(hashedPassword)
+        .role(role)
+        .isAvailable(isAvailable);
+  }
 }

@@ -9,12 +9,16 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
@@ -96,6 +100,32 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     Map<String, String> details = createMethodValidationErrors(exc);
 
     ExceptionResponse response = createErrorResponse(servletRequest, exceptionCode, details);
+
+    logError(exc, exceptionCode);
+
+    return ResponseEntity.status(exceptionCode.getStatus()).body(response);
+  }
+
+  @ExceptionHandler(AccessDeniedException.class)
+  @ResponseStatus(HttpStatus.FORBIDDEN)
+  public ResponseEntity<ExceptionResponse> handleAccessDeniedException(
+      RuntimeException exc, HttpServletRequest request) {
+    ExceptionCode exceptionCode = GlobalExceptionCode.FORBIDDEN;
+
+    ExceptionResponse response = createErrorResponse(request, exceptionCode, null);
+
+    logError(exc, exceptionCode);
+
+    return ResponseEntity.status(exceptionCode.getStatus()).body(response);
+  }
+
+  @ExceptionHandler(AuthenticationException.class)
+  @ResponseStatus(HttpStatus.UNAUTHORIZED)
+  public ResponseEntity<ExceptionResponse> handleAuthenticationException(
+      RuntimeException exc, HttpServletRequest request) {
+    ExceptionCode exceptionCode = GlobalExceptionCode.UNAUTHORIZED;
+
+    ExceptionResponse response = createErrorResponse(request, exceptionCode, null);
 
     logError(exc, exceptionCode);
 
