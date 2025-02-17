@@ -1,5 +1,7 @@
 package com.chone.server.domains.order.service;
 
+import static org.springframework.util.StringUtils.hasText;
+
 import com.chone.server.commons.exception.ApiBusinessException;
 import com.chone.server.domains.order.domain.Order;
 import com.chone.server.domains.order.domain.OrderType;
@@ -27,6 +29,19 @@ public class OrderDomainService {
     }
   }
 
+  public OrderType determineOrderType(Role userRole, CreateOrderRequest requestDto) {
+    return switch (userRole) {
+      case OWNER -> OrderType.ONLINE;
+      case CUSTOMER -> {
+        if (!hasText(requestDto.address())) {
+          throw new ApiBusinessException(OrderExceptionCode.MISSING_DELIVERY_ADDRESS);
+        }
+        yield OrderType.OFFLINE;
+      }
+      default -> throw new ApiBusinessException(OrderExceptionCode.FORBIDDEN_ORDER);
+    };
+  }
+
   public Order createOrder(
       Store store,
       User user,
@@ -34,10 +49,6 @@ public class OrderDomainService {
       List<Product> products,
       OrderType orderType) {
 
-    return null;
-  }
-
-  public OrderType determineOrderType(Role userRole, CreateOrderRequest requestDto) {
     return null;
   }
 }
