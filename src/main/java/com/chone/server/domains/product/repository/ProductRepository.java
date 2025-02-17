@@ -2,6 +2,8 @@ package com.chone.server.domains.product.repository;
 
 import com.chone.server.domains.product.domain.Product;
 import com.chone.server.domains.product.repository.custom.ProductRepositoryCustom;
+import com.chone.server.domains.user.domain.User;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -9,4 +11,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, UUID>, ProductRepositoryCustom {
 
+  Optional<Product> findByIdAndStoreUser(UUID id, User user);
 }
