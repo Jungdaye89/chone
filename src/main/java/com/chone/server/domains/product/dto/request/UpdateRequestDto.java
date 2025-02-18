@@ -15,5 +15,5 @@ public class UpdateRequestDto {
   private double price;
   private String imageUrl;
   private String description;
-  private boolean isAvailable;
+  private Boolean isAvailable;
 }

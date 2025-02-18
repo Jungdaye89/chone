@@ -18,7 +18,7 @@ public class ReadResponseDto {
   private String description;
   private double price;
   private String imageUrl;
-  private boolean isAvailable;
+  private Boolean isAvailable;
 
   public static ReadResponseDto from(Product product) {
 
@@ -28,7 +28,7 @@ public class ReadResponseDto {
         .description(product.getDescription())
         .price(product.getPrice())
         .imageUrl(product.getImageUrl())
-        .isAvailable(product.isAvailable())
+        .isAvailable(product.getIsAvailable())
         .build();
   }
 }
