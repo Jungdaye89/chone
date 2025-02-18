@@ -1,7 +1,9 @@
 package com.chone.server.domains.order.infrastructure.jpa;
 
+import com.chone.server.commons.exception.ApiBusinessException;
 import com.chone.server.domains.order.dto.request.OrderFilterParams;
 import com.chone.server.domains.order.dto.response.OrderPageResponse;
+import com.chone.server.domains.order.exception.OrderExceptionCode;
 import com.chone.server.domains.order.repository.OrderSearchRepository;
 import com.chone.server.domains.user.domain.User;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -41,7 +43,11 @@ public class OrderSearchRepositoryImpl implements OrderSearchRepository {
     return null;
   }
 
-  private void validateNoUnauthorizedFiltering(OrderFilterParams filterParams) {}
+  private void validateNoUnauthorizedFiltering(OrderFilterParams filterParams) {
+    if (filterParams.storeId() != null || filterParams.customerId() != null) {
+      throw new ApiBusinessException(OrderExceptionCode.ORDER_FILTERING_ACCESS_DENIED);
+    }
+  }
 
   private void addCustomerCondition(List<BooleanExpression> conditions, User customer) {}
 

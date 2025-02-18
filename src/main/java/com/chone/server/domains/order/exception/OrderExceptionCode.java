@@ -22,7 +22,7 @@ public enum OrderExceptionCode implements ExceptionCode {
   ORDER_STORE_CLOSED(SERVICE_UNAVAILABLE, "현재 가게가 영업 중이 아닙니다."),
   ORDER_PRODUCT_MISMATCH(BAD_REQUEST, "주문한 상품이 존재하지 않거나 일부 상품이 누락되었습니다."),
   ORDER_PRODUCT_UNAVAILABLE(BAD_REQUEST, "주문할 수 없는 상품입니다."),
-  ;
+  ORDER_FILTERING_ACCESS_DENIED(FORBIDDEN, "사용자 또는 가게별 주문 조회 권한이 없습니다.");
 
   private final HttpStatus status;
   private final String message;
