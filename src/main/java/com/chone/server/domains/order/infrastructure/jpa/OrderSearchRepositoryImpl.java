@@ -15,7 +15,9 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -100,15 +102,55 @@ public class OrderSearchRepositoryImpl implements OrderSearchRepository {
     return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
   }
 
-  private void addStatusCondition(List<BooleanExpression> conditions, OrderStatus status) {}
+  private void addStatusCondition(List<BooleanExpression> conditions, OrderStatus status) {
+    if (status != null) {
+      conditions.add(order.status.eq(status));
+    }
+  }
 
-  private void addOrderTypeCondition(List<BooleanExpression> conditions, OrderType orderType) {}
+  private void addOrderTypeCondition(List<BooleanExpression> conditions, OrderType orderType) {
+    if (orderType != null) {
+      conditions.add(order.orderType.eq(orderType));
+    }
+  }
 
   private void addPriceCondition(
-      List<BooleanExpression> conditions, Integer integer, Integer integer1) {}
+      List<BooleanExpression> conditions, Integer minPrice, Integer maxPrice) {
+    try {
+      if (minPrice != null && maxPrice != null) {
+        conditions.add(
+            order.totalPrice.between(BigDecimal.valueOf(minPrice), BigDecimal.valueOf(maxPrice)));
+      } else if (minPrice != null) {
+        conditions.add(order.totalPrice.goe(BigDecimal.valueOf(minPrice)));
+      } else if (maxPrice != null) {
+        conditions.add(order.totalPrice.loe(BigDecimal.valueOf(maxPrice)));
+      }
+    } catch (NumberFormatException e) {
+      log.warn("가격 형변환 실패: {}", e.getMessage());
+    } catch (Exception e) {
+      log.warn("가격 필터링 조건 형성 실패: {}", e.getMessage());
+    }
+  }
 
   private void addDateCondition(
-      List<BooleanExpression> conditions, LocalDate localDate, LocalDate localDate1) {}
+      List<BooleanExpression> conditions, LocalDate startDate, LocalDate endDate) {
+    try {
+      if (startDate != null && endDate != null) {
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.atTime(23, 59, 59, 999999999);
+
+        conditions.add(order.createdAt.between(startDateTime, endDateTime));
+      } else if (startDate != null) {
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        conditions.add(order.createdAt.goe(startDateTime));
+      } else if (endDate != null) {
+        LocalDateTime endDateTime = endDate.atTime(23, 59, 59, 999999999);
+        conditions.add(order.createdAt.loe(endDateTime));
+      }
+    } catch (Exception e) {
+      log.warn("날짜 필터링 형성 실패: {}", e.getMessage());
+    }
+  }
 
   private BooleanExpression buildWhereCondition(List<BooleanExpression> conditions) {
     return null;
