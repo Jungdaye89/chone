@@ -48,6 +48,11 @@ public class Delivery extends BaseEntity {
   @Comment("배달 상태(대기, 픽업, 완료, 취소)")
   private DeliveryStatus status;
 
+  @NotNull
+  @Column(length = 150, nullable = false)
+  @Comment("배송지")
+  private String address;
+
   public static DeliveryBuilder builder(Order order, DeliveryStatus status) {
     return Delivery.innerBuilder().order(order).status(status);
   }

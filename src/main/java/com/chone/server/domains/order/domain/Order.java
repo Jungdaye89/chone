@@ -3,6 +3,7 @@ package com.chone.server.domains.order.domain;
 import com.chone.server.commons.jpa.BaseEntity;
 import com.chone.server.domains.store.domain.Store;
 import com.chone.server.domains.user.domain.User;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -11,9 +12,12 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -68,11 +72,6 @@ public class Order extends BaseEntity {
   @Comment("주문 상태(대기, 승인, 완료, 취소)")
   private OrderStatus status;
 
-  @NotNull
-  @Column(length = 150, nullable = false)
-  @Comment("배송지")
-  private String address;
-
   @Column(length = 100)
   @Comment("주문 취소 사유")
   private String cancelReason;
@@ -81,20 +80,27 @@ public class Order extends BaseEntity {
   @Comment("주문 요청 사항")
   private String request;
 
+  @Builder.Default
+  @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<OrderItem> orderItems = new ArrayList<>();
+
   public static OrderBuilder builder(
-      Store store,
-      User user,
-      OrderType orderType,
-      BigDecimal totalPrice,
-      OrderStatus status,
-      String address) {
+      Store store, User user, OrderType orderType, BigDecimal totalPrice, OrderStatus status) {
 
     return Order.innerBuilder()
         .store(store)
         .user(user)
         .orderType(orderType)
         .totalPrice(totalPrice)
-        .status(status)
-        .address(address);
+        .status(status);
+  }
+
+  public void addOrderItem(List<OrderItem> items) {
+    items.forEach(
+        item -> {
+          this.orderItems.add(item);
+          item.setOrder(this);
+        });
+    this.orderItems = items;
   }
 }
