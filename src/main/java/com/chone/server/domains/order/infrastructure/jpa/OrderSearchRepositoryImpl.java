@@ -1,5 +1,7 @@
 package com.chone.server.domains.order.infrastructure.jpa;
 
+import static com.chone.server.domains.order.domain.QOrder.order;
+
 import com.chone.server.commons.exception.ApiBusinessException;
 import com.chone.server.domains.order.dto.request.OrderFilterParams;
 import com.chone.server.domains.order.dto.response.OrderPageResponse;
@@ -49,7 +51,11 @@ public class OrderSearchRepositoryImpl implements OrderSearchRepository {
     }
   }
 
-  private void addCustomerCondition(List<BooleanExpression> conditions, User customer) {}
+  private void addCustomerCondition(List<BooleanExpression> conditions, User customer) {
+    if (customer != null) {
+      conditions.add(order.user.eq(customer));
+    }
+  }
 
   private Page<OrderPageResponse> getOrders(
       List<BooleanExpression> conditions, OrderFilterParams filterParams, Pageable pageable) {
