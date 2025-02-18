@@ -2,7 +2,7 @@ package com.chone.server.domains.review.repository;
 
 import com.chone.server.domains.review.domain.QReview;
 import com.chone.server.domains.review.dto.request.ReviewListRequestDTO;
-import com.chone.server.domains.review.dto.response.ReviewPageResponse;
+import com.chone.server.domains.review.dto.response.ReviewPageResponseDTO;
 import com.chone.server.domains.user.domain.User;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -20,7 +20,7 @@ public class ReviewRepositoryImpl implements ReviewSearchRepository {
   private final JPAQueryFactory queryFactory;
 
   @Override
-  public Page<ReviewPageResponse> findReviewsByCustomer(
+  public Page<ReviewPageResponseDTO> findReviewsByCustomer(
       User customer, ReviewListRequestDTO filterParams, Pageable pageable) {
     QReview review = QReview.review;
     BooleanBuilder predicate = new BooleanBuilder();
@@ -33,7 +33,7 @@ public class ReviewRepositoryImpl implements ReviewSearchRepository {
   }
 
   @Override
-  public Page<ReviewPageResponse> findReviewsByOwner(
+  public Page<ReviewPageResponseDTO> findReviewsByOwner(
       User owner, ReviewListRequestDTO filterParams, Pageable pageable) {
     QReview review = QReview.review;
     BooleanBuilder predicate = new BooleanBuilder();
@@ -46,7 +46,7 @@ public class ReviewRepositoryImpl implements ReviewSearchRepository {
   }
 
   @Override
-  public Page<ReviewPageResponse> findReviewsByManagerOrMaster(
+  public Page<ReviewPageResponseDTO> findReviewsByManagerOrMaster(
       User user, ReviewListRequestDTO filterParams, Pageable pageable) { // ✅ User 인자 추가!
     QReview review = QReview.review;
     BooleanBuilder predicate = new BooleanBuilder();
@@ -75,9 +75,9 @@ public class ReviewRepositoryImpl implements ReviewSearchRepository {
     }
   }
 
-  private Page<ReviewPageResponse> executeQuery(BooleanBuilder predicate, Pageable pageable) {
+  private Page<ReviewPageResponseDTO> executeQuery(BooleanBuilder predicate, Pageable pageable) {
 
-    List<ReviewPageResponse> content =
+    List<ReviewPageResponseDTO> content =
         queryFactory
             .selectFrom(QReview.review)
             .where(predicate)
@@ -86,7 +86,7 @@ public class ReviewRepositoryImpl implements ReviewSearchRepository {
             .limit(pageable.getPageSize())
             .fetch()
             .stream()
-            .map(ReviewPageResponse::from)
+            .map(ReviewPageResponseDTO::from)
             .toList();
 
     long total = queryFactory.selectFrom(QReview.review).where(predicate).fetchCount();
