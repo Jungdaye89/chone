@@ -62,7 +62,7 @@ public class Product extends BaseEntity {
 
   @Default
   @Comment("판매 가능 여부")
-  private boolean isAvailable = true;
+  private Boolean isAvailable = true;
 
   public static ProductBuilder builder(Store store) {
 
@@ -76,10 +76,11 @@ public class Product extends BaseEntity {
     this.price = updateRequestDto.getPrice();
     this.imageUrl = updateRequestDto.getImageUrl();
     this.description = updateRequestDto.getDescription();
-    this.isAvailable = updateRequestDto.isAvailable();
+    this.isAvailable = updateRequestDto.getIsAvailable();
   }
 
   public void updateDescription(String description) {
+
     this.description = description;
   }
 }
