@@ -87,7 +87,11 @@ public class OrderSearchRepositoryImpl implements OrderSearchRepository {
     }
   }
 
-  private void addStoresByOwnerCondition(List<BooleanExpression> conditions, User owner) {}
+  private void addStoresByOwnerCondition(List<BooleanExpression> conditions, User owner) {
+    if (owner != null) {
+      conditions.add(order.store.user.eq(owner));
+    }
+  }
 
   private Page<OrderPageResponse> getOrders(
       List<BooleanExpression> conditions, OrderFilterParams filterParams, Pageable pageable) {
