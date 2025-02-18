@@ -3,13 +3,21 @@ package com.chone.server.domains.order.controller;
 import com.chone.server.commons.util.UriGeneratorUtil;
 import com.chone.server.domains.auth.dto.CustomUserDetails;
 import com.chone.server.domains.order.dto.request.CreateOrderRequest;
+import com.chone.server.domains.order.dto.request.OrderFilterParams;
 import com.chone.server.domains.order.dto.response.CreateOrderResponse;
+import com.chone.server.domains.order.dto.response.OrderPageResponse;
+import com.chone.server.domains.order.dto.response.PageResponse;
 import com.chone.server.domains.order.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,5 +37,17 @@ public class OrderController {
     CreateOrderResponse responseDto = service.createOrder(requestDto, principal);
 
     return ResponseEntity.created(UriGeneratorUtil.generateUri("")).body(responseDto);
+  }
+
+  @GetMapping
+  public ResponseEntity<PageResponse<OrderPageResponse>> getOrders(
+      @AuthenticationPrincipal CustomUserDetails principal,
+      @ModelAttribute("filterParams") OrderFilterParams filterParams,
+      @PageableDefault(page = 0, size = 10, sort = "createdat", direction = Sort.Direction.DESC)
+          Pageable pageable) {
+    PageResponse<OrderPageResponse> responseDto =
+        service.getOrders(principal, filterParams, pageable);
+
+    return ResponseEntity.ok().body(responseDto);
   }
 }
