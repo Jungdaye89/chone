@@ -66,7 +66,14 @@ public class OrderSearchRepositoryImpl implements OrderSearchRepository {
   @Override
   public Page<OrderPageResponse> findOrdersByAdmin(
       User admin, OrderFilterParams filterParams, Pageable pageable) {
-    return null;
+    List<BooleanExpression> conditions = new ArrayList<>();
+    if (filterParams.storeId() != null) {
+      addStoreIdCondition(conditions, filterParams.storeId());
+    }
+    if (filterParams.customerId() != null) {
+      addCustomerIdCondition(conditions, filterParams.customerId());
+    }
+    return getOrders(conditions, filterParams, pageable);
   }
 
   private void validateNoUnauthorizedFiltering(OrderFilterParams filterParams) {
@@ -92,6 +99,10 @@ public class OrderSearchRepositoryImpl implements OrderSearchRepository {
       conditions.add(order.store.user.eq(owner));
     }
   }
+
+  private void addStoreIdCondition(List<BooleanExpression> conditions, UUID uuid) {}
+
+  private void addCustomerIdCondition(List<BooleanExpression> conditions, Long aLong) {}
 
   private Page<OrderPageResponse> getOrders(
       List<BooleanExpression> conditions, OrderFilterParams filterParams, Pageable pageable) {
