@@ -9,7 +9,7 @@ import com.chone.server.domains.order.dto.request.OrderFilterParams;
 import com.chone.server.domains.order.dto.response.OrderPageResponse;
 import com.chone.server.domains.order.dto.response.QOrderPageResponse;
 import com.chone.server.domains.order.exception.OrderExceptionCode;
-import com.chone.server.domains.order.repository.OrderSearchRepository;
+import com.chone.server.domains.order.repository.OrderListSearchRepository;
 import com.chone.server.domains.user.domain.User;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Order;
@@ -35,7 +35,7 @@ import org.springframework.stereotype.Repository;
 @Slf4j
 @Repository
 @RequiredArgsConstructor
-public class OrderSearchRepositoryImpl implements OrderSearchRepository {
+public class OrderListSearchRepositoryImpl implements OrderListSearchRepository {
   private final JPAQueryFactory queryFactory;
   private final Map<String, Expression<?>> sortFieldMap =
       Map.of(
