@@ -44,11 +44,11 @@ public class ProductController {
 
   @GetMapping("/{storeId}")
   public ResponseEntity<SearchResponseDto> searchProducts(
-      @PathVariable UUID storeId,
+      @PathVariable("storeId") UUID storeId,
       @RequestParam(name = "page", required = false, defaultValue = "0") int page,
       @RequestParam(name = "size", required = false, defaultValue = "10") int size,
-      @RequestParam(name = "sort", required = false, defaultValue = "created_at") String sort,
-      @RequestParam(name = "direction", required = false, defaultValue = "desc") String direction,
+      @RequestParam(name = "sort", required = false, defaultValue = "price") String sort,
+      @RequestParam(name = "direction", required = false, defaultValue = "asc") String direction,
       @RequestParam(name = "minPrice", required = false) Double minPrice,
       @RequestParam(name = "maxPrice", required = false) Double maxPrice) {
 
@@ -58,10 +58,11 @@ public class ProductController {
     return ResponseEntity.ok(searchResponseDto);
   }
 
-  @GetMapping("/{productId}")
-  public ResponseEntity<ReadResponseDto> getProduct(@PathVariable UUID productId) {
+  @GetMapping("/{storeId}/{productId}")
+  public ResponseEntity<ReadResponseDto> getProduct(@PathVariable("storeId") UUID storeId,
+      @PathVariable("productId") UUID productId) {
 
-    ReadResponseDto readResponseDto = productService.getProduct(productId);
+    ReadResponseDto readResponseDto = productService.getProduct(storeId, productId);
 
     return ResponseEntity.ok(readResponseDto);
   }
@@ -69,7 +70,7 @@ public class ProductController {
   @PutMapping("/{productId}")
   @PreAuthorize("!hasRole('CUSTOMER')")
   public ResponseEntity<Void> updateProduct(@AuthenticationPrincipal CustomUserDetails userDetails,
-      @RequestBody UpdateRequestDto updateRequestDto, @PathVariable UUID productId) {
+      @RequestBody UpdateRequestDto updateRequestDto, @PathVariable("productId") UUID productId) {
 
     productService.updateProduct(userDetails, updateRequestDto, productId);
 
@@ -79,7 +80,8 @@ public class ProductController {
   @DeleteMapping("/{productId}")
   @PreAuthorize("!hasRole('CUSTOMER')")
   public ResponseEntity<Void> deleteProduct(
-      @AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable UUID productId) {
+      @AuthenticationPrincipal CustomUserDetails userDetails,
+      @PathVariable("productId") UUID productId) {
 
     productService.deleteProduct(userDetails, productId);
 
