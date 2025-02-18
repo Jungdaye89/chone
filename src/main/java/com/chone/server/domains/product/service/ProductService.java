@@ -13,7 +13,7 @@ import com.chone.server.domains.product.exception.ProductExceptionCode;
 import com.chone.server.domains.product.repository.ProductRepository;
 import com.chone.server.domains.store.domain.Store;
 import com.chone.server.domains.store.exception.StoreExceptionCode;
-import com.chone.server.domains.store.repository.StoreRepository;
+import com.chone.server.domains.store.service.StoreService;
 import com.chone.server.domains.user.domain.User;
 import com.chone.server.domains.user.repository.UserRepository;
 import java.util.List;
@@ -29,13 +29,14 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Log4j2
 public class ProductService {
-  private final ProductRepository repository;
+
   private final ProductRepository productRepository;
   private final UserRepository userRepository;
-  private final StoreRepository storeRepository;
+  private final StoreService storeService;
 
   public List<Product> findAllById(List<UUID> productIds) {
-    return repository.findAllById(productIds);
+
+    return productRepository.findAllById(productIds);
   }
 
   @Transactional
@@ -43,9 +44,9 @@ public class ProductService {
       CustomUserDetails userDetails, CreateRequestDto createRequestDto) {
 
     User user = findUserById(userDetails.getUser().getId());
-    Store store = findStoreById(createRequestDto.getStoreId());
+    Store store = storeService.findStoreById(createRequestDto.getStoreId());
 
-    checkRoleWithStore(user, store);
+    storeService.checkRoleWithStore(user, store);
 
     Product product =
         productRepository.save(
@@ -68,6 +69,7 @@ public class ProductService {
       String direction,
       Double minPrice,
       Double maxPrice) {
+
     Page<Product> products =
         productRepository.searchProducts(storeId, page, size, sort, direction, minPrice, maxPrice);
 
@@ -85,12 +87,10 @@ public class ProductService {
   }
 
   @Transactional(readOnly = true)
-  public ReadResponseDto getProduct(UUID productId) {
+  public ReadResponseDto getProduct(UUID storeId, UUID productId) {
 
-    Product product =
-        productRepository
-            .findById(productId)
-            .orElseThrow(() -> new ApiBusinessException(ProductExceptionCode.PRODUCT_NOT_FOUND));
+    Product product = productRepository.findByStoreIdAndIdAndDeletedByIsNull(storeId, productId)
+        .orElseThrow(() -> new ApiBusinessException(ProductExceptionCode.PRODUCT_NOT_FOUND));
 
     return ReadResponseDto.from(product);
   }
@@ -103,7 +103,7 @@ public class ProductService {
 
     Product product = findProductById(productId);
 
-    checkRoleWithStore(user, product.getStore());
+    storeService.checkRoleWithStore(user, product.getStore());
 
     product.update(updateRequestDto);
   }
@@ -122,7 +122,7 @@ public class ProductService {
 
     Product product = findProductById(productId);
 
-    checkRoleWithStore(user, product.getStore());
+    storeService.checkRoleWithStore(user, product.getStore());
 
     product.delete(user);
   }
@@ -132,27 +132,5 @@ public class ProductService {
     return userRepository
         .findById(id)
         .orElseThrow(() -> new ApiBusinessException(StoreExceptionCode.USER_NOT_FOUND));
-  }
-
-  private Store findStoreById(UUID id) {
-
-    return storeRepository
-        .findById(id)
-        .orElseThrow(() -> new ApiBusinessException(StoreExceptionCode.STORE_NOT_FOUND));
-  }
-
-  private void checkRoleWithStore(User user, Store store) {
-
-    switch (user.getRole()) {
-      case OWNER -> {
-        if (!store.getUser().equals(user)) {
-          throw new ApiBusinessException(StoreExceptionCode.USER_OWNED_STORE_NOT_FOUND);
-        }
-      }
-      case MANAGER, MASTER -> {}
-      default -> {
-        throw new ApiBusinessException(StoreExceptionCode.USER_NO_AUTH);
-      }
-    }
   }
 }

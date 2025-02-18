@@ -56,10 +56,6 @@ public class StoreController {
       @RequestParam(name = "dong", required = false) String dong,
       @RequestParam(name = "userId", required = false) Long userId) {
 
-    if (startDate == null) {
-      startDate = LocalDate.now();
-    }
-
     SearchResponseDto searchResponseDto = storeService.searchStores(page, size, sort, direction,
         startDate, endDate, category, sido, sigungu, dong, userId);
 
