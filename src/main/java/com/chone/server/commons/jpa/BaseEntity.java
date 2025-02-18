@@ -57,4 +57,11 @@ public abstract class BaseEntity {
     this.deletedAt = LocalDateTime.now();
     this.deletedBy = user.getUsername();
   }
+
+  public void updateCreatedBy(String createdBy) {
+
+    if (this.createdBy == null) {
+      this.createdBy = createdBy;
+    }
+  }
 }

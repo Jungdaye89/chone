@@ -1,4 +1,4 @@
-package com.chone.server.domains.ai.domain.entity;
+package com.chone.server.domains.ai.domain;
 
 import com.chone.server.commons.jpa.BaseEntity;
 import com.chone.server.domains.product.domain.Product;
@@ -51,6 +51,7 @@ public class Ai extends BaseEntity {
 
   public static AiBuilder builder(
       Store store, Product product, String requestText, String responseText) {
+
     return Ai.innerBuilder()
         .store(store)
         .product(product)

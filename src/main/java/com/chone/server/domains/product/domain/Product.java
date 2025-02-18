@@ -78,4 +78,8 @@ public class Product extends BaseEntity {
     this.description = updateRequestDto.getDescription();
     this.isAvailable = updateRequestDto.isAvailable();
   }
+
+  public void updateDescription(String description) {
+    this.description = description;
+  }
 }
