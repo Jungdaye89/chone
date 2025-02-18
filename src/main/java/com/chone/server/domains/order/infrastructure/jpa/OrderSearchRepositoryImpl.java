@@ -153,7 +153,9 @@ public class OrderSearchRepositoryImpl implements OrderSearchRepository {
   }
 
   private BooleanExpression buildWhereCondition(List<BooleanExpression> conditions) {
-    return null;
+    return conditions.isEmpty()
+        ? null
+        : conditions.stream().reduce(BooleanExpression::and).orElse(null);
   }
 
   private OrderSpecifier<?> getOrderSpecifier(Pageable pageable) {
