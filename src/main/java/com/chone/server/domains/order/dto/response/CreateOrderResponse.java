@@ -9,10 +9,11 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 public record CreateOrderResponse(
-    OrderResponse order, StoreResponse store, List<OrderItemResponse> orderItem) {
+    UUID id, OrderResponse order, StoreResponse store, List<OrderItemResponse> orderItem) {
 
   private CreateOrderResponse(Order order, Store store, List<OrderItem> orderItems) {
     this(
+        order.getId(),
         new OrderResponse(
             order.getId(),
             order.getTotalPrice().intValue(),
@@ -36,5 +37,5 @@ public record CreateOrderResponse(
 
   private record StoreResponse(String name, String address) {}
 
-  public record OrderItemResponse(String name, int amount) {}
+  private record OrderItemResponse(String name, int amount) {}
 }

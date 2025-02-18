@@ -6,7 +6,7 @@ import com.chone.server.domains.user.domain.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-public interface OrderSearchRepository {
+public interface OrderListSearchRepository {
   Page<OrderPageResponse> findOrdersByCustomer(
       User customer, OrderFilterParams filterParams, Pageable pageable);
 
