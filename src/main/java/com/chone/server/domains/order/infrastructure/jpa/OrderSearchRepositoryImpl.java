@@ -4,7 +4,10 @@ import com.chone.server.domains.order.dto.request.OrderFilterParams;
 import com.chone.server.domains.order.dto.response.OrderPageResponse;
 import com.chone.server.domains.order.repository.OrderSearchRepository;
 import com.chone.server.domains.user.domain.User;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -20,7 +23,10 @@ public class OrderSearchRepositoryImpl implements OrderSearchRepository {
   @Override
   public Page<OrderPageResponse> findOrdersByCustomer(
       User customer, OrderFilterParams filterParams, Pageable pageable) {
-    return null;
+    validateNoUnauthorizedFiltering(filterParams);
+    List<BooleanExpression> conditions = new ArrayList<>();
+    addCustomerCondition(conditions, customer);
+    return getOrders(conditions, filterParams, pageable);
   }
 
   @Override
@@ -32,6 +38,15 @@ public class OrderSearchRepositoryImpl implements OrderSearchRepository {
   @Override
   public Page<OrderPageResponse> findOrdersByAdmin(
       User admin, OrderFilterParams filterParams, Pageable pageable) {
+    return null;
+  }
+
+  private void validateNoUnauthorizedFiltering(OrderFilterParams filterParams) {}
+
+  private void addCustomerCondition(List<BooleanExpression> conditions, User customer) {}
+
+  private Page<OrderPageResponse> getOrders(
+      List<BooleanExpression> conditions, OrderFilterParams filterParams, Pageable pageable) {
     return null;
   }
 }
