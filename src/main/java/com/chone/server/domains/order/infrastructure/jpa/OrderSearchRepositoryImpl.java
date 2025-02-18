@@ -11,6 +11,8 @@ import com.chone.server.domains.order.dto.response.QOrderPageResponse;
 import com.chone.server.domains.order.exception.OrderExceptionCode;
 import com.chone.server.domains.order.repository.OrderSearchRepository;
 import com.chone.server.domains.user.domain.User;
+import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -20,10 +22,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
@@ -32,6 +36,11 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class OrderSearchRepositoryImpl implements OrderSearchRepository {
   private final JPAQueryFactory queryFactory;
+  private final Map<String, Expression<?>> sortFieldMap =
+      Map.of(
+          "totalprice", order.totalPrice,
+          "createdat", order.createdAt,
+          "updatedat", order.updatedAt);
 
   @Override
   public Page<OrderPageResponse> findOrdersByCustomer(
@@ -158,7 +167,21 @@ public class OrderSearchRepositoryImpl implements OrderSearchRepository {
         : conditions.stream().reduce(BooleanExpression::and).orElse(null);
   }
 
-  private OrderSpecifier<?> getOrderSpecifier(Pageable pageable) {
-    return null;
+  private OrderSpecifier[] getOrderSpecifier(Pageable pageable) {
+    if (!pageable.getSort().isSorted()) {
+      return new OrderSpecifier[] {new OrderSpecifier(Order.DESC, order.createdAt)};
+    }
+
+    List<OrderSpecifier<?>> orderSpecifiers = new ArrayList<>();
+    for (Sort.Order sortOrder : pageable.getSort()) {
+      Order direction = sortOrder.getDirection().isAscending() ? Order.ASC : Order.DESC;
+      Expression<?> sortField =
+          sortFieldMap.getOrDefault(sortOrder.getProperty().toLowerCase(), order.createdAt);
+      orderSpecifiers.add(new OrderSpecifier(direction, sortField));
+    }
+
+    return orderSpecifiers.isEmpty()
+        ? new OrderSpecifier[] {new OrderSpecifier(Order.DESC, order.createdAt)}
+        : orderSpecifiers.toArray(new OrderSpecifier[0]);
   }
 }
