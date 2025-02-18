@@ -34,9 +34,10 @@ public class StoreController {
   @PostMapping
   @PreAuthorize("hasAnyRole('MASTER', 'MANAGER')")
   public ResponseEntity<CreateResponseDto> createStore(
+      @AuthenticationPrincipal CustomUserDetails userDetails,
       @RequestBody CreateRequestDto createRequestDto) {
 
-    CreateResponseDto createResponseDto = storeService.createStore(createRequestDto);
+    CreateResponseDto createResponseDto = storeService.createStore(userDetails, createRequestDto);
 
     return ResponseEntity.ok(createResponseDto);
   }
@@ -45,15 +46,15 @@ public class StoreController {
   public ResponseEntity<SearchResponseDto> searchStores(
       @RequestParam(name = "page", required = false, defaultValue = "0") int page,
       @RequestParam(name = "size", required = false, defaultValue = "10") int size,
-      @RequestParam(name = "sort", required = false, defaultValue = "created_at") String sort,
+      @RequestParam(name = "sort", required = false, defaultValue = "createdAt") String sort,
       @RequestParam(name = "direction", required = false, defaultValue = "desc") String direction,
-      @RequestParam(name = "startDate", required = false) LocalDate startDate,
+      @RequestParam(name = "startDate", required = false, defaultValue = "1970-01-01") LocalDate startDate,
       @RequestParam(name = "endDate", required = false, defaultValue = "9999-01-01") LocalDate endDate,
-      @RequestParam(name = "category", required = false, defaultValue = "") String category,
-      @RequestParam(name = "sido", required = false, defaultValue = "") String sido,
-      @RequestParam(name = "sigungu", required = false, defaultValue = "") String sigungu,
-      @RequestParam(name = "dong", required = false, defaultValue = "") String dong,
-      @RequestParam(name = "userId", required = false, defaultValue = "") Long userId) {
+      @RequestParam(name = "category", required = false) String category,
+      @RequestParam(name = "sido", required = false) String sido,
+      @RequestParam(name = "sigungu", required = false) String sigungu,
+      @RequestParam(name = "dong", required = false) String dong,
+      @RequestParam(name = "userId", required = false) Long userId) {
 
     if (startDate == null) {
       startDate = LocalDate.now();
@@ -66,7 +67,7 @@ public class StoreController {
   }
 
   @GetMapping("/{storeId}")
-  public ResponseEntity<ReadResponseDto> getStore(@PathVariable UUID storeId) {
+  public ResponseEntity<ReadResponseDto> getStore(@PathVariable("storeId") UUID storeId) {
 
     ReadResponseDto readResponseDto = storeService.getStore(storeId);
 
@@ -75,7 +76,7 @@ public class StoreController {
 
   @PutMapping("/{storeId}")
   public ResponseEntity<Void> updateStore(@AuthenticationPrincipal CustomUserDetails userDetails,
-      @PathVariable UUID storeId, @RequestBody UpdateRequestDto updateRequestDto) {
+      @PathVariable("storeId") UUID storeId, @RequestBody UpdateRequestDto updateRequestDto) {
 
     storeService.updateStore(userDetails, storeId, updateRequestDto);
 
@@ -84,7 +85,7 @@ public class StoreController {
 
   @DeleteMapping("/{storeId}")
   public ResponseEntity<Void> deleteStore(@AuthenticationPrincipal CustomUserDetails userDetails,
-      @PathVariable UUID storeId) {
+      @PathVariable("storeId") UUID storeId) {
 
     storeService.deleteStore(userDetails, storeId);
 

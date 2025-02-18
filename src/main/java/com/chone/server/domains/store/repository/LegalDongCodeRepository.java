@@ -8,5 +8,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface LegalDongCodeRepository extends JpaRepository<LegalDongCode, String> {
 
-  Optional<LegalDongCode> findBySidoAndSigunguAndDong(String sido, String sigungu, String dong);
+  Optional<LegalDongCode> findBySidoAndSigunguAndDongAndIsAvailableIsTrue(String sido,
+      String sigungu,
+      String dong);
 }
