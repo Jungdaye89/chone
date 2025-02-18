@@ -1,20 +1,25 @@
 package com.chone.server.domains.review.service;
 
 import com.chone.server.commons.exception.ApiBusinessException;
+import com.chone.server.domains.auth.dto.CustomUserDetails;
 import com.chone.server.domains.order.domain.Order;
 import com.chone.server.domains.order.domain.OrderStatus;
 import com.chone.server.domains.order.repository.OrderRepository;
 import com.chone.server.domains.review.domain.Review;
 import com.chone.server.domains.review.dto.request.CreateRequestDTO;
+import com.chone.server.domains.review.dto.request.ReviewListRequestDTO;
+import com.chone.server.domains.review.dto.response.ReviewListResponseDto;
 import com.chone.server.domains.review.dto.response.ReviewResponseDTO;
 import com.chone.server.domains.review.exception.ReviewExceptionCode;
 import com.chone.server.domains.review.repository.ReviewRepository;
+import com.chone.server.domains.review.repository.ReviewSearchRepository;
 import com.chone.server.domains.store.domain.Store;
 import com.chone.server.domains.store.repository.StoreRepository;
 import com.chone.server.domains.user.domain.User;
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -24,6 +29,7 @@ public class ReviewService {
   private final ReviewRepository reviewRepository;
   private final OrderRepository orderRepository;
   private final StoreRepository storeRepository;
+  private final ReviewSearchRepository reviewSearchRepository;
 
   @Transactional
   public ReviewResponseDTO createReview(CreateRequestDTO request, User user) {
@@ -63,5 +69,22 @@ public class ReviewService {
     Review savedReview = reviewRepository.save(review);
 
     return new ReviewResponseDTO(savedReview.getId(), savedReview.getCreatedAt());
+  }
+
+  public ReviewListResponseDto getReviews(
+      ReviewListRequestDTO request, CustomUserDetails principal, Pageable pageable) {
+    User user = principal.getUser();
+
+    return switch (user.getRole()) {
+      case CUSTOMER ->
+          ReviewListResponseDto.from(
+              reviewSearchRepository.findReviewsByCustomer(user, request, pageable));
+      case OWNER ->
+          ReviewListResponseDto.from(
+              reviewSearchRepository.findReviewsByOwner(user, request, pageable));
+      case MANAGER, MASTER ->
+          ReviewListResponseDto.from(
+              reviewSearchRepository.findReviewsByManagerOrMaster(user, request, pageable));
+    };
   }
 }
