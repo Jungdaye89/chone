@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -54,7 +55,12 @@ public class OrderSearchRepositoryImpl implements OrderSearchRepository {
   @Override
   public Page<OrderPageResponse> findOrdersByOwner(
       User owner, OrderFilterParams filterParams, Pageable pageable) {
-    return null;
+    validateNoStoreFiltering(filterParams.storeId());
+
+    List<BooleanExpression> conditions = new ArrayList<>();
+    addStoresByOwnerCondition(conditions, owner);
+
+    return getOrders(conditions, filterParams, pageable);
   }
 
   @Override
@@ -69,11 +75,15 @@ public class OrderSearchRepositoryImpl implements OrderSearchRepository {
     }
   }
 
+  private void validateNoStoreFiltering(UUID uuid) {}
+
   private void addCustomerCondition(List<BooleanExpression> conditions, User customer) {
     if (customer != null) {
       conditions.add(order.user.eq(customer));
     }
   }
+
+  private void addStoresByOwnerCondition(List<BooleanExpression> conditions, User owner) {}
 
   private Page<OrderPageResponse> getOrders(
       List<BooleanExpression> conditions, OrderFilterParams filterParams, Pageable pageable) {
