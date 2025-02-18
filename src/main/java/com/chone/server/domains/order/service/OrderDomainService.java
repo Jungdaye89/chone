@@ -96,7 +96,7 @@ public class OrderDomainService {
   }
 
   private void validateProduct(Product product) {
-    if (!product.isAvailable()) {
+    if (!product.getIsAvailable()) {
       throw new ApiBusinessException(OrderExceptionCode.ORDER_PRODUCT_UNAVAILABLE);
     }
   }
