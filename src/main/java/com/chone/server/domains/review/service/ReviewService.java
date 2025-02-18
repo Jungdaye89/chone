@@ -6,10 +6,10 @@ import com.chone.server.domains.order.domain.Order;
 import com.chone.server.domains.order.domain.OrderStatus;
 import com.chone.server.domains.order.repository.OrderRepository;
 import com.chone.server.domains.review.domain.Review;
-import com.chone.server.domains.review.dto.request.CreateRequestDTO;
-import com.chone.server.domains.review.dto.request.ReviewListRequestDTO;
+import com.chone.server.domains.review.dto.request.CreateRequestDto;
+import com.chone.server.domains.review.dto.request.ReviewListRequestDto;
 import com.chone.server.domains.review.dto.response.ReviewListResponseDto;
-import com.chone.server.domains.review.dto.response.ReviewResponseDTO;
+import com.chone.server.domains.review.dto.response.ReviewResponseDto;
 import com.chone.server.domains.review.exception.ReviewExceptionCode;
 import com.chone.server.domains.review.repository.ReviewRepository;
 import com.chone.server.domains.review.repository.ReviewSearchRepository;
@@ -32,7 +32,7 @@ public class ReviewService {
   private final ReviewSearchRepository reviewSearchRepository;
 
   @Transactional
-  public ReviewResponseDTO createReview(CreateRequestDTO request, User user) {
+  public ReviewResponseDto createReview(CreateRequestDto request, User user) {
 
     Order order = orderRepository.findById(request.getOrderId());
     if (order == null) {
@@ -68,11 +68,11 @@ public class ReviewService {
 
     Review savedReview = reviewRepository.save(review);
 
-    return new ReviewResponseDTO(savedReview.getId(), savedReview.getCreatedAt());
+    return new ReviewResponseDto(savedReview.getId(), savedReview.getCreatedAt());
   }
 
   public ReviewListResponseDto getReviews(
-      ReviewListRequestDTO request, CustomUserDetails principal, Pageable pageable) {
+      ReviewListRequestDto request, CustomUserDetails principal, Pageable pageable) {
     User user = principal.getUser();
 
     return switch (user.getRole()) {

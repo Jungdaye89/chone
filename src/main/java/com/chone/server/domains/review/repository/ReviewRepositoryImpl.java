@@ -1,8 +1,8 @@
 package com.chone.server.domains.review.repository;
 
 import com.chone.server.domains.review.domain.QReview;
-import com.chone.server.domains.review.dto.request.ReviewListRequestDTO;
-import com.chone.server.domains.review.dto.response.ReviewPageResponseDTO;
+import com.chone.server.domains.review.dto.request.ReviewListRequestDto;
+import com.chone.server.domains.review.dto.response.ReviewPageResponseDto;
 import com.chone.server.domains.user.domain.User;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -20,8 +20,8 @@ public class ReviewRepositoryImpl implements ReviewSearchRepository {
   private final JPAQueryFactory queryFactory;
 
   @Override
-  public Page<ReviewPageResponseDTO> findReviewsByCustomer(
-      User customer, ReviewListRequestDTO filterParams, Pageable pageable) {
+  public Page<ReviewPageResponseDto> findReviewsByCustomer(
+      User customer, ReviewListRequestDto filterParams, Pageable pageable) {
     QReview review = QReview.review;
     BooleanBuilder predicate = new BooleanBuilder();
 
@@ -33,8 +33,8 @@ public class ReviewRepositoryImpl implements ReviewSearchRepository {
   }
 
   @Override
-  public Page<ReviewPageResponseDTO> findReviewsByOwner(
-      User owner, ReviewListRequestDTO filterParams, Pageable pageable) {
+  public Page<ReviewPageResponseDto> findReviewsByOwner(
+      User owner, ReviewListRequestDto filterParams, Pageable pageable) {
     QReview review = QReview.review;
     BooleanBuilder predicate = new BooleanBuilder();
 
@@ -46,8 +46,8 @@ public class ReviewRepositoryImpl implements ReviewSearchRepository {
   }
 
   @Override
-  public Page<ReviewPageResponseDTO> findReviewsByManagerOrMaster(
-      User user, ReviewListRequestDTO filterParams, Pageable pageable) { // ✅ User 인자 추가!
+  public Page<ReviewPageResponseDto> findReviewsByManagerOrMaster(
+      User user, ReviewListRequestDto filterParams, Pageable pageable) { // ✅ User 인자 추가!
     QReview review = QReview.review;
     BooleanBuilder predicate = new BooleanBuilder();
 
@@ -57,7 +57,7 @@ public class ReviewRepositoryImpl implements ReviewSearchRepository {
   }
 
   private void applyFilters(
-      BooleanBuilder predicate, ReviewListRequestDTO filterParams, QReview review) {
+      BooleanBuilder predicate, ReviewListRequestDto filterParams, QReview review) {
     if (filterParams.getStoreId() != null) {
       predicate.and(review.store.id.eq(filterParams.getStoreId()));
     }
@@ -75,9 +75,9 @@ public class ReviewRepositoryImpl implements ReviewSearchRepository {
     }
   }
 
-  private Page<ReviewPageResponseDTO> executeQuery(BooleanBuilder predicate, Pageable pageable) {
+  private Page<ReviewPageResponseDto> executeQuery(BooleanBuilder predicate, Pageable pageable) {
 
-    List<ReviewPageResponseDTO> content =
+    List<ReviewPageResponseDto> content =
         queryFactory
             .selectFrom(QReview.review)
             .where(predicate)
@@ -86,7 +86,7 @@ public class ReviewRepositoryImpl implements ReviewSearchRepository {
             .limit(pageable.getPageSize())
             .fetch()
             .stream()
-            .map(ReviewPageResponseDTO::from)
+            .map(ReviewPageResponseDto::from)
             .toList();
 
     long total = queryFactory.selectFrom(QReview.review).where(predicate).fetchCount();
