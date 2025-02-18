@@ -12,4 +12,6 @@ import org.springframework.stereotype.Repository;
 public interface ProductRepository extends JpaRepository<Product, UUID>, ProductRepositoryCustom {
 
   Optional<Product> findByIdAndStoreUser(UUID id, User user);
+
+  Optional<Product> findByStoreIdAndIdAndDeletedByIsNull(UUID storeId, UUID id);
 }

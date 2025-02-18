@@ -144,7 +144,7 @@ public class StoreService {
     store.delete(user);
   }
 
-  private User findUserById(Long id) {
+  public User findUserById(Long id) {
 
     return userRepository
         .findById(id)
@@ -152,12 +152,13 @@ public class StoreService {
   }
 
   public Store findStoreById(UUID id) {
+
     return storeRepository
         .findByIdAndDeletedByIsNull(id)
         .orElseThrow(() -> new ApiBusinessException(StoreExceptionCode.STORE_NOT_FOUND));
   }
 
-  private LegalDongCode findLegalDongCodeBySidoAndSigunguAndDong(
+  public LegalDongCode findLegalDongCodeBySidoAndSigunguAndDong(
       String sido, String sigungu, String dong) {
 
     return legalDongCodeRepository
@@ -194,7 +195,7 @@ public class StoreService {
     }
   }
 
-  private void checkRoleWithStore(User user, Store store) {
+  public void checkRoleWithStore(User user, Store store) {
 
     switch (user.getRole()) {
       case OWNER -> {
@@ -202,7 +203,8 @@ public class StoreService {
           throw new ApiBusinessException(StoreExceptionCode.USER_OWNED_STORE_NOT_FOUND);
         }
       }
-      case MANAGER, MASTER -> {}
+      case MANAGER, MASTER -> {
+      }
       default -> {
         throw new ApiBusinessException(StoreExceptionCode.USER_NO_AUTH);
       }
