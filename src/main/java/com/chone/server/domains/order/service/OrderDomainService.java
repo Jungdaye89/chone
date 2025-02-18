@@ -72,7 +72,7 @@ public class OrderDomainService {
   }
 
   private void validateStoreOperationStatus(Store store) {
-    if (!store.isOpen()) {
+    if (!store.getIsOpen()) {
       throw new ApiBusinessException(OrderExceptionCode.ORDER_STORE_CLOSED);
     }
   }
