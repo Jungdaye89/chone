@@ -30,9 +30,9 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
 
     BooleanBuilder builder = new BooleanBuilder();
 
-    if (storeId != null) {
-      builder.and(product.store.id.eq(storeId));
-    }
+    builder.and(product.store.id.eq(storeId));
+
+    builder.and(product.deletedBy.isNull());
 
     if (minPrice != null) {
       builder.and(product.price.goe(minPrice));
@@ -45,11 +45,11 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
     Order order = direction.equalsIgnoreCase("asc") ? Order.ASC : Order.DESC;
     OrderSpecifier<?> orderSpecifier;
     switch (sort) {
-      case "price" -> {
-        orderSpecifier = (order == Order.ASC) ? product.price.asc() : product.price.desc();
+      case "createdAt" -> {
+        orderSpecifier = (order == Order.ASC) ? product.createdAt.asc() : product.createdAt.desc();
       }
       default -> {
-        orderSpecifier = (order == Order.ASC) ? product.createdAt.asc() : product.createdAt.desc();
+        orderSpecifier = (order == Order.ASC) ? product.price.asc() : product.price.desc();
       }
     }
 
