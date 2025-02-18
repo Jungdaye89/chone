@@ -7,6 +7,7 @@ import com.chone.server.domains.order.dto.request.CreateOrderRequest;
 import com.chone.server.domains.order.dto.request.CreateOrderRequest.OrderItemRequest;
 import com.chone.server.domains.order.dto.request.OrderFilterParams;
 import com.chone.server.domains.order.dto.response.CreateOrderResponse;
+import com.chone.server.domains.order.dto.response.OrderDetailResponse;
 import com.chone.server.domains.order.dto.response.OrderPageResponse;
 import com.chone.server.domains.order.dto.response.PageResponse;
 import com.chone.server.domains.order.repository.OrderRepository;
@@ -14,9 +15,9 @@ import com.chone.server.domains.product.domain.Product;
 import com.chone.server.domains.product.service.ProductService;
 import com.chone.server.domains.store.domain.Store;
 import com.chone.server.domains.store.service.StoreService;
-import com.chone.server.domains.user.domain.Role;
 import com.chone.server.domains.user.domain.User;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
@@ -65,11 +66,18 @@ public class OrderService {
     return PageResponse.from(findOrdersByRole(user, filterParams, pageable));
   }
 
+  public OrderDetailResponse getOrderById(CustomUserDetails principal, UUID id) {
+    User user = principal.getUser();
+    return switch (user.getRole()) {
+      case CUSTOMER -> repository.findOrderByIdForCustomer(id, user);
+      case OWNER -> repository.findOrderByIdForOwner(id, user);
+      case MANAGER, MASTER -> repository.findOrderByIdForAdmin(id);
+    };
+  }
+
   private Page<OrderPageResponse> findOrdersByRole(
       User user, OrderFilterParams filterParams, Pageable pageable) {
-    Role role = user.getRole();
-
-    return switch (role) {
+    return switch (user.getRole()) {
       case CUSTOMER -> repository.findOrdersByCustomer(user, filterParams, pageable);
       case OWNER -> repository.findOrdersByOwner(user, filterParams, pageable);
       case MANAGER, MASTER -> repository.findOrdersByAdmin(user, filterParams, pageable);
