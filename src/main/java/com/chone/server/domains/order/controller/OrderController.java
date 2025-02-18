@@ -5,10 +5,12 @@ import com.chone.server.domains.auth.dto.CustomUserDetails;
 import com.chone.server.domains.order.dto.request.CreateOrderRequest;
 import com.chone.server.domains.order.dto.request.OrderFilterParams;
 import com.chone.server.domains.order.dto.response.CreateOrderResponse;
+import com.chone.server.domains.order.dto.response.OrderDetailResponse;
 import com.chone.server.domains.order.dto.response.OrderPageResponse;
 import com.chone.server.domains.order.dto.response.PageResponse;
 import com.chone.server.domains.order.service.OrderService;
 import jakarta.validation.Valid;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -18,6 +20,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,6 +50,14 @@ public class OrderController {
           Pageable pageable) {
     PageResponse<OrderPageResponse> responseDto =
         service.getOrders(principal, filterParams, pageable);
+
+    return ResponseEntity.ok().body(responseDto);
+  }
+
+  @GetMapping("/{id}")
+  public ResponseEntity<OrderDetailResponse> getOrder(
+      @AuthenticationPrincipal CustomUserDetails principal, @PathVariable("id") UUID id) {
+    OrderDetailResponse responseDto = service.getOrderById(principal, id);
 
     return ResponseEntity.ok().body(responseDto);
   }
