@@ -1,10 +1,15 @@
 package com.chone.server.domains.order.infrastructure.jpa;
 
+import static com.chone.server.domains.order.domain.QOrder.order;
 import static com.chone.server.domains.store.domain.QStore.store;
+import static com.chone.server.domains.user.domain.QUser.user;
 
 import com.chone.server.commons.exception.ApiBusinessException;
 import com.chone.server.domains.order.dto.response.OrderDetailResponse;
 import com.chone.server.domains.order.dto.response.OrderDetailResponse.OrderItemResponse;
+import com.chone.server.domains.order.dto.response.QOrderDetailResponse_OrderResponse;
+import com.chone.server.domains.order.dto.response.QOrderDetailResponse_StoreResponse;
+import com.chone.server.domains.order.dto.response.QOrderDetailResponse_UserResponse;
 import com.chone.server.domains.order.exception.OrderExceptionCode;
 import com.chone.server.domains.order.repository.OrderDetailSearchRepository;
 import com.chone.server.domains.store.domain.Store;
@@ -76,7 +81,22 @@ public class OrderDetailSearchRepositoryImpl implements OrderDetailSearchReposit
   }
 
   private Tuple fetchOrderMainData(UUID orderId) {
-    return null;
+    return queryFactory
+        .select(
+            new QOrderDetailResponse_OrderResponse(
+                order.id,
+                order.orderType,
+                order.status,
+                order.totalPrice,
+                order.cancelReason,
+                order.request),
+            new QOrderDetailResponse_UserResponse(user.id, user.username),
+            new QOrderDetailResponse_StoreResponse(store.id, store.name))
+        .from(order)
+        .join(order.user, user)
+        .join(order.store, store)
+        .where(order.id.eq(orderId))
+        .fetchOne();
   }
 
   private List<OrderItemResponse> fetchOrderItems(UUID orderId) {
