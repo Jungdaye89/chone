@@ -100,9 +100,17 @@ public class OrderSearchRepositoryImpl implements OrderSearchRepository {
     }
   }
 
-  private void addStoreIdCondition(List<BooleanExpression> conditions, UUID uuid) {}
+  private void addStoreIdCondition(List<BooleanExpression> conditions, UUID storeId) {
+    if (storeId != null) {
+      conditions.add(order.store.id.eq(storeId));
+    }
+  }
 
-  private void addCustomerIdCondition(List<BooleanExpression> conditions, Long aLong) {}
+  private void addCustomerIdCondition(List<BooleanExpression> conditions, Long customerId) {
+    if (customerId != null) {
+      conditions.add(order.user.id.eq(customerId));
+    }
+  }
 
   private Page<OrderPageResponse> getOrders(
       List<BooleanExpression> conditions, OrderFilterParams filterParams, Pageable pageable) {
