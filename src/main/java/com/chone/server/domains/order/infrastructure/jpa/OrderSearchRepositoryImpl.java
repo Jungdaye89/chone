@@ -75,7 +75,11 @@ public class OrderSearchRepositoryImpl implements OrderSearchRepository {
     }
   }
 
-  private void validateNoStoreFiltering(UUID uuid) {}
+  private void validateNoStoreFiltering(UUID storeId) {
+    if (storeId != null) {
+      throw new ApiBusinessException(OrderExceptionCode.STORE_ORDER_FILTERING_ACCESS_DENIED);
+    }
+  }
 
   private void addCustomerCondition(List<BooleanExpression> conditions, User customer) {
     if (customer != null) {
