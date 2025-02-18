@@ -1,5 +1,6 @@
 package com.chone.server.domains.order.dto.request;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -8,7 +9,7 @@ import java.util.UUID;
 
 public record CreateOrderRequest(
     @NotNull(message = "가게 ID는 필수입니다") UUID storeId,
-    @NotEmpty(message = "주문 상품은 최소 1개 이상이어야 합니다") List<OrderItemRequest> orderItems,
+    @NotEmpty(message = "주문 상품은 최소 1개 이상이어야 합니다") List<@Valid OrderItemRequest> orderItems,
     String address,
     String requestText) {
   public record OrderItemRequest(

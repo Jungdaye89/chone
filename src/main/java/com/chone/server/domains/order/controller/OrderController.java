@@ -32,14 +32,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class OrderController {
   private final OrderService service;
 
-  @PreAuthorize("hasAnyRole('CUSTOMER', 'STORE_OWNER')")
+  @PreAuthorize("hasAnyRole('CUSTOMER', 'OWNER')")
   @PostMapping
   public ResponseEntity<CreateOrderResponse> createOrder(
       @Valid @RequestBody CreateOrderRequest requestDto,
       @AuthenticationPrincipal CustomUserDetails principal) {
     CreateOrderResponse responseDto = service.createOrder(requestDto, principal);
 
-    return ResponseEntity.created(UriGeneratorUtil.generateUri("")).body(responseDto);
+    return ResponseEntity.created(UriGeneratorUtil.generateUri("/" + responseDto.id().toString()))
+        .body(responseDto);
   }
 
   @GetMapping
