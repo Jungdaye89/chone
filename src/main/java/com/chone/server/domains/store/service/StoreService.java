@@ -40,30 +40,34 @@ public class StoreService {
 
   // MANAGER, MASTER 사용자가 OWNER 사용자의 ID로 가게 생성
   @Transactional
-  public CreateResponseDto createStore(CustomUserDetails userDetails,
-      CreateRequestDto createRequestDto) {
+  public CreateResponseDto createStore(
+      CustomUserDetails userDetails, CreateRequestDto createRequestDto) {
 
     User owner = findUserById(createRequestDto.getUserId());
     User creator = userDetails.getUser();
 
-    LegalDongCode legalDongCode = findLegalDongCodeBySidoAndSigunguAndDong(
-        createRequestDto.getSido(), createRequestDto.getSigungu(), createRequestDto.getDong());
+    LegalDongCode legalDongCode =
+        findLegalDongCodeBySidoAndSigunguAndDong(
+            createRequestDto.getSido(), createRequestDto.getSigungu(), createRequestDto.getDong());
 
-    Store store = Store.builder(owner, legalDongCode)
-        .name(createRequestDto.getName())
-        .sido(createRequestDto.getSido())
-        .sigungu(createRequestDto.getSigungu())
-        .dong(createRequestDto.getDong())
-        .address(createRequestDto.getAddress())
-        .phoneNumber(createRequestDto.getPhoneNumber())
-        .build();
+    Store store =
+        Store.builder(owner, legalDongCode)
+            .name(createRequestDto.getName())
+            .sido(createRequestDto.getSido())
+            .sigungu(createRequestDto.getSigungu())
+            .dong(createRequestDto.getDong())
+            .address(createRequestDto.getAddress())
+            .phoneNumber(createRequestDto.getPhoneNumber())
+            .build();
 
     store.create(creator);
     store = storeRepository.save(store);
 
     for (String categoryName : createRequestDto.getCategory()) {
-      Category category = categoryRepository.findByName(categoryName)
-          .orElseThrow(() -> new ApiBusinessException(StoreExceptionCode.CATEGORY_NOT_FOUND));
+      Category category =
+          categoryRepository
+              .findByName(categoryName)
+              .orElseThrow(() -> new ApiBusinessException(StoreExceptionCode.CATEGORY_NOT_FOUND));
 
       storeCategoryMapRepository.save(new StoreCategoryMap(store, category));
     }
@@ -72,18 +76,26 @@ public class StoreService {
   }
 
   @Transactional(readOnly = true)
-  public SearchResponseDto searchStores(int page, int size, String sort, String direction,
-      LocalDate startDate, LocalDate endDate, String category, String sido,
-      String sigungu, String dong, Long userId) {
+  public SearchResponseDto searchStores(
+      int page,
+      int size,
+      String sort,
+      String direction,
+      LocalDate startDate,
+      LocalDate endDate,
+      String category,
+      String sido,
+      String sigungu,
+      String dong,
+      Long userId) {
 
-    Page<Store> stores = storeRepository.searchStores(page, size, sort, direction, startDate,
-        endDate, category, sido, sigungu, dong, userId);
+    Page<Store> stores =
+        storeRepository.searchStores(
+            page, size, sort, direction, startDate, endDate, category, sido, sigungu, dong, userId);
 
     return SearchResponseDto.builder()
         .content(
-            stores.getContent().stream()
-                .map(ReadResponseDto::from)
-                .collect(Collectors.toList()))
+            stores.getContent().stream().map(ReadResponseDto::from).collect(Collectors.toList()))
         .pageInfo(
             PageInfoDto.builder()
                 .page(stores.getNumber())
@@ -103,15 +115,16 @@ public class StoreService {
   }
 
   @Transactional
-  public void updateStore(CustomUserDetails userDetails, UUID storeId,
-      UpdateRequestDto updateRequestDto) {
+  public void updateStore(
+      CustomUserDetails userDetails, UUID storeId, UpdateRequestDto updateRequestDto) {
 
     User user = findUserById(userDetails.getUser().getId());
 
     Store store = findStoreById(storeId);
 
-    LegalDongCode legalDongCode = findLegalDongCodeBySidoAndSigunguAndDong(
-        updateRequestDto.getSido(), updateRequestDto.getSigungu(), updateRequestDto.getDong());
+    LegalDongCode legalDongCode =
+        findLegalDongCodeBySidoAndSigunguAndDong(
+            updateRequestDto.getSido(), updateRequestDto.getSigungu(), updateRequestDto.getDong());
 
     checkRoleWithStore(user, store);
 
@@ -133,21 +146,22 @@ public class StoreService {
 
   private User findUserById(Long id) {
 
-    return userRepository.findById(id)
+    return userRepository
+        .findById(id)
         .orElseThrow(() -> new ApiBusinessException(StoreExceptionCode.USER_NOT_FOUND));
   }
 
-  private Store findStoreById(UUID id) {
-
-    return storeRepository.findByIdAndDeletedByIsNull(id)
+  public Store findStoreById(UUID id) {
+    return storeRepository
+        .findByIdAndDeletedByIsNull(id)
         .orElseThrow(() -> new ApiBusinessException(StoreExceptionCode.STORE_NOT_FOUND));
   }
 
-  private LegalDongCode findLegalDongCodeBySidoAndSigunguAndDong(String sido, String sigungu,
-      String dong) {
+  private LegalDongCode findLegalDongCodeBySidoAndSigunguAndDong(
+      String sido, String sigungu, String dong) {
 
-    return legalDongCodeRepository.findBySidoAndSigunguAndDongAndIsAvailableIsTrue(sido, sigungu,
-            dong)
+    return legalDongCodeRepository
+        .findBySidoAndSigunguAndDongAndIsAvailableIsTrue(sido, sigungu, dong)
         .orElseThrow(() -> new ApiBusinessException(StoreExceptionCode.LEGAL_DONG_NOT_FOUND));
   }
 
@@ -155,9 +169,8 @@ public class StoreService {
 
     List<StoreCategoryMap> oldMaps = store.getStoreCategoryMaps();
 
-    List<String> oldCategoryNames = oldMaps.stream()
-        .map(e -> e.getCategory().getName())
-        .collect(Collectors.toList());
+    List<String> oldCategoryNames =
+        oldMaps.stream().map(e -> e.getCategory().getName()).collect(Collectors.toList());
 
     // 기존의 카테고리가 수정하려는 카테고리 목록에 없을 경우 삭제
     for (StoreCategoryMap map : oldMaps) {
@@ -170,8 +183,10 @@ public class StoreService {
     // 새로운 카테고리가 기존의 카테고리에 없을 경우 생성
     for (String name : categoryNames) {
       if (!oldCategoryNames.contains(name)) {
-        Category category = categoryRepository.findByName(name)
-            .orElseThrow(() -> new ApiBusinessException(StoreExceptionCode.CATEGORY_NOT_FOUND));
+        Category category =
+            categoryRepository
+                .findByName(name)
+                .orElseThrow(() -> new ApiBusinessException(StoreExceptionCode.CATEGORY_NOT_FOUND));
 
         StoreCategoryMap map = new StoreCategoryMap(store, category);
         storeCategoryMapRepository.save(map);
@@ -187,8 +202,7 @@ public class StoreService {
           throw new ApiBusinessException(StoreExceptionCode.USER_OWNED_STORE_NOT_FOUND);
         }
       }
-      case MANAGER, MASTER -> {
-      }
+      case MANAGER, MASTER -> {}
       default -> {
         throw new ApiBusinessException(StoreExceptionCode.USER_NO_AUTH);
       }
