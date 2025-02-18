@@ -1,12 +1,15 @@
 package com.chone.server.domains.order.infrastructure.jpa;
 
 import static com.chone.server.domains.order.domain.QOrder.order;
+import static com.chone.server.domains.order.domain.QOrderItem.orderItem;
+import static com.chone.server.domains.product.domain.QProduct.product;
 import static com.chone.server.domains.store.domain.QStore.store;
 import static com.chone.server.domains.user.domain.QUser.user;
 
 import com.chone.server.commons.exception.ApiBusinessException;
 import com.chone.server.domains.order.dto.response.OrderDetailResponse;
 import com.chone.server.domains.order.dto.response.OrderDetailResponse.OrderItemResponse;
+import com.chone.server.domains.order.dto.response.QOrderDetailResponse_OrderItemResponse;
 import com.chone.server.domains.order.dto.response.QOrderDetailResponse_OrderResponse;
 import com.chone.server.domains.order.dto.response.QOrderDetailResponse_StoreResponse;
 import com.chone.server.domains.order.dto.response.QOrderDetailResponse_UserResponse;
@@ -100,6 +103,13 @@ public class OrderDetailSearchRepositoryImpl implements OrderDetailSearchReposit
   }
 
   private List<OrderItemResponse> fetchOrderItems(UUID orderId) {
-    return null;
+    return queryFactory
+        .select(
+            new QOrderDetailResponse_OrderItemResponse(
+                orderItem.id, product.name, orderItem.amount))
+        .from(orderItem)
+        .join(orderItem.product, product)
+        .where(orderItem.order.id.eq(orderId))
+        .fetch();
   }
 }
