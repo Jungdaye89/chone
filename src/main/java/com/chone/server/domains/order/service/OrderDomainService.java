@@ -128,7 +128,26 @@ public class OrderDomainService {
         .toList();
   }
 
-  public void validateCancellationPermission(User currentUser, Order order) {}
+  void validateCancellationPermission(User user, Order order) {
+    switch (user.getRole()) {
+      case MANAGER, MASTER -> {
+        return;
+      }
+      case CUSTOMER -> {
+        if (!order.getUser().getId().equals(user.getId())) {
+          throw new ApiBusinessException(OrderExceptionCode.ORDER_CUSTOMER_ACCESS_DENIED);
+        }
+        return;
+      }
+      case OWNER -> {
+        if (!order.getStore().getUser().getId().equals(user.getId())) {
+          throw new ApiBusinessException(OrderExceptionCode.ORDER_STORE_OWNER_ACCESS_DENIED);
+        }
+        return;
+      }
+    }
+    throw new ApiBusinessException(OrderExceptionCode.ORDER_CANCEL_PERMISSION_DENIED);
+  }
 
   public void validateCancellation(Order order) {}
 
