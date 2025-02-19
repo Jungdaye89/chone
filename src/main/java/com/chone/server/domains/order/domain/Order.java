@@ -112,4 +112,14 @@ public class Order extends BaseEntity {
         });
     this.orderItems = items;
   }
+
+  public void cancel(OrderCancelReason cancelReason) {
+    this.status = OrderStatus.CANCELED;
+    this.cancelReason = cancelReason != null ? cancelReason : OrderCancelReason.OTHER;
+    this.isCancelable = false;
+  }
+
+  public void updateNotCancelable() {
+    this.isCancelable = false;
+  }
 }

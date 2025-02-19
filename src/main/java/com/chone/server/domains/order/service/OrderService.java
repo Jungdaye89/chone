@@ -110,10 +110,14 @@ public class OrderService {
   }
 
   @Transactional
-  void updateNotCancelable(Order order) {}
+  void updateNotCancelable(Order order) {
+    order.updateNotCancelable();
+    repository.save(order);
+  }
 
   @Transactional
   Order updateAndSaveOrder(Order order, Runnable updateAction) {
-    return null;
+    updateAction.run();
+    return repository.save(order);
   }
 }
