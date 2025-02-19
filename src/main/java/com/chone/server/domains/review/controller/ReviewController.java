@@ -3,10 +3,12 @@ package com.chone.server.domains.review.controller;
 import com.chone.server.domains.auth.dto.CustomUserDetails;
 import com.chone.server.domains.review.dto.request.CreateRequestDto;
 import com.chone.server.domains.review.dto.request.ReviewListRequestDto;
+import com.chone.server.domains.review.dto.response.ReviewDetailResponseDto;
 import com.chone.server.domains.review.dto.response.ReviewListResponseDto;
 import com.chone.server.domains.review.dto.response.ReviewResponseDto;
 import com.chone.server.domains.review.service.ReviewService;
 import java.util.Map;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -40,6 +42,14 @@ public class ReviewController {
     Pageable pageable = requestDto.toPageable();
 
     ReviewListResponseDto response = reviewService.getReviews(requestDto, principal, pageable);
+    return ResponseEntity.ok(response);
+  }
+
+  @GetMapping("/{id}")
+  public ResponseEntity<ReviewDetailResponseDto> getReview(
+      @PathVariable("id") UUID id, @AuthenticationPrincipal CustomUserDetails principal) {
+
+    ReviewDetailResponseDto response = reviewService.getReviewById(id, principal);
     return ResponseEntity.ok(response);
   }
 }
