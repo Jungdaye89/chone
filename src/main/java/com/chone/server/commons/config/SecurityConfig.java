@@ -7,6 +7,7 @@ import com.chone.server.domains.auth.service.CustomUserDetailsService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -35,7 +36,6 @@ public class SecurityConfig {
 
     @Value("${spring.graphql.cors.allowed-origins}")
     private String allowedOrigins;
-
 
     //AuthenticationManager Bean 등록
     @Bean
@@ -71,6 +71,7 @@ public class SecurityConfig {
                 .formLogin(formLogin -> formLogin.disable())
                 //경로별 인가 작업
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll() // resources 접근 허용 설정
                         .requestMatchers("/api/v1/users/signup").permitAll()
                         .requestMatchers("/api/v1/users/login").permitAll()
                         .anyRequest().authenticated()
@@ -78,8 +79,8 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .addFilterBefore(loginFilter(), LoginFilter.class)  // 로그인 필터 추가
-                .addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class); // JWT 필터 추가
+                .addFilterBefore(jwtFilter(), LoginFilter.class)  // jwt 필터 추가
+                .addFilterBefore(loginFilter(), UsernamePasswordAuthenticationFilter.class); // 로그인 필터 추가
         return http.build();
     }
 
