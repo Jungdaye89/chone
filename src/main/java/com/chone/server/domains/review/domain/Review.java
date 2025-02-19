@@ -80,4 +80,12 @@ public class Review extends BaseEntity {
         .rating(rating)
         .isPublic(isPublic);
   }
+
+  public void update(String content, BigDecimal rating, String imageUrl, Boolean isPublic) {
+
+    this.content = content;
+    this.rating = rating;
+    this.imageUrl = imageUrl;
+    this.isPublic = isPublic;
+  }
 }
