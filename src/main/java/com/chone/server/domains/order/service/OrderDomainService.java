@@ -149,7 +149,15 @@ public class OrderDomainService {
     throw new ApiBusinessException(OrderExceptionCode.ORDER_CANCEL_PERMISSION_DENIED);
   }
 
-  public void validateCancellation(Order order) {}
+  public void validateCancellation(Order order) {
+    if (order.getStatus() == OrderStatus.CANCELED) {
+      throw new ApiBusinessException(OrderExceptionCode.ORDER_ALREADY_CANCELED);
+    }
+
+    if (!order.isCancelable()) {
+      throw new ApiBusinessException(OrderExceptionCode.ORDER_NOT_CANCELABLE);
+    }
+  }
 
   public boolean isAfterCancellationTimeLimit(Order order) {
     return false;
