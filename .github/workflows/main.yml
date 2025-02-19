@@ -1,7 +1,7 @@
 on:
   push:
     branches:
-      - develop
+      - test
     paths-ignore:
       - ".github/workflows/**"
       - "README.md"
