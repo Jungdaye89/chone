@@ -7,6 +7,7 @@ import com.chone.server.domains.user.dto.request.UserUpdateRequestDto;
 import com.chone.server.domains.user.dto.response.UserResponseDto;
 import com.chone.server.domains.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,7 +22,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
-    
+
     @PostMapping("/signup")
     public void signup(@RequestBody SignupRequestDto signupRequestDto) {
         userService.signUp(signupRequestDto);
@@ -29,47 +30,47 @@ public class UserController {
 
     @GetMapping
     @PreAuthorize("hasAuthority('MANAGER') or hasAuthority('MASTER')")
-    public ResponseEntity<?> getUsers(@AuthenticationPrincipal CustomUserDetails currentUser) throws AccessDeniedException {
-        List<UserResponseDto> users = userService.findUserList(currentUser);
-        return ResponseEntity.ok(users);
+    public ResponseEntity<List<UserResponseDto>> getUsers(@AuthenticationPrincipal CustomUserDetails currentUser) throws AccessDeniedException {
+        List<UserResponseDto> userResponseDtoList = userService.findUserList(currentUser);
+        return ResponseEntity.ok().body(userResponseDtoList);
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<?> getUser(@PathVariable Long userId) {
-        UserResponseDto user = userService.findUserByUserId(userId);
-        return ResponseEntity.ok(user);
+    public ResponseEntity<UserResponseDto> getUser(@PathVariable Long userId) {
+        UserResponseDto userResponseDto = userService.findUserByUserId(userId);
+        return ResponseEntity.ok().body(userResponseDto);
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<?> updateUser(@PathVariable("userId") Long userId,
+    public ResponseEntity<UserResponseDto> updateUser(@PathVariable("userId") Long userId,
                                         @RequestBody UserUpdateRequestDto userUpdateRequestDto,
                                         @AuthenticationPrincipal CustomUserDetails currentUser)
             throws AccessDeniedException {
-        userService.updateUser(userId, userUpdateRequestDto, currentUser);
-        return ResponseEntity.ok(userUpdateRequestDto);
+        UserResponseDto userResponseDto = userService.updateUser(userId, userUpdateRequestDto, currentUser);
+        return ResponseEntity.ok().body(userResponseDto);
     }
 
     @PatchMapping("/{userId}/role")
-    public ResponseEntity<?> updateUserRole(@PathVariable("userId") Long userId,
+    public ResponseEntity<UserResponseDto> updateUserRole(@PathVariable("userId") Long userId,
                                             @RequestBody UserRoleUpdateRequestDto userRoleUpdateRequestDto,
                                             @AuthenticationPrincipal CustomUserDetails currentUser) throws AccessDeniedException {
-        userService.updateUserRole(userId, userRoleUpdateRequestDto, currentUser);
-        return ResponseEntity.ok(userRoleUpdateRequestDto);
+        UserResponseDto userResponseDto = userService.updateUserRole(userId, userRoleUpdateRequestDto, currentUser);
+        return ResponseEntity.ok().body(userResponseDto);
     }
 
     @PatchMapping("/{userId}/status")
-    public ResponseEntity<?> updateUserStatus(
+    public ResponseEntity<UserResponseDto> updateUserStatus(
             @PathVariable("userId") Long userId,
             @AuthenticationPrincipal CustomUserDetails currentUser) throws AccessDeniedException {
-        UserResponseDto updatedUser = userService.updateStatus(userId, currentUser);
-        return ResponseEntity.ok(updatedUser);
+        UserResponseDto updatedUserDto = userService.updateStatus(userId, currentUser);
+        return ResponseEntity.ok().body(updatedUserDto);
     }
 
     @DeleteMapping("/{userId}")
     public ResponseEntity<?> deleteUser(@PathVariable("userId") Long userId,
                                         @AuthenticationPrincipal CustomUserDetails currentUser) throws AccessDeniedException {
         userService.deleteUser(userId, currentUser.getUser());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
 }
