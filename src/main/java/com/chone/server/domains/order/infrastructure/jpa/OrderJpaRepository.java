@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface OrderJpaRepository extends JpaRepository<Order, UUID> {
+  Optional<Order> findByIdAndDeletedAtIsNull(UUID id);
+
   @Query(
       "SELECT o FROM Order o "
           + "JOIN FETCH o.user "

@@ -122,4 +122,9 @@ public class Order extends BaseEntity {
   public void updateNotCancelable() {
     this.isCancelable = false;
   }
+
+  public void softDelete(User user) {
+    this.delete(user);
+    this.orderItems.forEach(item -> item.delete(user));
+  }
 }

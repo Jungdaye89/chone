@@ -10,6 +10,7 @@ import com.chone.server.domains.order.dto.request.CreateOrderRequest.OrderItemRe
 import com.chone.server.domains.order.dto.request.OrderFilterParams;
 import com.chone.server.domains.order.dto.response.CancelOrderResponse;
 import com.chone.server.domains.order.dto.response.CreateOrderResponse;
+import com.chone.server.domains.order.dto.response.DeleteOrderResponse;
 import com.chone.server.domains.order.dto.response.OrderDetailResponse;
 import com.chone.server.domains.order.dto.response.OrderPageResponse;
 import com.chone.server.domains.order.dto.response.PageResponse;
@@ -98,6 +99,17 @@ public class OrderService {
     // TODO: 1. 결제
     //       2. 배달
     return CancelOrderResponse.from(savedOrder);
+  }
+
+  public DeleteOrderResponse deleteOrder(CustomUserDetails principal, UUID id) {
+    Order order = repository.findById(id);
+    if (!domainService.isDeletableOrder(order.getStatus())) {
+      throw new ApiBusinessException(OrderExceptionCode.ORDER_NOT_DELETABLE);
+    }
+    order.softDelete(principal.getUser());
+    repository.save(order);
+
+    return DeleteOrderResponse.from(order);
   }
 
   private Page<OrderPageResponse> findOrdersByRole(

@@ -7,6 +7,7 @@ import com.chone.server.domains.order.dto.request.CreateOrderRequest;
 import com.chone.server.domains.order.dto.request.OrderFilterParams;
 import com.chone.server.domains.order.dto.response.CancelOrderResponse;
 import com.chone.server.domains.order.dto.response.CreateOrderResponse;
+import com.chone.server.domains.order.dto.response.DeleteOrderResponse;
 import com.chone.server.domains.order.dto.response.OrderDetailResponse;
 import com.chone.server.domains.order.dto.response.OrderPageResponse;
 import com.chone.server.domains.order.dto.response.PageResponse;
@@ -20,6 +21,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -72,6 +74,15 @@ public class OrderController {
       @PathVariable("id") UUID id,
       @Valid @RequestBody CancelOrderRequest requestDto) {
     CancelOrderResponse responseDto = service.cancelOrder(principal, id, requestDto);
+
+    return ResponseEntity.ok().body(responseDto);
+  }
+
+  @PreAuthorize("hasAnyRole('MANAGER','MASTER')")
+  @DeleteMapping("/{id}")
+  public ResponseEntity<DeleteOrderResponse> deleteOrder(
+      @AuthenticationPrincipal CustomUserDetails principal, @PathVariable("id") UUID id) {
+    DeleteOrderResponse responseDto = service.deleteOrder(principal, id);
 
     return ResponseEntity.ok().body(responseDto);
   }
