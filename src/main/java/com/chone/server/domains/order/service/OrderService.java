@@ -1,15 +1,19 @@
 package com.chone.server.domains.order.service;
 
+import com.chone.server.commons.exception.ApiBusinessException;
 import com.chone.server.domains.auth.dto.CustomUserDetails;
 import com.chone.server.domains.order.domain.Order;
 import com.chone.server.domains.order.domain.OrderType;
+import com.chone.server.domains.order.dto.request.CancelOrderRequest;
 import com.chone.server.domains.order.dto.request.CreateOrderRequest;
 import com.chone.server.domains.order.dto.request.CreateOrderRequest.OrderItemRequest;
 import com.chone.server.domains.order.dto.request.OrderFilterParams;
+import com.chone.server.domains.order.dto.response.CancelOrderResponse;
 import com.chone.server.domains.order.dto.response.CreateOrderResponse;
 import com.chone.server.domains.order.dto.response.OrderDetailResponse;
 import com.chone.server.domains.order.dto.response.OrderPageResponse;
 import com.chone.server.domains.order.dto.response.PageResponse;
+import com.chone.server.domains.order.exception.OrderExceptionCode;
 import com.chone.server.domains.order.repository.OrderRepository;
 import com.chone.server.domains.product.domain.Product;
 import com.chone.server.domains.product.service.ProductService;
@@ -75,6 +79,27 @@ public class OrderService {
     };
   }
 
+  public CancelOrderResponse cancelOrder(
+      CustomUserDetails principal, UUID orderId, CancelOrderRequest requestDto) {
+    Order order = repository.findForCancellationById(orderId);
+    User currentUser = principal.getUser();
+
+    domainService.validateCancellationPermission(currentUser, order);
+    domainService.validateCancellation(order);
+
+    boolean isAfterDeadline = domainService.isAfterCancellationTimeLimit(order);
+    if (isAfterDeadline) {
+      updateNotCancelable(order);
+      throw new ApiBusinessException(OrderExceptionCode.ORDER_CANCELLATION_TIMEOUT);
+    }
+
+    Order savedOrder = updateAndSaveOrder(order, () -> order.cancel(requestDto.reasonNum()));
+
+    // TODO: 1. 결제
+    //       2. 배달
+    return CancelOrderResponse.from(savedOrder);
+  }
+
   private Page<OrderPageResponse> findOrdersByRole(
       User user, OrderFilterParams filterParams, Pageable pageable) {
     return switch (user.getRole()) {
@@ -82,5 +107,13 @@ public class OrderService {
       case OWNER -> repository.findOrdersByOwner(user, filterParams, pageable);
       case MANAGER, MASTER -> repository.findOrdersByAdmin(user, filterParams, pageable);
     };
+  }
+
+  @Transactional
+  void updateNotCancelable(Order order) {}
+
+  @Transactional
+  Order updateAndSaveOrder(Order order, Runnable updateAction) {
+    return null;
   }
 }

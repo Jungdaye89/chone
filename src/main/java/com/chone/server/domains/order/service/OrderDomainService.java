@@ -127,4 +127,12 @@ public class OrderDomainService {
             })
         .toList();
   }
+
+  public void validateCancellationPermission(User currentUser, Order order) {}
+
+  public void validateCancellation(Order order) {}
+
+  public boolean isAfterCancellationTimeLimit(Order order) {
+    return false;
+  }
 }
