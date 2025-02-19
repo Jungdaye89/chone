@@ -39,9 +39,6 @@ public class ReviewService {
   public ReviewResponseDto createReview(CreateRequestDto request, User user) {
 
     Order order = orderRepository.findById(request.getOrderId());
-    if (order == null) {
-      throw new ApiBusinessException(ReviewExceptionCode.ORDER_NOT_FOUND);
-    }
 
     Store store =
         storeRepository
