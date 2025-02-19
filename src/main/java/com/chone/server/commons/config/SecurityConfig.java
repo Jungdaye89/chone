@@ -28,10 +28,10 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    //AuthenticationManager가 인자로 받을 AuthenticationConfiguration 객체 생성자 주입
-    private final CustomUserDetailsService customUserDetailsService;
-    private final AuthenticationConfiguration authenticationConfiguration;
     private final JwtUtil jwtUtil;
+    private final CustomUserDetailsService customUserDetailsService;
+    //AuthenticationManager가 인자로 받을 AuthenticationConfiguration 객체 생성자 주입
+    private final AuthenticationConfiguration authenticationConfiguration;
 
     @Value("${spring.graphql.cors.allowed-origins}")
     private String allowedOrigins;
@@ -49,17 +49,26 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        LoginFilter loginFilter = new LoginFilter(authenticationConfiguration.getAuthenticationManager(), jwtUtil);
-        loginFilter.setFilterProcessesUrl("/api/v1/users/login"); // 로그인 엔드포인트 설정
+    public LoginFilter loginFilter() throws Exception {
+        LoginFilter filter = new LoginFilter(jwtUtil);
+        filter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
+        return filter;
+    }
 
+    @Bean
+    public JwtFilter jwtFilter() {
+        return new JwtFilter(jwtUtil, customUserDetailsService);
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 //http 기본 인증 시스템 사용 안함
-                .httpBasic(httpBasic->httpBasic.disable())
+                .httpBasic(httpBasic -> httpBasic.disable())
                 //security에서 제공하는 로그인 양식 사용 안함
-                .formLogin(formLogin->formLogin.disable())
+                .formLogin(formLogin -> formLogin.disable())
                 //경로별 인가 작업
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/api/v1/users/signup").permitAll()
@@ -69,8 +78,8 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .addFilter(loginFilter)  // 로그인 필터 추가
-                .addFilterBefore(new JwtFilter(jwtUtil, customUserDetailsService), UsernamePasswordAuthenticationFilter.class); // JWT 필터 추가
+                .addFilterBefore(loginFilter(), LoginFilter.class)  // 로그인 필터 추가
+                .addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class); // JWT 필터 추가
         return http.build();
     }
 
