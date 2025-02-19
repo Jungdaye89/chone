@@ -34,10 +34,9 @@ public class StoreController {
   @PostMapping
   @PreAuthorize("hasAnyRole('MASTER', 'MANAGER')")
   public ResponseEntity<CreateResponseDto> createStore(
-      @AuthenticationPrincipal CustomUserDetails userDetails,
       @RequestBody CreateRequestDto createRequestDto) {
 
-    CreateResponseDto createResponseDto = storeService.createStore(userDetails, createRequestDto);
+    CreateResponseDto createResponseDto = storeService.createStore(createRequestDto);
 
     return ResponseEntity.ok(createResponseDto);
   }
@@ -71,6 +70,7 @@ public class StoreController {
   }
 
   @PutMapping("/{storeId}")
+  @PreAuthorize("!hasRole('CUSTOMER')")
   public ResponseEntity<Void> updateStore(@AuthenticationPrincipal CustomUserDetails userDetails,
       @PathVariable("storeId") UUID storeId, @RequestBody UpdateRequestDto updateRequestDto) {
 
@@ -80,6 +80,7 @@ public class StoreController {
   }
 
   @DeleteMapping("/{storeId}")
+  @PreAuthorize("hasAnyRole('MANAGER', 'MASTER')")
   public ResponseEntity<Void> deleteStore(@AuthenticationPrincipal CustomUserDetails userDetails,
       @PathVariable("storeId") UUID storeId) {
 
