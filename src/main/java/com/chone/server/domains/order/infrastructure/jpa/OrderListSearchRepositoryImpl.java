@@ -129,8 +129,8 @@ public class OrderListSearchRepositoryImpl implements OrderListSearchRepository 
                     order.id,
                     order.store.id,
                     order.store.name,
-                    order.orderType.stringValue(),
-                    order.status.stringValue(),
+                    order.orderType,
+                    order.status,
                     order.totalPrice,
                     order.createdAt,
                     order.updatedAt))

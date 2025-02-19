@@ -2,8 +2,10 @@ package com.chone.server.domains.order.controller;
 
 import com.chone.server.commons.util.UriGeneratorUtil;
 import com.chone.server.domains.auth.dto.CustomUserDetails;
+import com.chone.server.domains.order.dto.request.CancelOrderRequest;
 import com.chone.server.domains.order.dto.request.CreateOrderRequest;
 import com.chone.server.domains.order.dto.request.OrderFilterParams;
+import com.chone.server.domains.order.dto.response.CancelOrderResponse;
 import com.chone.server.domains.order.dto.response.CreateOrderResponse;
 import com.chone.server.domains.order.dto.response.OrderDetailResponse;
 import com.chone.server.domains.order.dto.response.OrderPageResponse;
@@ -20,6 +22,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -59,6 +62,16 @@ public class OrderController {
   public ResponseEntity<OrderDetailResponse> getOrder(
       @AuthenticationPrincipal CustomUserDetails principal, @PathVariable("id") UUID id) {
     OrderDetailResponse responseDto = service.getOrderById(principal, id);
+
+    return ResponseEntity.ok().body(responseDto);
+  }
+
+  @PatchMapping("/{id}")
+  public ResponseEntity<CancelOrderResponse> cancelOrder(
+      @AuthenticationPrincipal CustomUserDetails principal,
+      @PathVariable("id") UUID id,
+      @Valid @RequestBody CancelOrderRequest requestDto) {
+    CancelOrderResponse responseDto = service.cancelOrder(principal, id, requestDto);
 
     return ResponseEntity.ok().body(responseDto);
   }

@@ -25,7 +25,13 @@ public enum OrderExceptionCode implements ExceptionCode {
   ORDER_FILTERING_ACCESS_DENIED(FORBIDDEN, "사용자 또는 가게별 주문 조회 권한이 없습니다."),
   STORE_ORDER_FILTERING_ACCESS_DENIED(FORBIDDEN, "가게별 주문 조회 권한이 없습니다."),
   ORDER_CUSTOMER_ACCESS_DENIED(FORBIDDEN, "접근 권한이 없습니다. 해당 주문의 소유자가 아닙니다."),
-  ORDER_STORE_OWNER_ACCESS_DENIED(FORBIDDEN, "접근 권한이 없습니다. 해당 매장의 소유자가 아닙니다.");
+  ORDER_STORE_OWNER_ACCESS_DENIED(FORBIDDEN, "접근 권한이 없습니다. 해당 매장의 소유자가 아닙니다."),
+
+  ORDER_CANCELLATION_TIMEOUT(BAD_REQUEST, "주문 생성 후 5분이 경과하여 취소할 수 없습니다."),
+  ORDER_CANCEL_PERMISSION_DENIED(FORBIDDEN, "주문 취소 권한이 없습니다."),
+  ORDER_ALREADY_CANCELED(BAD_REQUEST, "이미 취소된 주문입니다."),
+  ORDER_NOT_CANCELABLE(BAD_REQUEST, "취소할 수 없는 주문입니다."),
+  ;
   private final HttpStatus status;
   private final String message;
   private final String code = this.name();

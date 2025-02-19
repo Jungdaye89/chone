@@ -1,5 +1,7 @@
 package com.chone.server.domains.order.dto.response;
 
+import com.chone.server.domains.order.domain.OrderStatus;
+import com.chone.server.domains.order.domain.OrderType;
 import com.querydsl.core.annotations.QueryProjection;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -16,5 +18,23 @@ public record OrderPageResponse(
     LocalDateTime updatedAt) {
 
   @QueryProjection
-  public OrderPageResponse {}
+  public OrderPageResponse(
+      UUID id,
+      UUID storeId,
+      String storeName,
+      OrderType type,
+      OrderStatus status,
+      BigDecimal totalPrice,
+      LocalDateTime createdAt,
+      LocalDateTime updatedAt) {
+    this(
+        id,
+        storeId,
+        storeName,
+        type.getDescription(),
+        status.getDescription(),
+        totalPrice,
+        createdAt,
+        updatedAt);
+  }
 }

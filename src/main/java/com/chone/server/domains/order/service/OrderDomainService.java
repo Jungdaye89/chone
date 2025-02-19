@@ -16,6 +16,7 @@ import com.chone.server.domains.store.domain.Store;
 import com.chone.server.domains.user.domain.Role;
 import com.chone.server.domains.user.domain.User;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -28,6 +29,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Log4j2
 public class OrderDomainService {
+  private static final int ORDER_CANCELLATION_TIME_LIMIT_MINUTES = 5;
+
   public void validateStoreAndProducts(Store store, List<Product> products) {
     UUID storeId = store.getId();
     if (products.stream().anyMatch(product -> !product.getStore().getId().equals(storeId))) {
@@ -126,5 +129,44 @@ public class OrderDomainService {
               return OrderItem.builder(order, product, item.quantity(), itemPrice).build();
             })
         .toList();
+  }
+
+  void validateCancellationPermission(User user, Order order) {
+    switch (user.getRole()) {
+      case MANAGER, MASTER -> {
+        return;
+      }
+      case CUSTOMER -> {
+        if (!order.getUser().getId().equals(user.getId())) {
+          throw new ApiBusinessException(OrderExceptionCode.ORDER_CUSTOMER_ACCESS_DENIED);
+        }
+        return;
+      }
+      case OWNER -> {
+        if (!order.getStore().getUser().getId().equals(user.getId())) {
+          throw new ApiBusinessException(OrderExceptionCode.ORDER_STORE_OWNER_ACCESS_DENIED);
+        }
+        return;
+      }
+    }
+    throw new ApiBusinessException(OrderExceptionCode.ORDER_CANCEL_PERMISSION_DENIED);
+  }
+
+  public void validateCancellation(Order order) {
+    if (order.getStatus() == OrderStatus.CANCELED) {
+      throw new ApiBusinessException(OrderExceptionCode.ORDER_ALREADY_CANCELED);
+    }
+
+    if (!order.isCancelable()) {
+      throw new ApiBusinessException(OrderExceptionCode.ORDER_NOT_CANCELABLE);
+    }
+  }
+
+  public boolean isAfterCancellationTimeLimit(Order order) {
+    LocalDateTime orderCreatedAt = order.getCreatedAt();
+    LocalDateTime cancellationDeadline =
+        orderCreatedAt.plusMinutes(ORDER_CANCELLATION_TIME_LIMIT_MINUTES);
+
+    return LocalDateTime.now().isAfter(cancellationDeadline);
   }
 }
