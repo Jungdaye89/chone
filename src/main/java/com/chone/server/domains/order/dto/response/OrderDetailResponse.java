@@ -1,5 +1,6 @@
 package com.chone.server.domains.order.dto.response;
 
+import com.chone.server.domains.order.domain.OrderCancelReason;
 import com.chone.server.domains.order.domain.OrderStatus;
 import com.chone.server.domains.order.domain.OrderType;
 import com.querydsl.core.annotations.QueryProjection;
@@ -18,14 +19,28 @@ public record OrderDetailResponse(
 
   public record OrderResponse(
       UUID id,
-      OrderType type,
-      OrderStatus status,
+      String type,
+      String status,
       BigDecimal totalPrice,
       String cancelReason,
       String request) {
 
     @QueryProjection
-    public OrderResponse {}
+    public OrderResponse(
+        UUID id,
+        OrderType type,
+        OrderStatus status,
+        BigDecimal totalPrice,
+        OrderCancelReason cancelReason,
+        String request) {
+      this(
+          id,
+          type.getDescription(),
+          status.getDescription(),
+          totalPrice,
+          cancelReason != null ? cancelReason.getDescription() : null,
+          request);
+    }
   }
 
   public record UserResponse(Long id, String username) {
