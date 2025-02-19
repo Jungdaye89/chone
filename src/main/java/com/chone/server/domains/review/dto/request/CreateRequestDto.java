@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @Getter
 @NoArgsConstructor
-public class CreateRequestDTO {
+public class CreateRequestDto {
 
   private UUID orderId;
   private UUID storeId;

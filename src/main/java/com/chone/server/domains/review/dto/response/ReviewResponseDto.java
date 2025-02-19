@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @Getter
 @NoArgsConstructor
-public class ReviewResponseDTO {
+public class ReviewResponseDto {
 
   private UUID reviewId;
   private LocalDateTime createdAt;
