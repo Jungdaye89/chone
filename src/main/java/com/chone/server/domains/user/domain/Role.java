@@ -6,5 +6,9 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum Role {
-    CUSTOMER, OWNER, MANAGER, MASTER
+    CUSTOMER, OWNER, MANAGER, MASTER;
+
+    public String getAuthority(){
+        return "ROLE_" + this.name();
+    }
 }
