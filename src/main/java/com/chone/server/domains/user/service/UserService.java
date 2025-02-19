@@ -8,6 +8,7 @@ import com.chone.server.domains.user.dto.request.UserRoleUpdateRequestDto;
 import com.chone.server.domains.user.dto.request.UserUpdateRequestDto;
 import com.chone.server.domains.user.dto.response.UserResponseDto;
 import com.chone.server.domains.user.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,15 +19,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-
-    public UserService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
-        this.userRepository = userRepository;
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-    }
 
     //회원가입
     public void signUp(SignupRequestDto signupRequestDto) {
