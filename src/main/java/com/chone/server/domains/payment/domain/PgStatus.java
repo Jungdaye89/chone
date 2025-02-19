@@ -5,9 +5,10 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum PaymentMethod {
-  CASH("현금"),
-  CARD("카드");
+public enum PgStatus {
+  SUCCESS("PG사 승인됨"),
+  FAILED("PG사 처리 실패"),
+  PENDING("PG사 처리 대기");
 
   private final String description;
 }
