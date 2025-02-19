@@ -8,6 +8,7 @@ import com.chone.server.domains.order.repository.OrderRepository;
 import com.chone.server.domains.review.domain.Review;
 import com.chone.server.domains.review.dto.request.CreateRequestDto;
 import com.chone.server.domains.review.dto.request.ReviewListRequestDto;
+import com.chone.server.domains.review.dto.response.ReviewDetailResponseDto;
 import com.chone.server.domains.review.dto.response.ReviewListResponseDto;
 import com.chone.server.domains.review.dto.response.ReviewResponseDto;
 import com.chone.server.domains.review.exception.ReviewExceptionCode;
@@ -18,6 +19,7 @@ import com.chone.server.domains.store.repository.StoreRepository;
 import com.chone.server.domains.user.domain.User;
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -88,5 +90,26 @@ public class ReviewService {
           ReviewListResponseDto.from(
               reviewSearchRepository.findReviewsByManagerOrMaster(user, request, pageable));
     };
+  }
+
+  public ReviewDetailResponseDto getReviewById(UUID reviewId, CustomUserDetails principal) {
+    if (principal == null || principal.getUser() == null) {
+      throw new ApiBusinessException(ReviewExceptionCode.REVIEW_UNAUTHORIZED);
+    }
+
+    Review review =
+        reviewRepository
+            .findById(reviewId)
+            .orElseThrow(() -> new ApiBusinessException(ReviewExceptionCode.REVIEW_NOT_FOUND));
+
+    validateAccess(principal.getUser(), review);
+
+    return ReviewDetailResponseDto.from(review);
+  }
+
+  private void validateAccess(User user, Review review) {
+    if (!review.getIsPublic() && !review.getUser().getId().equals(user.getId())) {
+      throw new ApiBusinessException(ReviewExceptionCode.REVIEW_ACCESS_DENIED);
+    }
   }
 }
