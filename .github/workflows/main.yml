@@ -35,7 +35,7 @@ jobs:
         run: ./gradlew clean build -x test
 
       - name: List built files
-        run: ls -al ./build/libs
+        run: ls -al ./build/libs/
 
       - name: Transfer Jar to EC2
         env:
