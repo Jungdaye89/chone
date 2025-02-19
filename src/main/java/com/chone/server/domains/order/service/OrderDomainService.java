@@ -16,6 +16,7 @@ import com.chone.server.domains.store.domain.Store;
 import com.chone.server.domains.user.domain.Role;
 import com.chone.server.domains.user.domain.User;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -28,6 +29,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Log4j2
 public class OrderDomainService {
+  private static final int ORDER_CANCELLATION_TIME_LIMIT_MINUTES = 5;
+
   public void validateStoreAndProducts(Store store, List<Product> products) {
     UUID storeId = store.getId();
     if (products.stream().anyMatch(product -> !product.getStore().getId().equals(storeId))) {
@@ -160,6 +163,10 @@ public class OrderDomainService {
   }
 
   public boolean isAfterCancellationTimeLimit(Order order) {
-    return false;
+    LocalDateTime orderCreatedAt = order.getCreatedAt();
+    LocalDateTime cancellationDeadline =
+        orderCreatedAt.plusMinutes(ORDER_CANCELLATION_TIME_LIMIT_MINUTES);
+
+    return LocalDateTime.now().isAfter(cancellationDeadline);
   }
 }
