@@ -24,6 +24,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UuidGenerator;
@@ -72,9 +73,16 @@ public class Order extends BaseEntity {
   @Comment("주문 상태(대기, 승인, 완료, 취소)")
   private OrderStatus status;
 
-  @Column(length = 100)
+  @Enumerated(EnumType.STRING)
+  @Column
   @Comment("주문 취소 사유")
-  private String cancelReason;
+  private OrderCancelReason cancelReason;
+
+  @NotNull
+  @ColumnDefault("true")
+  @Column(nullable = false)
+  @Comment("취소 가능 여부")
+  private boolean isCancelable;
 
   @Column(length = 150)
   @Comment("주문 요청 사항")
@@ -90,6 +98,7 @@ public class Order extends BaseEntity {
     return Order.innerBuilder()
         .store(store)
         .user(user)
+        .isCancelable(true)
         .orderType(orderType)
         .totalPrice(totalPrice)
         .status(status);
