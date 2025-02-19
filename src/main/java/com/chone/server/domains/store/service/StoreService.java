@@ -1,6 +1,7 @@
 package com.chone.server.domains.store.service;
 
 import com.chone.server.commons.exception.ApiBusinessException;
+import com.chone.server.commons.exception.GlobalExceptionCode;
 import com.chone.server.domains.auth.dto.CustomUserDetails;
 import com.chone.server.domains.store.domain.Category;
 import com.chone.server.domains.store.domain.LegalDongCode;
@@ -40,17 +41,15 @@ public class StoreService {
 
   // MANAGER, MASTER 사용자가 OWNER 사용자의 ID로 가게 생성
   @Transactional
-  public CreateResponseDto createStore(
-      CustomUserDetails userDetails, CreateRequestDto createRequestDto) {
+  public CreateResponseDto createStore(CreateRequestDto createRequestDto) {
 
     User owner = findUserById(createRequestDto.getUserId());
-    User creator = userDetails.getUser();
 
     LegalDongCode legalDongCode =
         findLegalDongCodeBySidoAndSigunguAndDong(
             createRequestDto.getSido(), createRequestDto.getSigungu(), createRequestDto.getDong());
 
-    Store store =
+    Store store = storeRepository.save(
         Store.builder(owner, legalDongCode)
             .name(createRequestDto.getName())
             .sido(createRequestDto.getSido())
@@ -58,10 +57,7 @@ public class StoreService {
             .dong(createRequestDto.getDong())
             .address(createRequestDto.getAddress())
             .phoneNumber(createRequestDto.getPhoneNumber())
-            .build();
-
-    store.create(creator);
-    store = storeRepository.save(store);
+            .build());
 
     for (String categoryName : createRequestDto.getCategory()) {
       Category category =
@@ -139,8 +135,6 @@ public class StoreService {
 
     Store store = findStoreById(storeId);
 
-    checkRoleWithStore(user, store);
-
     store.delete(user);
   }
 
@@ -206,7 +200,7 @@ public class StoreService {
       case MANAGER, MASTER -> {
       }
       default -> {
-        throw new ApiBusinessException(StoreExceptionCode.USER_NO_AUTH);
+        throw new ApiBusinessException(GlobalExceptionCode.UNAUTHORIZED);
       }
     }
   }
