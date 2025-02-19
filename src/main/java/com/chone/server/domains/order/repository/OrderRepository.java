@@ -28,4 +28,6 @@ public interface OrderRepository {
   OrderDetailResponse findOrderByIdForOwner(UUID orderId, User user);
 
   OrderDetailResponse findOrderByIdForAdmin(UUID orderId);
+
+  Order findForCancellationById(UUID orderId);
 }

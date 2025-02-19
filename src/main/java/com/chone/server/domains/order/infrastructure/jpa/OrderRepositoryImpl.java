@@ -67,4 +67,11 @@ public class OrderRepositoryImpl implements OrderRepository {
   public OrderDetailResponse findOrderByIdForAdmin(UUID orderId) {
     return jpaDetailSearchRepository.findOrderDetailByIdForAdmin(orderId);
   }
+
+  @Override
+  public Order findForCancellationById(UUID orderId) {
+    return jpaRepository
+        .findForCancellationById(orderId)
+        .orElseThrow(() -> new ApiBusinessException(OrderExceptionCode.NOT_FOUND_ORDER));
+  }
 }
