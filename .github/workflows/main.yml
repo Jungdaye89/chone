@@ -42,8 +42,9 @@ jobs:
           EC2_KEY: ${{ secrets.EC2_KEY }}
           EC2_HOST: ${{ secrets.EC2_HOST }}
           EC2_USER: ${{ secrets.EC2_USER }}
+          APP_NAME: ${{ secrets.APP_NAME }}
         run: |
-          scp -i $EC2_KEY ./build/libs/${{ secrets.APP_NAME }}.jar $EC2_USER@$EC2_HOST:~/
+          scp -i $EC2_KEY ./build/libs/$APP_NAME $EC2_USER@$EC2_HOST:~/
 
       - name: Run Jar on EC2
         uses: appleboy/ssh-action@master
@@ -52,5 +53,5 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
-            pkill -f "java -jar ${{ secrets.APP_NAME }}.jar" || true
-            nohup java -jar ${{ secrets.APP_NAME }}.jar
+            pkill -f "java -jar ${{ secrets.APP_NAME }}" || true
+            nohup java -jar ${{ secrets.APP_NAME }}
