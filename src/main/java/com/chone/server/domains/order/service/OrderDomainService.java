@@ -169,4 +169,8 @@ public class OrderDomainService {
 
     return LocalDateTime.now().isAfter(cancellationDeadline);
   }
+
+  public boolean isDeletableOrder(OrderStatus status) {
+    return status.equals(OrderStatus.CANCELED) || status.equals(OrderStatus.COMPLETED);
+  }
 }

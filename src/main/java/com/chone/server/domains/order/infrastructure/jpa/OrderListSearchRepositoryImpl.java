@@ -23,7 +23,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -47,9 +49,8 @@ public class OrderListSearchRepositoryImpl implements OrderListSearchRepository 
   public Page<OrderPageResponse> findOrdersByCustomer(
       User customer, OrderFilterParams filterParams, Pageable pageable) {
     validateNoUnauthorizedFiltering(filterParams);
-    List<BooleanExpression> conditions = new ArrayList<>();
-    addCustomerCondition(conditions, customer);
-    return getOrders(conditions, filterParams, pageable);
+
+    return getOrders(List.of(customerEq(customer)), filterParams, pageable);
   }
 
   @Override
@@ -57,10 +58,7 @@ public class OrderListSearchRepositoryImpl implements OrderListSearchRepository 
       User owner, OrderFilterParams filterParams, Pageable pageable) {
     validateNoStoreFiltering(filterParams.storeId());
 
-    List<BooleanExpression> conditions = new ArrayList<>();
-    addStoresByOwnerCondition(conditions, owner);
-
-    return getOrders(conditions, filterParams, pageable);
+    return getOrders(List.of(storeOwnerEq(owner)), filterParams, pageable);
   }
 
   @Override
@@ -88,16 +86,12 @@ public class OrderListSearchRepositoryImpl implements OrderListSearchRepository 
     }
   }
 
-  private void addCustomerCondition(List<BooleanExpression> conditions, User customer) {
-    if (customer != null) {
-      conditions.add(order.user.eq(customer));
-    }
+  private BooleanExpression customerEq(User customer) {
+    return order.user.eq(customer);
   }
 
-  private void addStoresByOwnerCondition(List<BooleanExpression> conditions, User owner) {
-    if (owner != null) {
-      conditions.add(order.store.user.eq(owner));
-    }
+  private BooleanExpression storeOwnerEq(User owner) {
+    return order.store.user.eq(owner);
   }
 
   private void addStoreIdCondition(List<BooleanExpression> conditions, UUID storeId) {
@@ -113,14 +107,23 @@ public class OrderListSearchRepositoryImpl implements OrderListSearchRepository 
   }
 
   private Page<OrderPageResponse> getOrders(
-      List<BooleanExpression> conditions, OrderFilterParams filterParams, Pageable pageable) {
+      List<BooleanExpression> additionalConditions,
+      OrderFilterParams filterParams,
+      Pageable pageable) {
 
-    addStatusCondition(conditions, filterParams.status());
-    addOrderTypeCondition(conditions, filterParams.orderType());
-    addPriceCondition(conditions, filterParams.minPrice(), filterParams.maxPrice());
-    addDateCondition(conditions, filterParams.startDate(), filterParams.endDate());
+    List<BooleanExpression> conditions = new ArrayList<>(additionalConditions);
+    conditions.addAll(
+        Stream.of(
+                order.deletedAt.isNull(),
+                statusEq(filterParams.status()),
+                orderTypeEq(filterParams.orderType()),
+                totalPriceBetween(filterParams.minPrice(), filterParams.maxPrice()),
+                createdAtBetween(filterParams.startDate(), filterParams.endDate()))
+            .filter(Objects::nonNull)
+            .toList());
 
-    BooleanExpression whereCondition = buildWhereCondition(conditions);
+    BooleanExpression whereCondition =
+        conditions.stream().reduce(BooleanExpression::and).orElse(null);
 
     List<OrderPageResponse> content =
         queryFactory
@@ -148,60 +151,48 @@ public class OrderListSearchRepositoryImpl implements OrderListSearchRepository 
     return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
   }
 
-  private void addStatusCondition(List<BooleanExpression> conditions, OrderStatus status) {
-    if (status != null) {
-      conditions.add(order.status.eq(status));
-    }
+  private BooleanExpression statusEq(OrderStatus status) {
+    return status != null ? order.status.eq(status) : null;
   }
 
-  private void addOrderTypeCondition(List<BooleanExpression> conditions, OrderType orderType) {
-    if (orderType != null) {
-      conditions.add(order.orderType.eq(orderType));
-    }
+  private BooleanExpression orderTypeEq(OrderType orderType) {
+    return orderType != null ? order.orderType.eq(orderType) : null;
   }
 
-  private void addPriceCondition(
-      List<BooleanExpression> conditions, Integer minPrice, Integer maxPrice) {
+  private BooleanExpression totalPriceBetween(Integer minPrice, Integer maxPrice) {
     try {
       if (minPrice != null && maxPrice != null) {
-        conditions.add(
-            order.totalPrice.between(BigDecimal.valueOf(minPrice), BigDecimal.valueOf(maxPrice)));
+        return order.totalPrice.between(BigDecimal.valueOf(minPrice), BigDecimal.valueOf(maxPrice));
       } else if (minPrice != null) {
-        conditions.add(order.totalPrice.goe(BigDecimal.valueOf(minPrice)));
+        return order.totalPrice.goe(BigDecimal.valueOf(minPrice));
       } else if (maxPrice != null) {
-        conditions.add(order.totalPrice.loe(BigDecimal.valueOf(maxPrice)));
+        return order.totalPrice.loe(BigDecimal.valueOf(maxPrice));
       }
     } catch (NumberFormatException e) {
       log.warn("가격 형변환 실패: {}", e.getMessage());
     } catch (Exception e) {
       log.warn("가격 필터링 조건 형성 실패: {}", e.getMessage());
     }
+    return null;
   }
 
-  private void addDateCondition(
-      List<BooleanExpression> conditions, LocalDate startDate, LocalDate endDate) {
+  private BooleanExpression createdAtBetween(LocalDate startDate, LocalDate endDate) {
     try {
       if (startDate != null && endDate != null) {
         LocalDateTime startDateTime = startDate.atStartOfDay();
         LocalDateTime endDateTime = endDate.atTime(23, 59, 59, 999999999);
-
-        conditions.add(order.createdAt.between(startDateTime, endDateTime));
+        return order.createdAt.between(startDateTime, endDateTime);
       } else if (startDate != null) {
         LocalDateTime startDateTime = startDate.atStartOfDay();
-        conditions.add(order.createdAt.goe(startDateTime));
+        return order.createdAt.goe(startDateTime);
       } else if (endDate != null) {
         LocalDateTime endDateTime = endDate.atTime(23, 59, 59, 999999999);
-        conditions.add(order.createdAt.loe(endDateTime));
+        return order.createdAt.loe(endDateTime);
       }
     } catch (Exception e) {
       log.warn("날짜 필터링 형성 실패: {}", e.getMessage());
     }
-  }
-
-  private BooleanExpression buildWhereCondition(List<BooleanExpression> conditions) {
-    return conditions.isEmpty()
-        ? null
-        : conditions.stream().reduce(BooleanExpression::and).orElse(null);
+    return null;
   }
 
   private OrderSpecifier[] getOrderSpecifier(Pageable pageable) {
