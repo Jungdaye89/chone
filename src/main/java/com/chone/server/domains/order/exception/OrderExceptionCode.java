@@ -1,6 +1,7 @@
 package com.chone.server.domains.order.exception;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE;
@@ -31,7 +32,7 @@ public enum OrderExceptionCode implements ExceptionCode {
   ORDER_CANCEL_PERMISSION_DENIED(FORBIDDEN, "주문 취소 권한이 없습니다."),
   ORDER_ALREADY_CANCELED(BAD_REQUEST, "이미 취소된 주문입니다."),
   ORDER_NOT_CANCELABLE(BAD_REQUEST, "취소할 수 없는 주문입니다."),
-  ORDER_NOT_DELETABLE(BAD_REQUEST, "주문 과정이 완료되지 않아 삭제할 수 없는 주문입니다."),
+  ORDER_NOT_DELETABLE(CONFLICT, "주문 과정이 완료되지 않아 삭제할 수 없는 주문입니다."),
   ;
   private final HttpStatus status;
   private final String message;
