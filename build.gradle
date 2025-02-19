@@ -7,6 +7,14 @@ plugins {
 group = 'com.chone'
 version = '0.0.1-SNAPSHOT'
 
+jar {
+    enabled = false
+}
+
+bootJar {
+    archiveFileName = "chone.jar"
+}
+
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
