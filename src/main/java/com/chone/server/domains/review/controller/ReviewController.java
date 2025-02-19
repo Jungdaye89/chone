@@ -6,6 +6,7 @@ import com.chone.server.domains.review.dto.request.ReviewListRequestDto;
 import com.chone.server.domains.review.dto.response.ReviewListResponseDto;
 import com.chone.server.domains.review.dto.response.ReviewResponseDto;
 import com.chone.server.domains.review.service.ReviewService;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -33,10 +34,12 @@ public class ReviewController {
   @GetMapping
   public ResponseEntity<ReviewListResponseDto> getReviews(
       @AuthenticationPrincipal CustomUserDetails principal,
-      @ModelAttribute ReviewListRequestDto requestDTO,
-      Pageable pageable) {
+      @RequestParam Map<String, String> params) {
 
-    ReviewListResponseDto response = reviewService.getReviews(requestDTO, principal, pageable);
+    ReviewListRequestDto requestDto = ReviewListRequestDto.from(params);
+    Pageable pageable = requestDto.toPageable();
+
+    ReviewListResponseDto response = reviewService.getReviews(requestDto, principal, pageable);
     return ResponseEntity.ok(response);
   }
 }

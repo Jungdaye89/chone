@@ -5,14 +5,19 @@ import com.chone.server.domains.review.dto.request.ReviewListRequestDto;
 import com.chone.server.domains.review.dto.response.ReviewPageResponseDto;
 import com.chone.server.domains.user.domain.User;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class ReviewRepositoryImpl implements ReviewSearchRepository {
@@ -47,7 +52,7 @@ public class ReviewRepositoryImpl implements ReviewSearchRepository {
 
   @Override
   public Page<ReviewPageResponseDto> findReviewsByManagerOrMaster(
-      User user, ReviewListRequestDto filterParams, Pageable pageable) { // ✅ User 인자 추가!
+      User user, ReviewListRequestDto filterParams, Pageable pageable) {
     QReview review = QReview.review;
     BooleanBuilder predicate = new BooleanBuilder();
 
@@ -58,6 +63,7 @@ public class ReviewRepositoryImpl implements ReviewSearchRepository {
 
   private void applyFilters(
       BooleanBuilder predicate, ReviewListRequestDto filterParams, QReview review) {
+
     if (filterParams.getStoreId() != null) {
       predicate.and(review.store.id.eq(filterParams.getStoreId()));
     }
@@ -77,11 +83,21 @@ public class ReviewRepositoryImpl implements ReviewSearchRepository {
 
   private Page<ReviewPageResponseDto> executeQuery(BooleanBuilder predicate, Pageable pageable) {
 
+    QReview review = QReview.review;
+    List<OrderSpecifier<?>> orderSpecifiers = new ArrayList<>();
+
+    for (Sort.Order order : pageable.getSort()) {
+      OrderSpecifier<?> orderSpecifier = getSortOrder(review, order);
+      if (orderSpecifier != null) {
+        orderSpecifiers.add(orderSpecifier);
+      }
+    }
+
     List<ReviewPageResponseDto> content =
         queryFactory
-            .selectFrom(QReview.review)
+            .selectFrom(review)
             .where(predicate)
-            .orderBy(QReview.review.createdAt.desc())
+            .orderBy(orderSpecifiers.toArray(new OrderSpecifier[0]))
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize())
             .fetch()
@@ -89,8 +105,21 @@ public class ReviewRepositoryImpl implements ReviewSearchRepository {
             .map(ReviewPageResponseDto::from)
             .toList();
 
-    long total = queryFactory.selectFrom(QReview.review).where(predicate).fetchCount();
+    long total = queryFactory.selectFrom(review).where(predicate).fetchCount();
 
     return new PageImpl<>(content, pageable, total);
+  }
+
+  private OrderSpecifier<?> getSortOrder(QReview review, Sort.Order order) {
+    switch (order.getProperty()) {
+      case "rating":
+        return order.isAscending() ? review.rating.asc() : review.rating.desc();
+      case "createdAt":
+        return order.isAscending() ? review.createdAt.asc() : review.createdAt.desc();
+      case "updatedAt":
+        return order.isAscending() ? review.updatedAt.asc() : review.updatedAt.desc();
+      default:
+        return null;
+    }
   }
 }
