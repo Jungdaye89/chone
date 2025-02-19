@@ -120,7 +120,9 @@ public class OrderListSearchRepositoryImpl implements OrderListSearchRepository 
     addPriceCondition(conditions, filterParams.minPrice(), filterParams.maxPrice());
     addDateCondition(conditions, filterParams.startDate(), filterParams.endDate());
 
-    BooleanExpression whereCondition = buildWhereCondition(conditions);
+    conditions.add(order.deletedAt.isNull());
+    BooleanExpression whereCondition =
+        conditions.stream().reduce(BooleanExpression::and).orElse(null);
 
     List<OrderPageResponse> content =
         queryFactory
@@ -196,12 +198,6 @@ public class OrderListSearchRepositoryImpl implements OrderListSearchRepository 
     } catch (Exception e) {
       log.warn("날짜 필터링 형성 실패: {}", e.getMessage());
     }
-  }
-
-  private BooleanExpression buildWhereCondition(List<BooleanExpression> conditions) {
-    return conditions.isEmpty()
-        ? null
-        : conditions.stream().reduce(BooleanExpression::and).orElse(null);
   }
 
   private OrderSpecifier[] getOrderSpecifier(Pageable pageable) {

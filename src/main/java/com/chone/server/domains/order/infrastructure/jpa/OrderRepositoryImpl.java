@@ -31,7 +31,7 @@ public class OrderRepositoryImpl implements OrderRepository {
   @Override
   public Order findById(UUID uuid) {
     return jpaRepository
-        .findById(uuid)
+        .findByIdAndDeletedAtIsNull(uuid)
         .orElseThrow(() -> new ApiBusinessException(OrderExceptionCode.NOT_FOUND_ORDER));
   }
 

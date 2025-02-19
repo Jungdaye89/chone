@@ -47,7 +47,10 @@ public class OrderDetailSearchRepositoryImpl implements OrderDetailSearchReposit
     Store userStore =
         queryFactory
             .selectFrom(store)
-            .where(store.id.eq(response.store().id()), store.user.id.eq(ownerUser.getId()))
+            .where(
+                store.id.eq(response.store().id()),
+                store.user.id.eq(ownerUser.getId()),
+                store.deletedAt.isNull())
             .fetchOne();
 
     if (userStore == null) {
@@ -98,7 +101,7 @@ public class OrderDetailSearchRepositoryImpl implements OrderDetailSearchReposit
         .from(order)
         .join(order.user, user)
         .join(order.store, store)
-        .where(order.id.eq(orderId))
+        .where(order.id.eq(orderId), order.deletedAt.isNull())
         .fetchOne();
   }
 
@@ -109,7 +112,10 @@ public class OrderDetailSearchRepositoryImpl implements OrderDetailSearchReposit
                 orderItem.id, product.name, orderItem.amount))
         .from(orderItem)
         .join(orderItem.product, product)
-        .where(orderItem.order.id.eq(orderId))
+        .where(
+            orderItem.order.id.eq(orderId),
+            orderItem.deletedAt.isNull(),
+            product.deletedAt.isNull())
         .fetch();
   }
 }
