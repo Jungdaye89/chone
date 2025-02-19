@@ -3,6 +3,7 @@ package com.chone.server.domains.auth.dto;
 import com.chone.server.domains.user.domain.Role;
 import com.chone.server.domains.user.domain.User;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
@@ -20,21 +21,18 @@ public class CustomUserDetails implements UserDetails {
         return user;
     }
 
-    public Role getRole(){
+    public Role getRole() {
         return user.getRole();
     }
 
-    //인증 및 인가 과정에서 사용자에게 부여된 Role을 반환하는 역할
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        Role role = user.getRole();
+        String authority = role.getAuthority();
 
+        SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority(authority);
         Collection<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new GrantedAuthority() {
-            @Override
-            public String getAuthority() {
-                return "ROLE_" + user.getRole().name();
-            }
-        });
+        authorities.add(simpleGrantedAuthority);
 
         return authorities;
     }
