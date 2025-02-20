@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 public enum PgStatus {
   SUCCESS("PG사 승인됨"),
   FAILED("PG사 처리 실패"),
+  ERROR("처리 중 오류"),
   PENDING("PG사 처리 대기");
 
   private final String description;
