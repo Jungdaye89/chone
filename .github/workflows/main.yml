@@ -3,7 +3,6 @@ on:
     branches:
       - test
     paths-ignore:
-      - ".github/workflows/**"
       - "README.md"
 
 jobs:
@@ -37,14 +36,19 @@ jobs:
       - name: List built files
         run: ls -al ./build/libs/
 
-      - name: Transfer Jar to EC2
+      - name: Create pem file
         env:
           EC2_KEY: ${{ secrets.EC2_KEY }}
+        run: |
+          echo "$EC2_KEY" > ec2.pem
+
+      - name: Transfer Jar to EC2
+        env:
           EC2_HOST: ${{ secrets.EC2_HOST }}
           EC2_USER: ${{ secrets.EC2_USER }}
           APP_NAME: ${{ secrets.APP_NAME }}
         run: |
-          scp -i $EC2_KEY ./build/libs/$APP_NAME $EC2_USER@$EC2_HOST:~/
+          scp -i ec2.pem ./build/libs/$APP_NAME $EC2_USER@$EC2_HOST:~/
 
       - name: Run Jar on EC2
         uses: appleboy/ssh-action@master
