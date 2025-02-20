@@ -7,8 +7,10 @@ import com.chone.server.domains.order.domain.OrderStatus;
 import com.chone.server.domains.order.repository.OrderRepository;
 import com.chone.server.domains.review.domain.Review;
 import com.chone.server.domains.review.dto.request.CreateRequestDto;
+import com.chone.server.domains.review.dto.request.DeleteRequestDto;
 import com.chone.server.domains.review.dto.request.ReviewListRequestDto;
 import com.chone.server.domains.review.dto.request.UpdateRequestDto;
+import com.chone.server.domains.review.dto.response.ReviewDeleteResponseDto;
 import com.chone.server.domains.review.dto.response.ReviewDetailResponseDto;
 import com.chone.server.domains.review.dto.response.ReviewListResponseDto;
 import com.chone.server.domains.review.dto.response.ReviewResponseDto;
@@ -100,7 +102,7 @@ public class ReviewService {
 
     Review review =
         reviewRepository
-            .findById(reviewId)
+            .findByIdAndDeletedAtIsNull(reviewId)
             .orElseThrow(() -> new ApiBusinessException(ReviewExceptionCode.REVIEW_NOT_FOUND));
 
     validateAccess(principal.getUser(), review);
@@ -123,7 +125,7 @@ public class ReviewService {
 
     Review review =
         reviewRepository
-            .findById(reviewId)
+            .findByIdAndDeletedAtIsNull(reviewId)
             .orElseThrow(() -> new ApiBusinessException(ReviewExceptionCode.REVIEW_NOT_FOUND));
 
     if (!review.getUser().getId().equals(principal.getUser().getId())) {
@@ -138,5 +140,45 @@ public class ReviewService {
         request.getContent(), request.getRating(), request.getImageUrl(), request.getIsPublic());
 
     return new ReviewUpdateResponseDto(review.getId(), review.getUpdatedAt());
+  }
+
+  @Transactional
+  public ReviewDeleteResponseDto deleteReview(
+      UUID reviewId, CustomUserDetails principal, DeleteRequestDto requestDto) {
+
+    if (principal == null || principal.getUser() == null) {
+      throw new ApiBusinessException(ReviewExceptionCode.REVIEW_UNAUTHORIZED);
+    }
+
+    Review review =
+        reviewRepository
+            .findByIdAndDeletedAtIsNull(reviewId)
+            .orElseThrow(() -> new ApiBusinessException(ReviewExceptionCode.REVIEW_NOT_FOUND));
+
+    if (review.getDeletedAt() != null) {
+      throw new ApiBusinessException(ReviewExceptionCode.ALREADY_DELETED);
+    }
+
+    switch (principal.getUser().getRole()) {
+      case CUSTOMER -> {
+        if (!review.getUser().getId().equals(principal.getUser().getId())) {
+          throw new ApiBusinessException(ReviewExceptionCode.REVIEW_FORBIDDEN);
+        }
+      }
+
+      case MANAGER, MASTER -> {
+        if (requestDto == null
+            || requestDto.getReason() == null
+            || requestDto.getReason().isBlank()) {
+          throw new ApiBusinessException(ReviewExceptionCode.INVALID_REQUEST);
+        }
+      }
+      default -> throw new ApiBusinessException(ReviewExceptionCode.REVIEW_FORBIDDEN);
+    }
+
+    review.softDelete(principal.getUser(), requestDto != null ? requestDto.getReason() : null);
+    reviewRepository.save(review);
+
+    return new ReviewDeleteResponseDto(review.getId(), review.getDeletedAt());
   }
 }
