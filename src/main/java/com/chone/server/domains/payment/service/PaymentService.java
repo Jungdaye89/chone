@@ -4,6 +4,8 @@ import com.chone.server.commons.exception.ApiBusinessException;
 import com.chone.server.commons.lock.DistributedLockTemplate;
 import com.chone.server.domains.auth.dto.CustomUserDetails;
 import com.chone.server.domains.order.domain.Order;
+import com.chone.server.domains.order.domain.OrderCancelReason;
+import com.chone.server.domains.order.domain.OrderStatus;
 import com.chone.server.domains.order.service.OrderService;
 import com.chone.server.domains.payment.domain.Payment;
 import com.chone.server.domains.payment.domain.PaymentStatus;
@@ -133,7 +135,15 @@ public class PaymentService {
     }
   }
 
-  private void updateOrderStatusBasedOnPayment(Order order, Payment payment) {}
+  private void updateOrderStatusBasedOnPayment(Order order, Payment payment) {
+    // todo: listener
+    if (payment.getStatus() == PaymentStatus.COMPLETED) {
+      order.updateStatus(OrderStatus.PAID);
+    } else if (payment.getStatus() == PaymentStatus.FAILED) {
+      order.cancel(OrderCancelReason.PAYMENT_FAILED);
+    }
+    orderService.saveOrder(order);
+  }
 
   private void handlePaymentFailure(Payment payment, Exception e) {}
 }

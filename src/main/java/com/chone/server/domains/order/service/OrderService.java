@@ -21,6 +21,7 @@ import com.chone.server.domains.product.service.ProductService;
 import com.chone.server.domains.store.domain.Store;
 import com.chone.server.domains.store.service.StoreService;
 import com.chone.server.domains.user.domain.User;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +42,8 @@ public class OrderService {
   private final StoreService storeService;
 
   @Transactional
-  public CreateOrderResponse createOrder(CreateOrderRequest request, CustomUserDetails principal) {
+  public CreateOrderResponse createOrder(
+      @Valid CreateOrderRequest request, CustomUserDetails principal) {
     User user = principal.getUser();
     Store store = storeService.findStoreById(request.storeId());
 
@@ -81,7 +83,7 @@ public class OrderService {
   }
 
   public CancelOrderResponse cancelOrder(
-      CustomUserDetails principal, UUID orderId, CancelOrderRequest requestDto) {
+      CustomUserDetails principal, UUID orderId, @Valid CancelOrderRequest requestDto) {
     Order order = repository.findForCancellationById(orderId);
     User currentUser = principal.getUser();
 
@@ -96,8 +98,8 @@ public class OrderService {
 
     Order savedOrder = updateAndSaveOrder(order, () -> order.cancel(requestDto.reasonNum()));
 
-    // TODO: 1. 결제
-    //       2. 배달
+    // TODO: 1. 결제 -> listener
+    //       2. 배달 -> listener
     return CancelOrderResponse.from(savedOrder);
   }
 
@@ -109,6 +111,8 @@ public class OrderService {
     order.softDelete(principal.getUser());
     repository.save(order);
 
+    // TODO: 1. 결제 -> listener
+    //       2. 배달 -> listener
     return DeleteOrderResponse.from(order);
   }
 
@@ -134,6 +138,10 @@ public class OrderService {
   @Transactional
   Order updateAndSaveOrder(Order order, Runnable updateAction) {
     updateAction.run();
+    return repository.save(order);
+  }
+
+  public Order saveOrder(Order order) {
     return repository.save(order);
   }
 }

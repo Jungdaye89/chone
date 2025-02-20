@@ -127,4 +127,8 @@ public class Order extends BaseEntity {
     this.delete(user);
     this.orderItems.forEach(item -> item.delete(user));
   }
+
+  public void updateStatus(OrderStatus status) {
+    if (status != null) this.status = status;
+  }
 }
