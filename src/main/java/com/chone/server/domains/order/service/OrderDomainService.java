@@ -38,12 +38,12 @@ public class OrderDomainService {
 
   public OrderType determineOrderType(Role userRole, CreateOrderRequest requestDto) {
     return switch (userRole) {
-      case OWNER -> OrderType.ONLINE;
+      case OWNER -> OrderType.OFFLINE;
       case CUSTOMER -> {
         if (!hasText(requestDto.address())) {
           throw new ApiBusinessException(OrderExceptionCode.MISSING_DELIVERY_ADDRESS);
         }
-        yield OrderType.OFFLINE;
+        yield OrderType.ONLINE;
       }
       default -> throw new ApiBusinessException(OrderExceptionCode.FORBIDDEN_ORDER);
     };
