@@ -145,5 +145,21 @@ public class PaymentService {
     orderService.saveOrder(order);
   }
 
-  private void handlePaymentFailure(Payment payment, Exception e) {}
+  private void handlePaymentFailure(Payment payment, Exception e) {
+    String errorMessage = e.getMessage();
+    String errorType = e.getClass().getSimpleName();
+    String errorCause = e.getCause() != null ? e.getCause().getMessage() : "Unknown cause";
+    String failureReason = String.format("[%s] %s - %s", errorType, errorMessage, errorCause);
+
+    payment.updateStatus(PaymentStatus.FAILED);
+    payment.updateCancelReason(failureReason);
+    repository.save(payment);
+
+    PgPaymentLog pgLog =
+        PgPaymentLog.builder(payment, PgStatus.ERROR, "결제 처리 중 오류 발생: " + e.getMessage()).build();
+    pgPaymentLogRepository.save(pgLog);
+
+    log.error(
+        "결제 처리 중 오류 발생: errorType-{} : message-{} : exception-{},", errorType, errorMessage, e);
+  }
 }
