@@ -27,9 +27,11 @@ public class ReviewRepositoryImpl implements ReviewSearchRepository {
   @Override
   public Page<ReviewPageResponseDto> findReviewsByCustomer(
       User customer, ReviewListRequestDto filterParams, Pageable pageable) {
+
     QReview review = QReview.review;
     BooleanBuilder predicate = new BooleanBuilder();
 
+    predicate.and(review.deletedAt.isNull());
     predicate.and(review.user.id.eq(customer.getId()).or(review.isPublic.isTrue()));
 
     applyFilters(predicate, filterParams, review);
@@ -40,9 +42,11 @@ public class ReviewRepositoryImpl implements ReviewSearchRepository {
   @Override
   public Page<ReviewPageResponseDto> findReviewsByOwner(
       User owner, ReviewListRequestDto filterParams, Pageable pageable) {
+
     QReview review = QReview.review;
     BooleanBuilder predicate = new BooleanBuilder();
 
+    predicate.and(review.deletedAt.isNull());
     predicate.and(review.store.user.id.eq(owner.getId()).or(review.isPublic.isTrue()));
 
     applyFilters(predicate, filterParams, review);
@@ -53,8 +57,11 @@ public class ReviewRepositoryImpl implements ReviewSearchRepository {
   @Override
   public Page<ReviewPageResponseDto> findReviewsByManagerOrMaster(
       User user, ReviewListRequestDto filterParams, Pageable pageable) {
+
     QReview review = QReview.review;
     BooleanBuilder predicate = new BooleanBuilder();
+
+    predicate.and(review.deletedAt.isNull());
 
     applyFilters(predicate, filterParams, review);
 
