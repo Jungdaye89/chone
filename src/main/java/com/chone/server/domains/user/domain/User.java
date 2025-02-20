@@ -6,12 +6,15 @@ import com.chone.server.domains.payment.domain.Payment;
 import com.chone.server.domains.review.domain.Review;
 import com.chone.server.domains.store.domain.Store;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.Comment;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.springframework.util.StringUtils.hasText;
 
 
 @Entity
@@ -30,16 +33,19 @@ public class User extends BaseEntity {
     private Long id;
 
     @NotNull
+    @NotBlank
     @Column(name = "username", nullable = false, unique = true, length = 10)
     @Comment("사용자 아이디")
     private String username;
 
     @NotNull
+    @NotBlank
     @Column(name = "password", nullable = false)
     @Comment("사용자 비밀번호")
     private String password;
 
     @NotNull
+    @NotBlank
     @Column(name = "email", nullable = false, unique = true)
     @Comment("사용자 이메일")
     private String email;
@@ -82,11 +88,8 @@ public class User extends BaseEntity {
     }
 
     public void updateUser(String email, String password) {
-        this.email = email;
-        //null값이 아닐때 변경할 수 있도록 함
-        if (password != null && !password.isEmpty()) {
-            this.password = password;
-        }
+        if(hasText(email)) this.email = email;
+        if(hasText(password)) this.password = password;
     }
 
     public void updateRole(Role role) {
