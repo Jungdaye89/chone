@@ -65,5 +65,6 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
-            pkill -f "java -jar ${{ secrets.APP_NAME }}" || true
             nohup java -jar ${{ secrets.APP_NAME }} > app.log 2>&1 &
+
+# pkill -f "java -jar ${{ secrets.APP_NAME }}" || true
