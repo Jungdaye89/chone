@@ -67,4 +67,3 @@ jobs:
           script: |
             pkill -f "java -jar ${{ secrets.APP_NAME }}" || true
             nohup java -jar ${{ secrets.APP_NAME }} > app.log 2>&1 &
-            disown
