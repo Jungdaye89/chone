@@ -50,13 +50,13 @@ jobs:
           printf '%s' "$EC2_KEY" > ec2.pem
           chmod 400 ec2.pem
 
-      - name: Transfer Jar to EC2
-        env:
-          EC2_HOST: ${{ secrets.EC2_HOST }}
-          EC2_USER: ${{ secrets.EC2_USER }}
-          APP_NAME: ${{ secrets.APP_NAME }}
-        run: |
-          scp -i ec2.pem ./build/libs/$APP_NAME $EC2_USER@$EC2_HOST:~/
+      # - name: Transfer Jar to EC2
+      #   env:
+      #     EC2_HOST: ${{ secrets.EC2_HOST }}
+      #     EC2_USER: ${{ secrets.EC2_USER }}
+      #     APP_NAME: ${{ secrets.APP_NAME }}
+      #   run: |
+      #     scp -i ec2.pem ./build/libs/$APP_NAME $EC2_USER@$EC2_HOST:~/
 
       - name: Run Jar on EC2
         uses: appleboy/ssh-action@master
@@ -66,4 +66,4 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
           script: |
             pkill -f "java -jar ${{ secrets.APP_NAME }}" || true
-            nohup java -jar ${{ secrets.APP_NAME }}
+            nohup java -jar ${{ secrets.APP_NAME }} > app.log 2>&1 &
