@@ -3,12 +3,13 @@ package com.chone.server.domains.review.controller;
 import com.chone.server.domains.auth.dto.CustomUserDetails;
 import com.chone.server.domains.review.dto.request.CreateRequestDto;
 import com.chone.server.domains.review.dto.request.DeleteRequestDto;
-import com.chone.server.domains.review.dto.request.ReviewListRequestDto;
+import com.chone.server.domains.review.dto.request.ListRequestDto;
 import com.chone.server.domains.review.dto.request.UpdateRequestDto;
 import com.chone.server.domains.review.dto.response.ReviewDeleteResponseDto;
 import com.chone.server.domains.review.dto.response.ReviewDetailResponseDto;
 import com.chone.server.domains.review.dto.response.ReviewListResponseDto;
 import com.chone.server.domains.review.dto.response.ReviewResponseDto;
+import com.chone.server.domains.review.dto.response.ReviewStatisticsResponseDto;
 import com.chone.server.domains.review.dto.response.ReviewUpdateResponseDto;
 import com.chone.server.domains.review.service.ReviewService;
 import jakarta.validation.Valid;
@@ -43,7 +44,7 @@ public class ReviewController {
       @AuthenticationPrincipal CustomUserDetails principal,
       @RequestParam Map<String, String> params) {
 
-    ReviewListRequestDto requestDto = ReviewListRequestDto.from(params);
+    ListRequestDto requestDto = ListRequestDto.from(params);
     Pageable pageable = requestDto.toPageable();
 
     ReviewListResponseDto response = reviewService.getReviews(requestDto, principal, pageable);
@@ -76,6 +77,14 @@ public class ReviewController {
       @RequestBody(required = false) @Valid DeleteRequestDto requestDto) {
 
     ReviewDeleteResponseDto response = reviewService.deleteReview(id, principal, requestDto);
+    return ResponseEntity.ok(response);
+  }
+
+  @GetMapping("/statistics")
+  public ResponseEntity<ReviewStatisticsResponseDto> getReviewStatistics(
+      @RequestParam(name = "storeId") UUID storeId) {
+
+    ReviewStatisticsResponseDto response = reviewService.getReviewStatistics(storeId);
     return ResponseEntity.ok(response);
   }
 }
