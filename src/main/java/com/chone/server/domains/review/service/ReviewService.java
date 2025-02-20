@@ -14,22 +14,25 @@ import com.chone.server.domains.review.dto.response.ReviewDeleteResponseDto;
 import com.chone.server.domains.review.dto.response.ReviewDetailResponseDto;
 import com.chone.server.domains.review.dto.response.ReviewListResponseDto;
 import com.chone.server.domains.review.dto.response.ReviewResponseDto;
+import com.chone.server.domains.review.dto.response.ReviewStatisticsResponseDto;
 import com.chone.server.domains.review.dto.response.ReviewUpdateResponseDto;
 import com.chone.server.domains.review.exception.ReviewExceptionCode;
 import com.chone.server.domains.review.repository.ReviewRepository;
 import com.chone.server.domains.review.repository.ReviewSearchRepository;
+import com.chone.server.domains.review.repository.ReviewStatisticsRepository;
 import com.chone.server.domains.store.domain.Store;
 import com.chone.server.domains.store.repository.StoreRepository;
 import com.chone.server.domains.user.domain.User;
-import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -40,6 +43,7 @@ public class ReviewService {
   private final OrderRepository orderRepository;
   private final StoreRepository storeRepository;
   private final ReviewSearchRepository reviewSearchRepository;
+  private final ReviewStatisticsRepository reviewStatisticsRepository;
 
   @Transactional
   public ReviewResponseDto createReview(CreateRequestDto request, User user) {
@@ -180,5 +184,26 @@ public class ReviewService {
     reviewRepository.save(review);
 
     return new ReviewDeleteResponseDto(review.getId(), review.getDeletedAt());
+  }
+
+  @Transactional(readOnly = true)
+  public ReviewStatisticsResponseDto getReviewStatistics(UUID storeId) {
+
+    boolean storeExists = storeRepository.existsById(storeId);
+    if (!storeExists) {
+      throw new ApiBusinessException(ReviewExceptionCode.STORE_NOT_FOUND);
+    }
+
+    BigDecimal averageRating = reviewStatisticsRepository.calculateAverageRating(storeId);
+
+    int totalReviews = reviewStatisticsRepository.countTotalReviews(storeId);
+
+    Map<Integer, Integer> ratingDistribution =
+        reviewStatisticsRepository.countRatingDistribution(storeId);
+
+    LocalDateTime lastUpdatedAt = LocalDateTime.now();
+
+    return new ReviewStatisticsResponseDto(
+        averageRating, totalReviews, ratingDistribution, lastUpdatedAt);
   }
 }

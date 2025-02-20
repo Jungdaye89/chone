@@ -3,7 +3,7 @@ package com.chone.server.domains.review.controller;
 import com.chone.server.domains.auth.dto.CustomUserDetails;
 import com.chone.server.domains.review.dto.request.CreateRequestDto;
 import com.chone.server.domains.review.dto.request.DeleteRequestDto;
-import com.chone.server.domains.review.dto.request.ListRequestDto;
+import com.chone.server.domains.review.dto.request.ReviewListRequestDto;
 import com.chone.server.domains.review.dto.request.UpdateRequestDto;
 import com.chone.server.domains.review.dto.response.ReviewDeleteResponseDto;
 import com.chone.server.domains.review.dto.response.ReviewDetailResponseDto;
@@ -44,7 +44,7 @@ public class ReviewController {
       @AuthenticationPrincipal CustomUserDetails principal,
       @RequestParam Map<String, String> params) {
 
-    ListRequestDto requestDto = ListRequestDto.from(params);
+    ReviewListRequestDto requestDto = ReviewListRequestDto.from(params);
     Pageable pageable = requestDto.toPageable();
 
     ReviewListResponseDto response = reviewService.getReviews(requestDto, principal, pageable);
