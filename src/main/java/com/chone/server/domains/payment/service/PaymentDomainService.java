@@ -14,22 +14,18 @@ import org.springframework.stereotype.Service;
 public class PaymentDomainService {
 
   public void validatePaymentRequest(
-      Order order, @Valid CreatePaymentRequest requestDto, User user, boolean paymentExists) {
-    validateNoDuplicatePayment(paymentExists);
+      Order order, @Valid CreatePaymentRequest requestDto, User user) {
     validateOrderStatus(order);
     validatePriceMatch(order, requestDto);
     validatePermissionByRole(order, user);
   }
 
-  private void validateNoDuplicatePayment(boolean paymentExists) {
-    if (paymentExists) {
-      throw new ApiBusinessException(PaymentExceptionCode.ALREADY_PAID);
-    }
-  }
-
   private void validateOrderStatus(Order order) {
     if (order.getStatus() == OrderStatus.CANCELED) {
       throw new ApiBusinessException(PaymentExceptionCode.CANCELED_ORDER);
+    }
+    if (order.getStatus() == OrderStatus.PAID) {
+      throw new ApiBusinessException(PaymentExceptionCode.ALREADY_PAID);
     }
   }
 
