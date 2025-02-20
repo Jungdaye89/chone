@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @AllArgsConstructor
 @Builder
@@ -13,6 +14,7 @@ public class UpdateRequestDto {
 
   private String name;
   private double price;
+  @Setter
   private String imageUrl;
   private String description;
   private Boolean isAvailable;
