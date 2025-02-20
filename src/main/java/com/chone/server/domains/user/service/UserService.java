@@ -7,19 +7,19 @@ import com.chone.server.domains.user.domain.User;
 import com.chone.server.domains.user.dto.request.SignupRequestDto;
 import com.chone.server.domains.user.dto.request.UserRoleUpdateRequestDto;
 import com.chone.server.domains.user.dto.request.UserUpdateRequestDto;
+import com.chone.server.domains.user.dto.response.SearchUserResponseDto;
 import com.chone.server.domains.user.dto.response.UserResponseDto;
 import com.chone.server.domains.user.exception.UserExceptionCode;
 import com.chone.server.domains.user.repository.UserRepository;
-import jdk.jshell.spi.ExecutionControl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.nio.file.AccessDeniedException;
-import java.util.List;
+import java.time.LocalDate;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -58,21 +58,20 @@ public class UserService {
     }
 
     //회원목록 조회
-    public List<UserResponseDto> findUserList(CustomUserDetails currentUser) {
-        // 현재 사용자의 역할이 MANAGER 또는 MASTER인지 체크
-        if (!(currentUser.getRole() == Role.MANAGER || currentUser.getRole() == Role.MASTER)) {
+    public Page<SearchUserResponseDto> findUsers(CustomUserDetails currentUser, String username, String email, String role,
+                                                 LocalDate startDate, LocalDate endDate, Pageable pageable) {
+        //현재 사용자가 MASTER, MANAGER인지 확인
+        if (!(currentUser.getRole() == Role.MASTER|| currentUser.getRole() == Role.MANAGER)) {
             throw new ApiBusinessException(UserExceptionCode.USER_NOT_AUTHORITY);
         }
+        Page<User> findUsers = userRepository.findUsers(username, email, role, startDate, endDate, pageable);
 
-        return userRepository.findAll()
-                .stream()
-                .map(UserResponseDto::toUserDto)
-                .collect(Collectors.toList());
+        return findUsers.map(SearchUserResponseDto::fromEntity);
     }
 
     //특정 회원정보 조회
     public UserResponseDto findUserByUserId(Long userId) {
-        return UserResponseDto.toUserDto(userRepository.findById(userId)
+        return UserResponseDto.fromEntity(userRepository.findById(userId)
                 .orElseThrow(() -> new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND)));
     }
 
@@ -94,7 +93,7 @@ public class UserService {
 
         user.updateUser(requestDto.getEmail(), encodedPassword);
 
-        return UserResponseDto.toUserDto(user);
+        return UserResponseDto.fromEntity(user);
     }
 
     //Master나 Manager가 회원의 권한을 Owner로 변경
@@ -109,7 +108,7 @@ public class UserService {
         }
 
         user.updateRole(userRoleUpdateRequestDto.getRole());
-        return UserResponseDto.toUserDto(user);
+        return UserResponseDto.fromEntity(user);
     }
 
     //휴면 계정 전환
@@ -119,7 +118,7 @@ public class UserService {
         user.updateIsAvailable();
         userRepository.save(user);
 
-        return UserResponseDto.toUserDto(user);
+        return UserResponseDto.fromEntity(user);
     }
 
 
