@@ -7,11 +7,14 @@ import com.chone.server.domains.order.domain.Order;
 import com.chone.server.domains.order.service.OrderService;
 import com.chone.server.domains.payment.domain.Payment;
 import com.chone.server.domains.payment.domain.PaymentStatus;
+import com.chone.server.domains.payment.domain.PgPaymentLog;
+import com.chone.server.domains.payment.domain.PgStatus;
 import com.chone.server.domains.payment.dto.request.CreatePaymentRequest;
 import com.chone.server.domains.payment.dto.response.CreatePaymentResponse;
 import com.chone.server.domains.payment.exception.PaymentExceptionCode;
 import com.chone.server.domains.payment.infrastructure.pg.PgApiService;
 import com.chone.server.domains.payment.repository.PaymentRepository;
+import com.chone.server.domains.payment.repository.PgPaymentLogRepository;
 import jakarta.persistence.LockTimeoutException;
 import jakarta.validation.Valid;
 import java.util.Map;
@@ -27,8 +30,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Log4j2
 public class PaymentService {
   private static final String LOCK_KEY_PREFIX = "payment:order:";
+  private static final String PG_STATUS_KEY = "status";
+  private static final String PG_MESSAGE_KEY = "message";
+  private static final String PG_TRANSACTION_ID_KEY = "transactionId";
 
   private final PaymentRepository repository;
+  private final PgPaymentLogRepository pgPaymentLogRepository;
 
   private final PaymentDomainService domainService;
   private final OrderService orderService;
@@ -92,7 +99,39 @@ public class PaymentService {
     return Payment.builder(order, PaymentStatus.PENDING, requestDto.paymentMethod()).build();
   }
 
-  private void updatePaymentWithPgResponse(Payment payment, Map<String, String> pgResponse) {}
+  private void updatePaymentWithPgResponse(Payment payment, Map<String, String> pgResponse) {
+    String status = pgResponse.get(PG_STATUS_KEY);
+    String message = pgResponse.get(PG_MESSAGE_KEY);
+    String transactionId = pgResponse.get(PG_TRANSACTION_ID_KEY);
+
+    if ("success".equals(status)) {
+      updatePaymentStatus(
+          payment, PaymentStatus.COMPLETED, PgStatus.SUCCESS, message, transactionId);
+    } else {
+      updatePaymentStatus(payment, PaymentStatus.FAILED, PgStatus.FAILED, message, null);
+    }
+  }
+
+  private void updatePaymentStatus(
+      Payment payment,
+      PaymentStatus status,
+      PgStatus pgStatus,
+      String message,
+      String transactionId) {
+    payment.updateStatus(status);
+    if (status == PaymentStatus.FAILED) payment.updateCancelReason(message);
+    repository.save(payment);
+
+    PgPaymentLog.PgPaymentLogBuilder logBuilder = PgPaymentLog.builder(payment, pgStatus, message);
+    if (transactionId != null) logBuilder.pgTransactionId(transactionId);
+    pgPaymentLogRepository.save(logBuilder.build());
+
+    if (status == PaymentStatus.COMPLETED) {
+      log.info("결제 성공: paymentId={}, transactionId={}", payment.getId(), transactionId);
+    } else {
+      log.warn("PG 결제 실패: paymentId={}, 실패 사유={}", payment.getId(), message);
+    }
+  }
 
   private void updateOrderStatusBasedOnPayment(Order order, Payment payment) {}
 

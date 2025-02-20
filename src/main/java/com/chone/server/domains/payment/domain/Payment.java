@@ -1,5 +1,7 @@
 package com.chone.server.domains.payment.domain;
 
+import static org.springframework.util.StringUtils.hasText;
+
 import com.chone.server.commons.jpa.BaseEntity;
 import com.chone.server.domains.order.domain.Order;
 import jakarta.persistence.Column;
@@ -43,14 +45,6 @@ public class Payment extends BaseEntity {
   @Comment("주문")
   private Order order;
 
-  @Comment("주문 유형이 ONLINE일 경우 고객의 아이디를 저장하여 조회에 사용하도록 하는 필드")
-  @Column(name = "customer_id")
-  private Long customerId;
-
-  @Comment("주문 유형이 OFFLINE일 경우 가게의 아이디를 저장하여 조회에 사용하도록 하는 필드")
-  @Column(name = "store_owner_id")
-  private UUID storeOwnerId;
-
   @NotNull
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
@@ -71,5 +65,13 @@ public class Payment extends BaseEntity {
       Order order, PaymentStatus status, PaymentMethod paymentMethod) {
 
     return Payment.innerBuilder().order(order).status(status).paymentMethod(paymentMethod);
+  }
+
+  public void updateStatus(PaymentStatus status) {
+    if (status != null) this.status = status;
+  }
+
+  public void updateCancelReason(String cancelReason) {
+    if (!hasText(cancelReason)) this.cancelReason = cancelReason;
   }
 }
