@@ -2,8 +2,10 @@ package com.chone.server.domains.review.controller;
 
 import com.chone.server.domains.auth.dto.CustomUserDetails;
 import com.chone.server.domains.review.dto.request.CreateRequestDto;
+import com.chone.server.domains.review.dto.request.DeleteRequestDto;
 import com.chone.server.domains.review.dto.request.ReviewListRequestDto;
 import com.chone.server.domains.review.dto.request.UpdateRequestDto;
+import com.chone.server.domains.review.dto.response.ReviewDeleteResponseDto;
 import com.chone.server.domains.review.dto.response.ReviewDetailResponseDto;
 import com.chone.server.domains.review.dto.response.ReviewListResponseDto;
 import com.chone.server.domains.review.dto.response.ReviewResponseDto;
@@ -63,6 +65,17 @@ public class ReviewController {
       @AuthenticationPrincipal CustomUserDetails principal) {
 
     ReviewUpdateResponseDto response = reviewService.updateReview(id, request, principal);
+    return ResponseEntity.ok(response);
+  }
+
+  @PreAuthorize("hasAnyRole('CUSTOMER', 'MANAGER', 'MASTER')")
+  @DeleteMapping("/{id}")
+  public ResponseEntity<ReviewDeleteResponseDto> deleteReview(
+      @PathVariable("id") UUID id,
+      @AuthenticationPrincipal CustomUserDetails principal,
+      @RequestBody(required = false) @Valid DeleteRequestDto requestDto) {
+
+    ReviewDeleteResponseDto response = reviewService.deleteReview(id, principal, requestDto);
     return ResponseEntity.ok(response);
   }
 }

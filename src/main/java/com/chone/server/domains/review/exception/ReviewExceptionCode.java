@@ -14,6 +14,7 @@ public enum ReviewExceptionCode implements ExceptionCode {
   // 400 BAD_REQUEST
   INVALID_PARAMETER(BAD_REQUEST, "요청 파라미터가 유효하지 않습니다."),
   INVALID_CONTENT(BAD_REQUEST, "리뷰 내용은 5자 이상이어야 합니다."),
+  INVALID_REQUEST(BAD_REQUEST, "관리자 삭제 요청 시 사유를 반드시 입력해야 합니다."),
 
   // 401 UNAUTHORIZED
   REVIEW_UNAUTHORIZED(UNAUTHORIZED, "인증이 필요한 요청입니다."),
@@ -22,6 +23,7 @@ public enum ReviewExceptionCode implements ExceptionCode {
   REVIEW_FORBIDDEN(FORBIDDEN, "주문한 고객만 리뷰를 작성할 수 있습니다."),
   REVIEW_FORBIDDEN_ACTION(FORBIDDEN, "리뷰 작성자가 아닌 사용자는 해당 작업을 수행할 수 없습니다."),
   REVIEW_UPDATE_EXPIRED(FORBIDDEN, "리뷰는 작성 후 3일 이내에만 수정할 수 있습니다."),
+  REVIEW_DELETE_FORBIDDEN(FORBIDDEN, "해당 요청을 수행할 권한이 없습니다."),
 
   // 404 NOT_FOUND
   REVIEW_NOT_FOUND(NOT_FOUND, "요청하신 리뷰 정보를 찾을 수 없습니다."),
@@ -30,6 +32,7 @@ public enum ReviewExceptionCode implements ExceptionCode {
 
   // 409 CONFLICT
   REVIEW_ALREADY_EXISTS(CONFLICT, "해당 주문에 대한 리뷰가 이미 존재합니다."),
+  ALREADY_DELETED(CONFLICT, "이미 삭제된 리뷰입니다."),
 
   // 422 UNPROCESSABLE_ENTITY
   INVALID_RATING(UNPROCESSABLE_ENTITY, "평점 값은 1에서 5 사이의 숫자여야 합니다."),

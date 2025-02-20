@@ -90,4 +90,10 @@ public class Review extends BaseEntity {
     if (hasText(imageUrl)) this.imageUrl = imageUrl;
     if (isPublic != null) this.isPublic = isPublic;
   }
+
+  public void softDelete(User user, String reason) {
+
+    this.delete(user);
+    this.deletedReason = reason;
+  }
 }
