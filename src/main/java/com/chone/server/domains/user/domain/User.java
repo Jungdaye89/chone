@@ -53,7 +53,7 @@ public class User extends BaseEntity {
     @NotNull
     @Column(name = "is_available", nullable = false, unique = false)
     @Comment("휴면상태 여부")
-    private Boolean isAvailable;
+    private boolean isAvailable;
 
     @OneToMany(mappedBy = "user")
     private List<Order> order = new ArrayList<>();
@@ -95,5 +95,9 @@ public class User extends BaseEntity {
 
     public void updateIsAvailable() {
         this.isAvailable = !this.isAvailable;
+    }
+
+    public boolean isAvailable() {
+        return this.isAvailable;
     }
 }
