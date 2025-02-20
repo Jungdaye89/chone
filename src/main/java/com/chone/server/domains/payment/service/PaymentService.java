@@ -6,6 +6,7 @@ import com.chone.server.domains.auth.dto.CustomUserDetails;
 import com.chone.server.domains.order.domain.Order;
 import com.chone.server.domains.order.service.OrderService;
 import com.chone.server.domains.payment.domain.Payment;
+import com.chone.server.domains.payment.domain.PaymentStatus;
 import com.chone.server.domains.payment.dto.request.CreatePaymentRequest;
 import com.chone.server.domains.payment.dto.response.CreatePaymentResponse;
 import com.chone.server.domains.payment.exception.PaymentExceptionCode;
@@ -88,7 +89,7 @@ public class PaymentService {
   }
 
   private Payment createPaymentEntity(CreatePaymentRequest requestDto, Order order) {
-    return null;
+    return Payment.builder(order, PaymentStatus.PENDING, requestDto.paymentMethod()).build();
   }
 
   private void updatePaymentWithPgResponse(Payment payment, Map<String, String> pgResponse) {}
