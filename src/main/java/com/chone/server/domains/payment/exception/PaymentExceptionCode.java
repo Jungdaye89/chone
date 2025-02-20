@@ -25,6 +25,7 @@ public enum PaymentExceptionCode implements ExceptionCode {
 
   PAYMENT_PROCESSING_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "결제 처리 중 오류가 발생했습니다."),
   PAYMENT_IN_PROGRESS(HttpStatus.SERVICE_UNAVAILABLE, "결제가 진행 중입니다. 잠시 후 다시 시도해주세요."),
+  PAYMENT_GATEWAY_ERROR(HttpStatus.SERVICE_UNAVAILABLE, "결제 시스템 연동 중 오류가 발생했습니다."),
   ;
 
   private final HttpStatus status;

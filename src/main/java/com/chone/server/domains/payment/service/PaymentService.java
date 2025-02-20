@@ -5,13 +5,15 @@ import com.chone.server.commons.lock.DistributedLockTemplate;
 import com.chone.server.domains.auth.dto.CustomUserDetails;
 import com.chone.server.domains.order.domain.Order;
 import com.chone.server.domains.order.service.OrderService;
+import com.chone.server.domains.payment.domain.Payment;
 import com.chone.server.domains.payment.dto.request.CreatePaymentRequest;
 import com.chone.server.domains.payment.dto.response.CreatePaymentResponse;
 import com.chone.server.domains.payment.exception.PaymentExceptionCode;
+import com.chone.server.domains.payment.infrastructure.pg.PgApiService;
 import com.chone.server.domains.payment.repository.PaymentRepository;
-import com.chone.server.domains.payment.repository.PgPaymentLogRepository;
 import jakarta.persistence.LockTimeoutException;
 import jakarta.validation.Valid;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
@@ -24,10 +26,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Log4j2
 public class PaymentService {
   private static final String LOCK_KEY_PREFIX = "payment:order:";
+
   private final PaymentRepository repository;
-  private final PgPaymentLogRepository pgPaymentLogRepository;
+
   private final PaymentDomainService domainService;
   private final OrderService orderService;
+  private final PgApiService pgApiService;
   private final DistributedLockTemplate lockTemplate;
 
   @Transactional
@@ -60,7 +64,21 @@ public class PaymentService {
 
   private CreatePaymentResponse processPaymentTransaction(
       CreatePaymentRequest requestDto, Order order) {
-    return null;
+    verifyNoExistingPayment(order.getId());
+
+    Payment payment = createPaymentEntity(requestDto, order);
+    Payment savedPayment = repository.save(payment);
+
+    try {
+      Map<String, String> pgResponse = pgApiService.requestPayment();
+      updatePaymentWithPgResponse(payment, pgResponse);
+      updateOrderStatusBasedOnPayment(order, payment);
+
+      return CreatePaymentResponse.from(savedPayment);
+    } catch (Exception e) {
+      handlePaymentFailure(payment, e);
+      throw new ApiBusinessException(PaymentExceptionCode.PAYMENT_GATEWAY_ERROR);
+    }
   }
 
   private void verifyNoExistingPayment(UUID orderId) {
@@ -68,4 +86,14 @@ public class PaymentService {
       throw new ApiBusinessException(PaymentExceptionCode.ALREADY_PAID);
     }
   }
+
+  private Payment createPaymentEntity(CreatePaymentRequest requestDto, Order order) {
+    return null;
+  }
+
+  private void updatePaymentWithPgResponse(Payment payment, Map<String, String> pgResponse) {}
+
+  private void updateOrderStatusBasedOnPayment(Order order, Payment payment) {}
+
+  private void handlePaymentFailure(Payment payment, Exception e) {}
 }
