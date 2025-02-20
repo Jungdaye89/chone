@@ -15,7 +15,7 @@ public class UserResponseDto {
     private String email;
     private Role role;
 
-    public static UserResponseDto toUserDto(User user) {
+    public static UserResponseDto fromEntity(User user) {
         return new UserResponseDto(user.getId(), user.getUsername(), user.getEmail(), user.getRole());
     }
 }
