@@ -2,63 +2,68 @@ package com.chone.server.domains.auth.dto;
 
 import com.chone.server.domains.user.domain.Role;
 import com.chone.server.domains.user.domain.User;
-import java.util.ArrayList;
-import java.util.Collection;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 public class CustomUserDetails implements UserDetails {
 
-  private final User user;
+    private final User user;
 
-  public CustomUserDetails(User user) {
-    this.user = user;
-  }
+    public CustomUserDetails(User user) {
+        this.user = user;
+    }
 
-  public User getUser() {
-    return user;
-  }
+    public User getUser() {
+        return user;
+    }
 
-  @Override
-  public String getPassword() {
-    return user.getPassword();
-  }
+    public Role getRole() {
+        return user.getRole();
+    }
 
-  @Override
-  public String getUsername() {
-    return user.getUsername();
-  }
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        Role role = user.getRole();
+        String authority = role.getAuthority();
 
-  @Override
-  public Collection<? extends GrantedAuthority> getAuthorities() {
-    Role role = user.getRole();
-    String authority = "ROLE_" + role.name();
+        SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority(authority);
+        Collection<GrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(simpleGrantedAuthority);
 
-    SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority(authority);
-    Collection<GrantedAuthority> authorities = new ArrayList<>();
-    authorities.add(simpleGrantedAuthority);
+        return authorities;
+    }
 
-    return authorities;
-  }
+    @Override
+    public String getPassword() {
+        return user.getPassword();
+    }
 
-  @Override
-  public boolean isAccountNonExpired() {
-    return true;
-  }
+    @Override
+    public String getUsername() {
+        return user.getUsername();
+    }
 
-  @Override
-  public boolean isAccountNonLocked() {
-    return true;
-  }
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
 
-  @Override
-  public boolean isCredentialsNonExpired() {
-    return true;
-  }
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
 
-  @Override
-  public boolean isEnabled() {
-    return true;
-  }
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return user.isAvailable(); //false면 로그인 불가
+    }
 }
