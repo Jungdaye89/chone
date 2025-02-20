@@ -58,7 +58,7 @@ public class UserService {
     }
 
     //회원목록 조회
-    public List<UserResponseDto> findUserList(CustomUserDetails currentUser) throws AccessDeniedException {
+    public List<UserResponseDto> findUserList(CustomUserDetails currentUser) {
         // 현재 사용자의 역할이 MANAGER 또는 MASTER인지 체크
         if (!(currentUser.getRole() == Role.MANAGER || currentUser.getRole() == Role.MASTER)) {
             throw new ApiBusinessException(UserExceptionCode.USER_NOT_AUTHORITY);
@@ -78,7 +78,7 @@ public class UserService {
 
     //회원 정보 수정
     @Transactional
-    public UserResponseDto updateUser(Long id, UserUpdateRequestDto requestDto, CustomUserDetails currentUser) throws AccessDeniedException {
+    public UserResponseDto updateUser(Long id, UserUpdateRequestDto requestDto, CustomUserDetails currentUser) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND));
 
@@ -99,7 +99,7 @@ public class UserService {
 
     //Master나 Manager가 회원의 권한을 Owner로 변경
     @Transactional
-    public UserResponseDto updateUserRole(Long id, UserRoleUpdateRequestDto userRoleUpdateRequestDto, CustomUserDetails currentUser) throws AccessDeniedException {
+    public UserResponseDto updateUserRole(Long id, UserRoleUpdateRequestDto userRoleUpdateRequestDto, CustomUserDetails currentUser) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND));
 
@@ -114,18 +114,8 @@ public class UserService {
 
     //휴면 계정 전환
     @Transactional
-    public UserResponseDto updateStatus(Long id, CustomUserDetails currentUser) throws AccessDeniedException {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND));
-
-        //권한 체크(본인이거나, MANAGER 또는 MASTER 권한이어야 함)
-        // 권한 체크 (본인이거나, MANAGER 또는 MASTER 권한이 있어야 함)
-        if (!user.getUsername().equals(currentUser.getUsername()) &&
-                !currentUser.getRole().equals(Role.MANAGER) &&
-                !currentUser.getRole().equals(Role.MASTER)) {
-            throw new ApiBusinessException(UserExceptionCode.USER_NOT_AUTHORITY);
-        }
-
+    public UserResponseDto updateStatus(Long id, CustomUserDetails currentUser) {
+        User user = getUserWithAuthorityCheck(id, currentUser);
         user.updateIsAvailable();
         userRepository.save(user);
 
@@ -134,20 +124,22 @@ public class UserService {
 
 
     @Transactional
-    public void deleteUser(Long id, User currentUser) throws AccessDeniedException {
+    public void deleteUser(Long id, CustomUserDetails currentUser) {
+        User user = getUserWithAuthorityCheck(id, currentUser);
+        user.updateIsAvailable();
+        user.delete(user);
+    }
+
+    private User getUserWithAuthorityCheck(Long id, CustomUserDetails currentUser) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND));
 
         //권한 체크(본인이거나, MANAGER 또는 MASTER 권한이어야 함)
-        // 권한 체크 (본인이거나, MANAGER 또는 MASTER 권한이 있어야 함)
-        if (!user.getUsername().equals(currentUser.getUsername()) &&
-                !currentUser.getRole().equals(Role.MANAGER) &&
-                !currentUser.getRole().equals(Role.MASTER)) {
+        if (!(user.getUsername().equals(currentUser.getUsername()) ||
+                currentUser.getRole().equals(Role.MANAGER) ||
+                currentUser.getRole().equals(Role.MASTER))) {
             throw new ApiBusinessException(UserExceptionCode.USER_NOT_AUTHORITY);
         }
-
-        user.updateIsAvailable();
-        user.delete(currentUser);
+        return user;
     }
-
 }
