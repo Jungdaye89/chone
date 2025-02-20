@@ -58,7 +58,6 @@ public class OrderItem extends BaseEntity {
   private int price = 0;
 
   public static OrderItemBuilder builder(Order order, Product product, int amount, int price) {
-
     return OrderItem.innerBuilder().order(order).product(product).amount(amount).price(price);
   }
 

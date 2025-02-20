@@ -3,7 +3,6 @@ package com.chone.server.domains.order.service;
 import static org.springframework.util.StringUtils.hasText;
 
 import com.chone.server.commons.exception.ApiBusinessException;
-import com.chone.server.domains.common.vo.Price;
 import com.chone.server.domains.order.domain.Order;
 import com.chone.server.domains.order.domain.OrderItem;
 import com.chone.server.domains.order.domain.OrderStatus;
@@ -60,10 +59,10 @@ public class OrderDomainService {
 
     validateStoreOperationStatus(store);
     Map<UUID, Product> productMap = validateAndGetProductMap(itemRequests, products);
-    Price totalPrice = calculateTotalPrice(productMap, itemRequests);
+    int totalPrice = calculateTotalPrice(productMap, itemRequests);
 
     Order order =
-        Order.builder(store, user, orderType, totalPrice.value(), OrderStatus.PENDING)
+        Order.builder(store, user, orderType, totalPrice, OrderStatus.PENDING)
             .request(requestText)
             .build();
 
@@ -103,15 +102,14 @@ public class OrderDomainService {
     }
   }
 
-  private Price calculateTotalPrice(Map<UUID, Product> productMap, List<OrderItemRequest> items) {
-    return Price.sum(
-        items.stream()
-            .map(
-                item -> {
-                  Product product = productMap.get(item.productId());
-                  return new Price(product.getPrice()).multiply(item.quantity());
-                })
-            .toList());
+  private int calculateTotalPrice(Map<UUID, Product> productMap, List<OrderItemRequest> items) {
+    return items.stream()
+        .mapToInt(
+            item -> {
+              Product product = productMap.get(item.productId());
+              return product.getPrice() * item.quantity();
+            })
+        .sum();
   }
 
   private List<OrderItem> createOrderItems(
@@ -120,8 +118,8 @@ public class OrderDomainService {
         .map(
             item -> {
               Product product = productMap.get(item.productId());
-              Price itemPrice = new Price(product.getPrice()).multiply(item.quantity());
-              return OrderItem.builder(order, product, item.quantity(), itemPrice.value()).build();
+              int itemPrice = product.getPrice() * item.quantity();
+              return OrderItem.builder(order, product, item.quantity(), itemPrice).build();
             })
         .toList();
   }
