@@ -20,8 +20,6 @@ public enum UserExceptionCode implements ExceptionCode {
     USER_CANT_LOGIN(HttpStatus.BAD_REQUEST, "사용할 수 없는 계정입니다."),
     USER_DELETED(HttpStatus.BAD_REQUEST, "탈퇴한 회원입니다.");
 
-
-
     // 상태, 메시지, 에러코드
     private final HttpStatus status;
     private final String message;
