@@ -48,7 +48,7 @@ jobs:
           EC2_KEY: ${{ secrets.EC2_KEY }}
         run: |
           printf '%s' "$EC2_KEY" > ec2.pem
-          chmod 600 ec2.pem
+          chmod 400 ec2.pem
 
       - name: Transfer Jar to EC2
         env:
@@ -56,7 +56,7 @@ jobs:
           EC2_USER: ${{ secrets.EC2_USER }}
           APP_NAME: ${{ secrets.APP_NAME }}
         run: |
-          scp -i ec2.pem ./build/libs/$APP_NAME "$EC2_USER"@"$EC2_HOST":~/
+          scp -i ec2.pem ./build/libs/$APP_NAME $EC2_USER@$EC2_HOST:~/
 
       - name: Run Jar on EC2
         uses: appleboy/ssh-action@master
