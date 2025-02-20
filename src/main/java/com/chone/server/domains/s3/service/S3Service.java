@@ -44,8 +44,20 @@ public class S3Service {
     return amazonS3.getUrl(bucketName, fileName).toString();
   }
 
+  public void removeFile(String fileUrl) {
+
+    String fileKey = extractFileKey(fileUrl);
+    amazonS3.deleteObject(bucketName, fileKey);
+  }
+
   private String generateFileName(String name) {
 
     return UUID.randomUUID() + "_" + name;
+  }
+
+  private String extractFileKey(String fileUrl) {
+
+    String[] parts = fileUrl.split("/");
+    return parts[parts.length - 1];
   }
 }
