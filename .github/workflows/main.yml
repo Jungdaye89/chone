@@ -65,6 +65,7 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
+            lsof -t -i:8080 | xargs kill -9
             nohup java -jar ${{ secrets.APP_NAME }} > app.log 2>&1 &
 
 # pkill -f "java -jar ${{ secrets.APP_NAME }}" || true
