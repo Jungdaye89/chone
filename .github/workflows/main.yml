@@ -40,7 +40,7 @@ jobs:
         env:
           EC2_KEY: ${{ secrets.EC2_KEY }}
         run: |
-          echo "$EC2_KEY" > ec2.pem
+          printf '%s' "$EC2_KEY" > ec2.pem
 
       - name: Transfer Jar to EC2
         env:
