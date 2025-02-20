@@ -44,12 +44,12 @@ public class Payment extends BaseEntity {
   private Order order;
 
   @Comment("주문 유형이 ONLINE일 경우 고객의 아이디를 저장하여 조회에 사용하도록 하는 필드")
-  @Column(name = "user_id")
-  private Long userId;
+  @Column(name = "customer_id")
+  private Long customerId;
 
   @Comment("주문 유형이 OFFLINE일 경우 가게의 아이디를 저장하여 조회에 사용하도록 하는 필드")
-  @Column(name = "store_id")
-  private UUID storeId;
+  @Column(name = "store_owner_id")
+  private UUID storeOwnerId;
 
   @NotNull
   @Enumerated(EnumType.STRING)
