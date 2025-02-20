@@ -64,6 +64,6 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return user.getIsAvailable(); //false면 로그인 불가
+        return user.isAvailable(); //false면 로그인 불가
     }
 }
