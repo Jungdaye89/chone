@@ -1,5 +1,7 @@
 package com.chone.server.domains.review.domain;
 
+import static org.springframework.util.StringUtils.hasText;
+
 import com.chone.server.commons.jpa.BaseEntity;
 import com.chone.server.domains.order.domain.Order;
 import com.chone.server.domains.store.domain.Store;
@@ -79,5 +81,13 @@ public class Review extends BaseEntity {
         .content(content)
         .rating(rating)
         .isPublic(isPublic);
+  }
+
+  public void update(String content, BigDecimal rating, String imageUrl, Boolean isPublic) {
+
+    if (hasText(content)) this.content = content;
+    if (rating != null) this.rating = rating;
+    if (hasText(imageUrl)) this.imageUrl = imageUrl;
+    if (isPublic != null) this.isPublic = isPublic;
   }
 }

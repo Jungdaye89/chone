@@ -8,9 +8,11 @@ import com.chone.server.domains.order.repository.OrderRepository;
 import com.chone.server.domains.review.domain.Review;
 import com.chone.server.domains.review.dto.request.CreateRequestDto;
 import com.chone.server.domains.review.dto.request.ReviewListRequestDto;
+import com.chone.server.domains.review.dto.request.UpdateRequestDto;
 import com.chone.server.domains.review.dto.response.ReviewDetailResponseDto;
 import com.chone.server.domains.review.dto.response.ReviewListResponseDto;
 import com.chone.server.domains.review.dto.response.ReviewResponseDto;
+import com.chone.server.domains.review.dto.response.ReviewUpdateResponseDto;
 import com.chone.server.domains.review.exception.ReviewExceptionCode;
 import com.chone.server.domains.review.repository.ReviewRepository;
 import com.chone.server.domains.review.repository.ReviewSearchRepository;
@@ -19,6 +21,8 @@ import com.chone.server.domains.store.repository.StoreRepository;
 import com.chone.server.domains.user.domain.User;
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -106,7 +110,33 @@ public class ReviewService {
 
   private void validateAccess(User user, Review review) {
     if (!review.getIsPublic() && !review.getUser().getId().equals(user.getId())) {
-      throw new ApiBusinessException(ReviewExceptionCode.REVIEW_ACCESS_DENIED);
+      throw new ApiBusinessException(ReviewExceptionCode.REVIEW_FORBIDDEN_ACTION);
     }
+  }
+
+  @Transactional
+  public ReviewUpdateResponseDto updateReview(
+      UUID reviewId, UpdateRequestDto request, CustomUserDetails principal) {
+    if (principal == null || principal.getUser() == null) {
+      throw new ApiBusinessException(ReviewExceptionCode.REVIEW_UNAUTHORIZED);
+    }
+
+    Review review =
+        reviewRepository
+            .findById(reviewId)
+            .orElseThrow(() -> new ApiBusinessException(ReviewExceptionCode.REVIEW_NOT_FOUND));
+
+    if (!review.getUser().getId().equals(principal.getUser().getId())) {
+      throw new ApiBusinessException(ReviewExceptionCode.REVIEW_FORBIDDEN_ACTION);
+    }
+
+    if (ChronoUnit.HOURS.between(review.getCreatedAt(), LocalDateTime.now()) > 72) {
+      throw new ApiBusinessException(ReviewExceptionCode.REVIEW_UPDATE_EXPIRED);
+    }
+
+    review.update(
+        request.getContent(), request.getRating(), request.getImageUrl(), request.getIsPublic());
+
+    return new ReviewUpdateResponseDto(review.getId(), review.getUpdatedAt());
   }
 }

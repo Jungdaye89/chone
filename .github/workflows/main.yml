@@ -1,7 +1,7 @@
 on:
   push:
     branches:
-      - develop
+      - test
     paths-ignore:
       - ".github/workflows/**"
       - "README.md"
@@ -33,6 +33,9 @@ jobs:
 
       - name: Clean and build without tests
         run: ./gradlew clean build -x test
+
+      - name: List built files
+        run: ls -al ./build/libs/
 
       - name: Transfer Jar to EC2
         env:

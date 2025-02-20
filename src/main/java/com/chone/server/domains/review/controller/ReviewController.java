@@ -3,10 +3,13 @@ package com.chone.server.domains.review.controller;
 import com.chone.server.domains.auth.dto.CustomUserDetails;
 import com.chone.server.domains.review.dto.request.CreateRequestDto;
 import com.chone.server.domains.review.dto.request.ReviewListRequestDto;
+import com.chone.server.domains.review.dto.request.UpdateRequestDto;
 import com.chone.server.domains.review.dto.response.ReviewDetailResponseDto;
 import com.chone.server.domains.review.dto.response.ReviewListResponseDto;
 import com.chone.server.domains.review.dto.response.ReviewResponseDto;
+import com.chone.server.domains.review.dto.response.ReviewUpdateResponseDto;
 import com.chone.server.domains.review.service.ReviewService;
+import jakarta.validation.Valid;
 import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -50,6 +53,16 @@ public class ReviewController {
       @PathVariable("id") UUID id, @AuthenticationPrincipal CustomUserDetails principal) {
 
     ReviewDetailResponseDto response = reviewService.getReviewById(id, principal);
+    return ResponseEntity.ok(response);
+  }
+
+  @PutMapping("/{id}")
+  public ResponseEntity<ReviewUpdateResponseDto> updateReview(
+      @PathVariable("id") UUID id,
+      @Valid @RequestBody UpdateRequestDto request,
+      @AuthenticationPrincipal CustomUserDetails principal) {
+
+    ReviewUpdateResponseDto response = reviewService.updateReview(id, request, principal);
     return ResponseEntity.ok(response);
   }
 }
