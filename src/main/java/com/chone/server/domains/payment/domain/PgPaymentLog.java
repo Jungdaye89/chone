@@ -29,7 +29,7 @@ import org.hibernate.type.SqlTypes;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "pg_payment_log")
 @Comment("PG사 결제 로그")
-public class PGPaymentLog extends BaseEntity {
+public class PgPaymentLog extends BaseEntity {
   @Id
   @UuidGenerator
   @JdbcTypeCode(SqlTypes.UUID)
@@ -57,10 +57,10 @@ public class PGPaymentLog extends BaseEntity {
   @Comment("PG사에서 발급한 거래 식별 번호 (PG에서 발급한 거래 ID), 결제 후 필수 값")
   private String pgTransactionId;
 
-  public static PGPaymentLogBuilder builder(
+  public static PgPaymentLogBuilder builder(
       Payment payment, PgStatus pgStatus, String responseMessage) {
 
-    return PGPaymentLog.innerBuilder()
+    return PgPaymentLog.innerBuilder()
         .payment(payment)
         .pgStatus(pgStatus)
         .responseMessage(responseMessage);
