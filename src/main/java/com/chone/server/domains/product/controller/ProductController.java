@@ -10,6 +10,7 @@ import com.chone.server.domains.product.service.ProductService;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,10 +19,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,14 +32,15 @@ public class ProductController {
 
   private final ProductService productService;
 
-  @PostMapping
+  @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @PreAuthorize("!hasRole('CUSTOMER')")
   public ResponseEntity<CreateResponseDto> createProduct(
       @AuthenticationPrincipal CustomUserDetails userDetails,
-      @RequestBody CreateRequestDto createRequestDto) {
+      @RequestPart("data") CreateRequestDto createRequestDto,
+      @RequestPart(value = "file", required = false) MultipartFile file) {
 
     CreateResponseDto createResponseDto = productService.createProduct(userDetails,
-        createRequestDto);
+        createRequestDto, file);
 
     return ResponseEntity.ok(createResponseDto);
   }
@@ -67,12 +70,14 @@ public class ProductController {
     return ResponseEntity.ok(readResponseDto);
   }
 
-  @PutMapping("/{productId}")
+  @PutMapping(value = "/{productId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @PreAuthorize("!hasRole('CUSTOMER')")
   public ResponseEntity<Void> updateProduct(@AuthenticationPrincipal CustomUserDetails userDetails,
-      @RequestBody UpdateRequestDto updateRequestDto, @PathVariable("productId") UUID productId) {
+      @RequestPart(value = "data") UpdateRequestDto updateRequestDto,
+      @RequestPart(value = "file", required = false) MultipartFile file,
+      @PathVariable("productId") UUID productId) {
 
-    productService.updateProduct(userDetails, updateRequestDto, productId);
+    productService.updateProduct(userDetails, updateRequestDto, file, productId);
 
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
