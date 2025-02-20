@@ -10,10 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserUpdateRequestDto {
-    @NotBlank(message = "비밀번호를 입력해주세요.")
     private String password;
-
-    @NotBlank(message = "이메일 주소를 입력해주세요")
     @Email(message = "올바른 형식의 이메일 주소를 입력해주세요.")
     private String email;
 }
