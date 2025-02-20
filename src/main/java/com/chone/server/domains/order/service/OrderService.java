@@ -102,7 +102,7 @@ public class OrderService {
   }
 
   public DeleteOrderResponse deleteOrder(CustomUserDetails principal, UUID id) {
-    Order order = repository.findById(id);
+    Order order = findByOrderId(id);
     if (!domainService.isDeletableOrder(order.getStatus())) {
       throw new ApiBusinessException(OrderExceptionCode.ORDER_NOT_DELETABLE);
     }
@@ -110,6 +110,10 @@ public class OrderService {
     repository.save(order);
 
     return DeleteOrderResponse.from(order);
+  }
+
+  public Order findByOrderId(UUID orderId) {
+    return repository.findById(orderId);
   }
 
   private Page<OrderPageResponse> findOrdersByRole(
