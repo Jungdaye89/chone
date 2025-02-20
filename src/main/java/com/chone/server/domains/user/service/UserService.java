@@ -37,7 +37,7 @@ public class UserService {
         // 회원 중복 확인
         Optional<User> checkUsername = userRepository.findByUsername(username);
         if (checkUsername.isPresent()) {
-            throw new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND);
+            throw new ApiBusinessException(UserExceptionCode.USER_EXIST_USERNAME);
         }
 
         // email 중복확인
