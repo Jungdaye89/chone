@@ -2,6 +2,7 @@ package com.chone.server.domains.review.service;
 
 import com.chone.server.commons.exception.ApiBusinessException;
 import com.chone.server.commons.facade.ReviewFacade;
+import com.chone.server.commons.facade.StoreFacade;
 import com.chone.server.domains.auth.dto.CustomUserDetails;
 import com.chone.server.domains.order.domain.Order;
 import com.chone.server.domains.order.domain.OrderStatus;
@@ -18,7 +19,6 @@ import com.chone.server.domains.review.dto.response.ReviewResponseDto;
 import com.chone.server.domains.review.dto.response.ReviewStatisticsResponseDto;
 import com.chone.server.domains.review.dto.response.ReviewUpdateResponseDto;
 import com.chone.server.domains.review.exception.ReviewExceptionCode;
-import com.chone.server.domains.review.repository.ReviewDetailSearchRepository;
 import com.chone.server.domains.review.repository.ReviewRepository;
 import com.chone.server.domains.review.repository.ReviewSearchRepository;
 import com.chone.server.domains.review.repository.ReviewStatisticsRepository;
@@ -46,19 +46,16 @@ public class ReviewService {
   private final OrderRepository orderRepository;
   private final StoreRepository storeRepository;
   private final ReviewSearchRepository reviewSearchRepository;
-  private final ReviewDetailSearchRepository reviewDetailSearchRepository;
   private final ReviewStatisticsRepository reviewStatisticsRepository;
   private final ReviewFacade reviewFacade;
+  private final StoreFacade storeFacade;
 
   @Transactional
   public ReviewResponseDto createReview(CreateRequestDto request, User user) {
 
     Order order = orderRepository.findById(request.getOrderId());
 
-    Store store =
-        storeRepository
-            .findById(request.getStoreId())
-            .orElseThrow(() -> new ApiBusinessException(ReviewExceptionCode.STORE_NOT_FOUND));
+    Store store = storeFacade.findStoreById(request.getStoreId());
 
     if (!order.getUser().getId().equals(user.getId())) {
       throw new ApiBusinessException(ReviewExceptionCode.REVIEW_FORBIDDEN);
