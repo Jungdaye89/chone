@@ -150,4 +150,8 @@ public class ProductService {
         .findById(id)
         .orElseThrow(() -> new ApiBusinessException(StoreExceptionCode.USER_NOT_FOUND));
   }
+
+  public List<Product> findAllByStore(Store store) {
+    return productRepository.findAllByStoreAndDeletedByIsNull(store);
+  }
 }
