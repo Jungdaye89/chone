@@ -5,11 +5,13 @@ import com.chone.server.domains.auth.dto.CustomUserDetails;
 import com.chone.server.domains.order.dto.request.CancelOrderRequest;
 import com.chone.server.domains.order.dto.request.CreateOrderRequest;
 import com.chone.server.domains.order.dto.request.OrderFilterParams;
+import com.chone.server.domains.order.dto.request.OrderStatusUpdateRequest;
 import com.chone.server.domains.order.dto.response.CancelOrderResponse;
 import com.chone.server.domains.order.dto.response.CreateOrderResponse;
 import com.chone.server.domains.order.dto.response.DeleteOrderResponse;
 import com.chone.server.domains.order.dto.response.OrderDetailResponse;
 import com.chone.server.domains.order.dto.response.OrderPageResponse;
+import com.chone.server.domains.order.dto.response.OrderStatusUpdateResponse;
 import com.chone.server.domains.order.dto.response.PageResponse;
 import com.chone.server.domains.order.service.OrderService;
 import jakarta.validation.Valid;
@@ -85,5 +87,13 @@ public class OrderController {
     DeleteOrderResponse responseDto = service.deleteOrder(principal, id);
 
     return ResponseEntity.ok().body(responseDto);
+  }
+
+  @PreAuthorize("!hasAnyRole('CUSTOMER')")
+  @PatchMapping("/{id}/status")
+  public ResponseEntity<OrderStatusUpdateResponse> updateOrderStatus(
+      @PathVariable("id") UUID id, @RequestBody OrderStatusUpdateRequest request) {
+    OrderStatusUpdateResponse response = service.updateOrderStatus(id, request);
+    return ResponseEntity.ok(response);
   }
 }
