@@ -9,7 +9,7 @@ public record OrderFilterParams(
     LocalDate startDate,
     LocalDate endDate,
     UUID storeId,
-    Long customerId,
+    Long userId,
     OrderStatus status,
     OrderType orderType,
     Integer minPrice,

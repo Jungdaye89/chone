@@ -47,9 +47,14 @@ public class OrderListSearchRepositoryImpl implements OrderListSearchRepository 
   @Override
   public Page<OrderPageResponse> findOrdersByCustomer(
       User customer, OrderFilterParams filterParams, Pageable pageable) {
-    validateNoUnauthorizedFiltering(filterParams);
+    validateNoCustomerFiltering(filterParams);
 
-    return getOrders(List.of(customerEq(customer)), filterParams, pageable);
+    List<BooleanExpression> conditions = new ArrayList<>();
+    if (filterParams.storeId() != null) {
+      addStoreIdCondition(conditions, filterParams.storeId());
+    }
+    conditions.add(customerEq(customer));
+    return getOrders(conditions, filterParams, pageable);
   }
 
   @Override
@@ -57,7 +62,12 @@ public class OrderListSearchRepositoryImpl implements OrderListSearchRepository 
       User owner, OrderFilterParams filterParams, Pageable pageable) {
     validateNoStoreFiltering(filterParams.storeId());
 
-    return getOrders(List.of(storeOwnerEq(owner)), filterParams, pageable);
+    List<BooleanExpression> conditions = new ArrayList<>();
+    if (filterParams.userId() != null) {
+      addCustomerIdCondition(conditions, filterParams.userId());
+    }
+    conditions.add(storeOwnerEq(owner));
+    return getOrders(conditions, filterParams, pageable);
   }
 
   @Override
@@ -67,15 +77,15 @@ public class OrderListSearchRepositoryImpl implements OrderListSearchRepository 
     if (filterParams.storeId() != null) {
       addStoreIdCondition(conditions, filterParams.storeId());
     }
-    if (filterParams.customerId() != null) {
-      addCustomerIdCondition(conditions, filterParams.customerId());
+    if (filterParams.userId() != null) {
+      addCustomerIdCondition(conditions, filterParams.userId());
     }
     return getOrders(conditions, filterParams, pageable);
   }
 
-  private void validateNoUnauthorizedFiltering(OrderFilterParams filterParams) {
-    if (filterParams.storeId() != null || filterParams.customerId() != null) {
-      throw new ApiBusinessException(OrderExceptionCode.ORDER_FILTERING_ACCESS_DENIED);
+  private void validateNoCustomerFiltering(OrderFilterParams filterParams) {
+    if (filterParams.userId() != null) {
+      throw new ApiBusinessException(OrderExceptionCode.CUSTOMER_ORDER_FILTERING_ACCESS_DENIED);
     }
   }
 
@@ -106,11 +116,8 @@ public class OrderListSearchRepositoryImpl implements OrderListSearchRepository 
   }
 
   private Page<OrderPageResponse> getOrders(
-      List<BooleanExpression> additionalConditions,
-      OrderFilterParams filterParams,
-      Pageable pageable) {
+      List<BooleanExpression> conditions, OrderFilterParams filterParams, Pageable pageable) {
 
-    List<BooleanExpression> conditions = new ArrayList<>(additionalConditions);
     conditions.addAll(
         Stream.of(
                 order.deletedAt.isNull(),
@@ -159,18 +166,12 @@ public class OrderListSearchRepositoryImpl implements OrderListSearchRepository 
   }
 
   private BooleanExpression totalPriceBetween(Integer minPrice, Integer maxPrice) {
-    try {
-      if (minPrice != null && maxPrice != null) {
-        return order.totalPrice.between(minPrice, maxPrice);
-      } else if (minPrice != null) {
-        return order.totalPrice.goe(minPrice);
-      } else if (maxPrice != null) {
-        return order.totalPrice.loe(maxPrice);
-      }
-    } catch (NumberFormatException e) {
-      log.warn("가격 형변환 실패: {}", e.getMessage());
-    } catch (Exception e) {
-      log.warn("가격 필터링 조건 형성 실패: {}", e.getMessage());
+    if (minPrice != null && maxPrice != null) {
+      return order.totalPrice.between(minPrice, maxPrice);
+    } else if (minPrice != null) {
+      return order.totalPrice.goe(minPrice);
+    } else if (maxPrice != null) {
+      return order.totalPrice.loe(maxPrice);
     }
     return null;
   }

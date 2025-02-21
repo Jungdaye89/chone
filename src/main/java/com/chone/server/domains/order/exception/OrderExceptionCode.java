@@ -23,7 +23,7 @@ public enum OrderExceptionCode implements ExceptionCode {
   ORDER_STORE_CLOSED(SERVICE_UNAVAILABLE, "현재 가게가 영업 중이 아닙니다."),
   ORDER_PRODUCT_MISMATCH(BAD_REQUEST, "주문한 상품이 존재하지 않거나 일부 상품이 누락되었습니다."),
   ORDER_PRODUCT_UNAVAILABLE(BAD_REQUEST, "주문할 수 없는 상품입니다."),
-  ORDER_FILTERING_ACCESS_DENIED(FORBIDDEN, "사용자 또는 가게별 주문 조회 권한이 없습니다."),
+  CUSTOMER_ORDER_FILTERING_ACCESS_DENIED(FORBIDDEN, "사용자별 주문 조회 권한이 없습니다."),
   STORE_ORDER_FILTERING_ACCESS_DENIED(FORBIDDEN, "가게별 주문 조회 권한이 없습니다."),
   ORDER_CUSTOMER_ACCESS_DENIED(FORBIDDEN, "접근 권한이 없습니다. 해당 주문의 소유자가 아닙니다."),
   ORDER_STORE_OWNER_ACCESS_DENIED(FORBIDDEN, "접근 권한이 없습니다. 해당 매장의 소유자가 아닙니다."),

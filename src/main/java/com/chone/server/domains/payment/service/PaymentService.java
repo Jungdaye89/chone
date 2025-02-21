@@ -6,17 +6,21 @@ import com.chone.server.domains.auth.dto.CustomUserDetails;
 import com.chone.server.domains.order.domain.Order;
 import com.chone.server.domains.order.domain.OrderCancelReason;
 import com.chone.server.domains.order.domain.OrderStatus;
+import com.chone.server.domains.order.dto.response.PageResponse;
 import com.chone.server.domains.order.service.OrderService;
 import com.chone.server.domains.payment.domain.Payment;
 import com.chone.server.domains.payment.domain.PaymentStatus;
 import com.chone.server.domains.payment.domain.PgPaymentLog;
 import com.chone.server.domains.payment.domain.PgStatus;
 import com.chone.server.domains.payment.dto.request.CreatePaymentRequest;
+import com.chone.server.domains.payment.dto.request.PaymentFilterParams;
 import com.chone.server.domains.payment.dto.response.CreatePaymentResponse;
+import com.chone.server.domains.payment.dto.response.PaymentPageResponse;
 import com.chone.server.domains.payment.exception.PaymentExceptionCode;
 import com.chone.server.domains.payment.infrastructure.pg.PgApiService;
 import com.chone.server.domains.payment.repository.PaymentRepository;
 import com.chone.server.domains.payment.repository.PgPaymentLogRepository;
+import com.chone.server.domains.user.domain.User;
 import jakarta.persistence.LockTimeoutException;
 import jakarta.validation.Valid;
 import java.util.Map;
@@ -24,6 +28,8 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,6 +67,12 @@ public class PaymentService {
       log.error("결제 처리 중 오류 발생: {}", e.getMessage(), e);
       throw new ApiBusinessException(PaymentExceptionCode.PAYMENT_PROCESSING_ERROR);
     }
+  }
+
+  public PageResponse<PaymentPageResponse> getPayments(
+      CustomUserDetails principal, PaymentFilterParams filterParams, Pageable pageable) {
+    User user = principal.getUser();
+    return PageResponse.from(findPaymentsByRole(user, filterParams, pageable));
   }
 
   private CreatePaymentResponse executePaymentWithLock(
@@ -161,5 +173,14 @@ public class PaymentService {
 
     log.error(
         "결제 처리 중 오류 발생: errorType-{} : message-{} : exception-{},", errorType, errorMessage, e);
+  }
+
+  private Page<PaymentPageResponse> findPaymentsByRole(
+      User user, PaymentFilterParams filterParams, Pageable pageable) {
+    return switch (user.getRole()) {
+      case CUSTOMER -> repository.findPaymentsByCustomer(user, filterParams, pageable);
+      case OWNER -> repository.findPaymentsByOwner(user, filterParams, pageable);
+      case MANAGER, MASTER -> repository.findPaymentsByAdmin(user, filterParams, pageable);
+    };
   }
 }
