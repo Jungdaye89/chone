@@ -22,8 +22,7 @@ public class OrderDeletionService {
 
   @Transactional
   public DeleteOrderResponse deleteOrder(CustomUserDetails principal, UUID id) {
-
-    Order order = findByOrderId(id);
+    Order order = repository.findById(id);
     if (!domainService.isDeletableOrder(order.getStatus())) {
       throw new ApiBusinessException(OrderExceptionCode.ORDER_NOT_DELETABLE);
     }
@@ -33,10 +32,5 @@ public class OrderDeletionService {
     // TODO: 1. 결제 -> listener
     //       2. 배달 -> listener
     return DeleteOrderResponse.from(order);
-  }
-
-  public Order findByOrderId(UUID orderId) {
-
-    return repository.findById(orderId);
   }
 }
