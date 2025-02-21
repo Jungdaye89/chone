@@ -193,7 +193,13 @@ public class OrderService {
     }
   }
 
-  private void handleInDelivery(Order order) {}
+  private void handleInDelivery(Order order) {
+    Delivery delivery = deliveryFacade.findByOrder(order);
+
+    delivery.updateStatus(DeliveryStatus.PICKED_UP);
+
+    deliveryFacade.save(delivery);
+  }
 
   private void handleOrderCompletion(Order order) {}
 
