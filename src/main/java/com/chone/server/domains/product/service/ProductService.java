@@ -42,6 +42,11 @@ public class ProductService {
     return productRepository.findAllById(productIds);
   }
 
+  public List<Product> findAllByStore(Store store) {
+
+    return productRepository.findAllByStoreAndDeletedByIsNull(store);
+  }
+
   @Transactional
   public CreateResponseDto createProduct(
       CustomUserDetails userDetails, CreateRequestDto createRequestDto, MultipartFile file) {
