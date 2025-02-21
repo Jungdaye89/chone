@@ -1,5 +1,6 @@
 package com.chone.server.domains.payment.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.UUID;
 
 public record PaymentDetailResponse(PaymentResponse payment, OrderResponse order) {
@@ -12,5 +13,5 @@ public record PaymentDetailResponse(PaymentResponse payment, OrderResponse order
       Long userId,
       UUID storeId,
       String storeName,
-      Long storeUserId) {}
+      @JsonIgnore Long storeUserId) {}
 }
