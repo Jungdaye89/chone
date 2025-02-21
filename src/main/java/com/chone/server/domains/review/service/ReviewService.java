@@ -109,8 +109,7 @@ public class ReviewService {
       throw new ApiBusinessException(ReviewExceptionCode.REVIEW_UNAUTHORIZED);
     }
 
-    ReviewDetailResponseDto reviewDetail =
-        reviewDetailSearchRepository.findReviewDetailById(reviewId);
+    ReviewDetailResponseDto reviewDetail = reviewFacade.findReviewDetailById(reviewId);
 
     validateAccess(principal.getUser(), reviewDetail);
 

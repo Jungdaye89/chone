@@ -13,6 +13,7 @@ import com.chone.server.domains.review.dto.response.ReviewStatisticsResponseDto;
 import com.chone.server.domains.review.dto.response.ReviewUpdateResponseDto;
 import com.chone.server.domains.review.service.ReviewService;
 import jakarta.validation.Valid;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -56,6 +57,15 @@ public class ReviewController {
       @PathVariable("id") UUID id, @AuthenticationPrincipal CustomUserDetails principal) {
 
     ReviewDetailResponseDto response = reviewService.getReviewById(id, principal);
+    return ResponseEntity.ok(response);
+  }
+
+  @PreAuthorize("hasRole('CUSTOMER')")
+  @GetMapping("/user/{userId}")
+  public ResponseEntity<List<ReviewDetailResponseDto>> getReviewsByUserId(
+      @PathVariable Long userId, @AuthenticationPrincipal CustomUserDetails principal) {
+
+    List<ReviewDetailResponseDto> response = reviewService.getReviewsByUserId(userId, principal);
     return ResponseEntity.ok(response);
   }
 
