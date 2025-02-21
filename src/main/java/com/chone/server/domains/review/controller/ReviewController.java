@@ -9,6 +9,7 @@ import com.chone.server.domains.review.dto.response.ReviewDeleteResponseDto;
 import com.chone.server.domains.review.dto.response.ReviewDetailResponseDto;
 import com.chone.server.domains.review.dto.response.ReviewListResponseDto;
 import com.chone.server.domains.review.dto.response.ReviewResponseDto;
+import com.chone.server.domains.review.dto.response.ReviewStatisticsResponseDto;
 import com.chone.server.domains.review.dto.response.ReviewUpdateResponseDto;
 import com.chone.server.domains.review.service.ReviewService;
 import jakarta.validation.Valid;
@@ -76,6 +77,14 @@ public class ReviewController {
       @RequestBody(required = false) @Valid DeleteRequestDto requestDto) {
 
     ReviewDeleteResponseDto response = reviewService.deleteReview(id, principal, requestDto);
+    return ResponseEntity.ok(response);
+  }
+
+  @GetMapping("/statistics")
+  public ResponseEntity<ReviewStatisticsResponseDto> getReviewStatistics(
+      @RequestParam(name = "storeId") UUID storeId) {
+
+    ReviewStatisticsResponseDto response = reviewService.getReviewStatistics(storeId);
     return ResponseEntity.ok(response);
   }
 }
