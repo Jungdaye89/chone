@@ -1,8 +1,9 @@
-package com.chone.server.domains.review.repository;
+package com.chone.server.domains.review.infrastructure.jpa;
 
 import com.chone.server.domains.review.domain.QReview;
 import com.chone.server.domains.review.dto.request.ReviewListRequestDto;
 import com.chone.server.domains.review.dto.response.ReviewPageResponseDto;
+import com.chone.server.domains.review.repository.ReviewSearchRepository;
 import com.chone.server.domains.user.domain.User;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;

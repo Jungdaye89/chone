@@ -1,7 +1,8 @@
-package com.chone.server.domains.review.repository;
+package com.chone.server.domains.review.infrastructure.jpa;
 
 import com.chone.server.domains.review.domain.QReview;
 import com.chone.server.domains.review.domain.Review;
+import com.chone.server.domains.review.repository.ReviewRepositoryCustom;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

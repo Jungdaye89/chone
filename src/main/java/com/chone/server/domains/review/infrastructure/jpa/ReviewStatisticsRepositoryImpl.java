@@ -1,7 +1,8 @@
-package com.chone.server.domains.review.repository;
+package com.chone.server.domains.review.infrastructure.jpa;
 
 import static com.chone.server.domains.review.domain.QReview.review;
 
+import com.chone.server.domains.review.repository.ReviewStatisticsRepository;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.math.BigDecimal;
