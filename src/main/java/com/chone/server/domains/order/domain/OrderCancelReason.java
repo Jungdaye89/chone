@@ -15,6 +15,7 @@ public enum OrderCancelReason {
   POLICY_VIOLATION(7, "정책 위반"),
   ADMIN_APPROVED_CANCEL(8, "고객 요청 승인"),
   ADMIN_DECISION(9, "관리자 판단"),
+  CANCEL_PAYMENT(10, "결제취소"),
 
   OTHER(99, "기타");
 
