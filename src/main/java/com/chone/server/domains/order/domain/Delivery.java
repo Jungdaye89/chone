@@ -53,7 +53,11 @@ public class Delivery extends BaseEntity {
   @Comment("배송지")
   private String address;
 
-  public static DeliveryBuilder builder(Order order, DeliveryStatus status) {
-    return Delivery.innerBuilder().order(order).status(status);
+  public static DeliveryBuilder builder(Order order, DeliveryStatus status, String address) {
+    return Delivery.innerBuilder().order(order).status(status).address(address);
+  }
+
+  public void updateStatus(DeliveryStatus status) {
+    if (status != null) this.status = status;
   }
 }

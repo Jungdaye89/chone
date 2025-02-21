@@ -58,7 +58,13 @@ public class OrderService {
     OrderType orderType = domainService.determineOrderType(user.getRole(), request);
     Order order =
         domainService.createOrder(
-            store, user, request.orderItems(), products, orderType, request.requestText());
+            store,
+            user,
+            request.orderItems(),
+            products,
+            orderType,
+            request.address(),
+            request.requestText());
 
     Order savedOrder = repository.save(order);
 
