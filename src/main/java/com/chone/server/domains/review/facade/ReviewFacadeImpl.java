@@ -4,12 +4,14 @@ import com.chone.server.commons.exception.ApiBusinessException;
 import com.chone.server.commons.facade.ReviewFacade;
 import com.chone.server.domains.review.domain.Review;
 import com.chone.server.domains.review.dto.response.ReviewDetailResponseDto;
+import com.chone.server.domains.review.exception.ReviewExceptionCode;
 import com.chone.server.domains.review.repository.ReviewDetailSearchRepository;
 import com.chone.server.domains.review.repository.ReviewRepository;
 import com.chone.server.domains.user.domain.User;
 import com.chone.server.domains.user.exception.UserExceptionCode;
 import com.chone.server.domains.user.repository.UserRepository;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +47,18 @@ public class ReviewFacadeImpl implements ReviewFacade {
   public ReviewDetailResponseDto findReviewDetailById(UUID reviewId) {
 
     return reviewDetailSearchRepository.findReviewDetailById(reviewId);
+  }
+
+  @Override
+  public Review findReviewById(UUID reviewId) {
+    return reviewRepository
+        .findByIdAndDeletedAtIsNull(reviewId)
+        .orElseThrow(() -> new ApiBusinessException(ReviewExceptionCode.REVIEW_NOT_FOUND));
+  }
+
+  @Override
+  public Optional<Review> findByOrderId(UUID orderId) {
+    return reviewRepository.findByOrderId(orderId);
   }
 
   @Override

@@ -65,7 +65,7 @@ public class ReviewService {
       throw new ApiBusinessException(ReviewExceptionCode.ORDER_NOT_COMPLETED);
     }
 
-    if (reviewRepository.findByOrderId(order.getId()).isPresent()) {
+    if (reviewFacade.findByOrderId(order.getId()).isPresent()) {
       throw new ApiBusinessException(ReviewExceptionCode.REVIEW_ALREADY_EXISTS);
     }
 
@@ -140,10 +140,7 @@ public class ReviewService {
       throw new ApiBusinessException(ReviewExceptionCode.REVIEW_UNAUTHORIZED);
     }
 
-    Review review =
-        reviewRepository
-            .findByIdAndDeletedAtIsNull(reviewId)
-            .orElseThrow(() -> new ApiBusinessException(ReviewExceptionCode.REVIEW_NOT_FOUND));
+    Review review = reviewFacade.findReviewById(reviewId);
 
     if (!review.getUser().getId().equals(principal.getUser().getId())) {
       throw new ApiBusinessException(ReviewExceptionCode.REVIEW_FORBIDDEN_ACTION);
@@ -167,10 +164,7 @@ public class ReviewService {
       throw new ApiBusinessException(ReviewExceptionCode.REVIEW_UNAUTHORIZED);
     }
 
-    Review review =
-        reviewRepository
-            .findByIdAndDeletedAtIsNull(reviewId)
-            .orElseThrow(() -> new ApiBusinessException(ReviewExceptionCode.REVIEW_NOT_FOUND));
+    Review review = reviewFacade.findReviewById(reviewId);
 
     if (review.getDeletedAt() != null) {
       throw new ApiBusinessException(ReviewExceptionCode.ALREADY_DELETED);
