@@ -150,6 +150,14 @@ public class OrderDomainService {
       throw new ApiBusinessException(OrderExceptionCode.ORDER_ALREADY_CANCELED);
     }
 
+    if (order.getStatus() == OrderStatus.IN_DELIVERY) {
+      throw new ApiBusinessException(OrderExceptionCode.ORDER_ALREADY_IN_DELIVERY);
+    }
+
+    if (order.getStatus() == OrderStatus.COMPLETED) {
+      throw new ApiBusinessException(OrderExceptionCode.ORDER_ALREADY_COMPLETED);
+    }
+
     if (!order.isCancelable()) {
       throw new ApiBusinessException(OrderExceptionCode.ORDER_NOT_CANCELABLE);
     }

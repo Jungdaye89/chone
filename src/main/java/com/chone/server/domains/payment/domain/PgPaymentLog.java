@@ -65,4 +65,8 @@ public class PgPaymentLog extends BaseEntity {
         .pgStatus(pgStatus)
         .responseMessage(responseMessage);
   }
+
+  public void cancel() {
+    this.pgStatus = PgStatus.CANCEL_SUCCESS;
+  }
 }

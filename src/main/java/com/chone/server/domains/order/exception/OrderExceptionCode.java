@@ -33,7 +33,9 @@ public enum OrderExceptionCode implements ExceptionCode {
   ORDER_ALREADY_CANCELED(BAD_REQUEST, "이미 취소된 주문입니다."),
   ORDER_NOT_CANCELABLE(BAD_REQUEST, "취소할 수 없는 주문입니다."),
   ORDER_NOT_DELETABLE(CONFLICT, "주문 과정이 완료되지 않아 삭제할 수 없는 주문입니다."),
-  ;
+
+  ORDER_ALREADY_IN_DELIVERY(CONFLICT, "배달 중인 주문은 취소할 수 없습니다."),
+  ORDER_ALREADY_COMPLETED(CONFLICT, "완료된 주문은 취소할 수 없습니다");
   private final HttpStatus status;
   private final String message;
   private final String code = this.name();
