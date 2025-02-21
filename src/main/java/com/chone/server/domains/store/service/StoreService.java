@@ -2,8 +2,7 @@ package com.chone.server.domains.store.service;
 
 import com.chone.server.commons.exception.ApiBusinessException;
 import com.chone.server.commons.exception.GlobalExceptionCode;
-import com.chone.server.domains.product.domain.Product;
-import com.chone.server.domains.product.service.ProductService;
+import com.chone.server.domains.auth.dto.CustomUserDetails;
 import com.chone.server.domains.store.domain.Category;
 import com.chone.server.domains.store.domain.LegalDongCode;
 import com.chone.server.domains.store.domain.Store;
@@ -39,7 +38,6 @@ public class StoreService {
   private final LegalDongCodeRepository legalDongCodeRepository;
   private final CategoryRepository categoryRepository;
   private final StoreCategoryMapRepository storeCategoryMapRepository;
-  private final ProductService productService;
 
   // MANAGER, MASTER 사용자가 OWNER 사용자의 ID로 가게 생성
   @Transactional
@@ -135,13 +133,6 @@ public class StoreService {
     deleteStore(user, store);
   }
 
-  public void deleteStore(User user, Store store) {
-
-    List<Product> products = productService.findAllByStore(store);
-    products.forEach(p -> productService.deleteProduct(user, p));
-
-    store.delete(user);
-  }
 
   public User findUserById(Long id) {
 
@@ -197,11 +188,6 @@ public class StoreService {
         storeCategoryMapRepository.save(map);
       }
     }
-  }
-
-  public List<Store> findAllStoreByUserId(Long id) {
-
-    return storeRepository.findAllByUserIdAndDeletedByIsNull(id);
   }
 
   public void checkRoleWithStore(User user, Store store) {
