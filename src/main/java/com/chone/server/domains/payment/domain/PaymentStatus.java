@@ -11,4 +11,8 @@ public enum PaymentStatus {
   CANCELED("결제 취소됨"),
   FAILED("결제 실패");
   private final String description;
+
+  public boolean isSameStauts(PaymentStatus status) {
+    return this == status;
+  }
 }

@@ -10,4 +10,12 @@ public enum OrderType {
   OFFLINE("대면");
 
   private final String description;
+
+  public boolean isOnline() {
+    return this == OrderType.ONLINE;
+  }
+
+  public boolean isOffline() {
+    return this == OrderType.ONLINE;
+  }
 }
