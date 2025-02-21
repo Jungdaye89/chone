@@ -63,8 +63,8 @@ public class OrderListSearchRepositoryImpl implements OrderListSearchRepository 
     validateNoStoreFiltering(filterParams.storeId());
 
     List<BooleanExpression> conditions = new ArrayList<>();
-    if (filterParams.customerId() != null) {
-      addCustomerIdCondition(conditions, filterParams.customerId());
+    if (filterParams.userId() != null) {
+      addCustomerIdCondition(conditions, filterParams.userId());
     }
     conditions.add(storeOwnerEq(owner));
     return getOrders(conditions, filterParams, pageable);
@@ -77,14 +77,14 @@ public class OrderListSearchRepositoryImpl implements OrderListSearchRepository 
     if (filterParams.storeId() != null) {
       addStoreIdCondition(conditions, filterParams.storeId());
     }
-    if (filterParams.customerId() != null) {
-      addCustomerIdCondition(conditions, filterParams.customerId());
+    if (filterParams.userId() != null) {
+      addCustomerIdCondition(conditions, filterParams.userId());
     }
     return getOrders(conditions, filterParams, pageable);
   }
 
   private void validateNoCustomerFiltering(OrderFilterParams filterParams) {
-    if (filterParams.customerId() != null) {
+    if (filterParams.userId() != null) {
       throw new ApiBusinessException(OrderExceptionCode.CUSTOMER_ORDER_FILTERING_ACCESS_DENIED);
     }
   }

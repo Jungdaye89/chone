@@ -9,9 +9,9 @@ public record PaymentFilterParams(
     LocalDate startDate,
     LocalDate endDate,
     UUID storeId,
-    Long customerId,
+    Long userId,
     PaymentStatus status,
     PaymentMethod method,
-    int totalPrice,
+    Integer totalPrice,
     Integer minPrice,
     Integer maxPrice) {}

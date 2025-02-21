@@ -5,6 +5,7 @@ import com.chone.server.domains.payment.domain.Payment;
 import com.chone.server.domains.payment.dto.request.PaymentFilterParams;
 import com.chone.server.domains.payment.dto.response.PaymentPageResponse;
 import com.chone.server.domains.payment.exception.PaymentExceptionCode;
+import com.chone.server.domains.payment.repository.PaymentListSearchRepository;
 import com.chone.server.domains.payment.repository.PaymentRepository;
 import com.chone.server.domains.user.domain.User;
 import java.util.UUID;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class PaymentRepositoryImpl implements PaymentRepository {
   private final PaymentJpaRepository jpaRepository;
+  private final PaymentListSearchRepository jpaListSearchRepository;
 
   @Override
   public boolean existsByOrderId(UUID id) {
@@ -45,18 +47,18 @@ public class PaymentRepositoryImpl implements PaymentRepository {
   @Override
   public Page<PaymentPageResponse> findPaymentsByCustomer(
       User user, PaymentFilterParams filterParams, Pageable pageable) {
-    return null;
+    return jpaListSearchRepository.findOrdersByCustomer(user, filterParams, pageable);
   }
 
   @Override
   public Page<PaymentPageResponse> findPaymentsByOwner(
       User user, PaymentFilterParams filterParams, Pageable pageable) {
-    return null;
+    return jpaListSearchRepository.findOrdersByOwner(user, filterParams, pageable);
   }
 
   @Override
   public Page<PaymentPageResponse> findPaymentsByAdmin(
       User user, PaymentFilterParams filterParams, Pageable pageable) {
-    return null;
+    return jpaListSearchRepository.findOrdersByAdmin(user, filterParams, pageable);
   }
 }

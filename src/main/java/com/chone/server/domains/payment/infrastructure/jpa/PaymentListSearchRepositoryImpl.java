@@ -59,7 +59,7 @@ public class PaymentListSearchRepositoryImpl implements PaymentListSearchReposit
   }
 
   private void validateNoCustomerFiltering(PaymentFilterParams filterParams) {
-    if (filterParams.customerId() != null) {
+    if (filterParams.userId() != null) {
       throw new ApiBusinessException(PaymentExceptionCode.CUSTOMER_PAYMENT_FILTERING_ACCESS_DENIED);
     }
   }
@@ -74,8 +74,8 @@ public class PaymentListSearchRepositoryImpl implements PaymentListSearchReposit
     validateNoStoreFiltering(filterParams.storeId());
 
     List<BooleanExpression> conditions = new ArrayList<>();
-    if (filterParams.customerId() != null) {
-      addCustomerIdCondition(conditions, filterParams.customerId());
+    if (filterParams.userId() != null) {
+      addCustomerIdCondition(conditions, filterParams.userId());
     }
     conditions.add(storeOwnerEq(owner));
 
@@ -99,8 +99,8 @@ public class PaymentListSearchRepositoryImpl implements PaymentListSearchReposit
     if (filterParams.storeId() != null) {
       addStoreIdCondition(conditions, filterParams.storeId());
     }
-    if (filterParams.customerId() != null) {
-      addCustomerIdCondition(conditions, filterParams.customerId());
+    if (filterParams.userId() != null) {
+      addCustomerIdCondition(conditions, filterParams.userId());
     }
     return getPayments(conditions, filterParams, pageable);
   }
