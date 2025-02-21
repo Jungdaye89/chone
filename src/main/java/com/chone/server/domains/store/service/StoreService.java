@@ -2,7 +2,6 @@ package com.chone.server.domains.store.service;
 
 import com.chone.server.commons.exception.ApiBusinessException;
 import com.chone.server.commons.exception.GlobalExceptionCode;
-import com.chone.server.domains.auth.dto.CustomUserDetails;
 import com.chone.server.domains.product.domain.Product;
 import com.chone.server.domains.product.service.ProductService;
 import com.chone.server.domains.store.domain.Category;
@@ -114,10 +113,7 @@ public class StoreService {
   }
 
   @Transactional
-  public void updateStore(
-      CustomUserDetails userDetails, UUID storeId, UpdateRequestDto updateRequestDto) {
-
-    User user = findUserById(userDetails.getUser().getId());
+  public void updateStore(User user, UUID storeId, UpdateRequestDto updateRequestDto) {
 
     Store store = findStoreById(storeId);
 
@@ -132,14 +128,17 @@ public class StoreService {
   }
 
   @Transactional
-  public void deleteStore(CustomUserDetails userDetails, UUID storeId) {
-
-    User user = findUserById(userDetails.getUser().getId());
+  public void deleteStore(User user, UUID storeId) {
 
     Store store = findStoreById(storeId);
 
+    deleteStore(user, store);
+  }
+
+  public void deleteStore(User user, Store store) {
+
     List<Product> products = productService.findAllByStore(store);
-    products.forEach(p -> p.delete(user));
+    products.forEach(p -> productService.deleteProduct(user, p));
 
     store.delete(user);
   }
