@@ -5,6 +5,8 @@ import com.chone.server.domains.order.dto.request.OrderFilterParams;
 import com.chone.server.domains.order.dto.response.OrderDetailResponse;
 import com.chone.server.domains.order.dto.response.OrderPageResponse;
 import com.chone.server.domains.user.domain.User;
+
+import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,4 +32,6 @@ public interface OrderRepository {
   OrderDetailResponse findOrderByIdForAdmin(UUID orderId);
 
   Order findForCancellationById(UUID orderId);
+
+  List<Order> findOrderByUserId(Long userId);
 }
