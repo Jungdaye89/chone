@@ -3,11 +3,11 @@ package com.chone.server.domains.order.service;
 import static org.springframework.util.StringUtils.hasText;
 
 import com.chone.server.commons.exception.ApiBusinessException;
+import com.chone.server.domains.common.vo.Price;
 import com.chone.server.domains.order.domain.Order;
 import com.chone.server.domains.order.domain.OrderItem;
 import com.chone.server.domains.order.domain.OrderStatus;
 import com.chone.server.domains.order.domain.OrderType;
-import com.chone.server.domains.order.domain.vo.Price;
 import com.chone.server.domains.order.dto.request.CreateOrderRequest;
 import com.chone.server.domains.order.dto.request.CreateOrderRequest.OrderItemRequest;
 import com.chone.server.domains.order.exception.OrderExceptionCode;
@@ -15,7 +15,6 @@ import com.chone.server.domains.product.domain.Product;
 import com.chone.server.domains.store.domain.Store;
 import com.chone.server.domains.user.domain.Role;
 import com.chone.server.domains.user.domain.User;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -105,16 +104,14 @@ public class OrderDomainService {
   }
 
   private Price calculateTotalPrice(Map<UUID, Product> productMap, List<OrderItemRequest> items) {
-    BigDecimal total =
+    return Price.sum(
         items.stream()
             .map(
                 item -> {
                   Product product = productMap.get(item.productId());
-                  return BigDecimal.valueOf(product.getPrice())
-                      .multiply(BigDecimal.valueOf(item.quantity()));
+                  return new Price(product.getPrice()).multiply(item.quantity());
                 })
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
-    return new Price(total);
+            .toList());
   }
 
   private List<OrderItem> createOrderItems(
@@ -123,10 +120,8 @@ public class OrderDomainService {
         .map(
             item -> {
               Product product = productMap.get(item.productId());
-              BigDecimal itemPrice =
-                  BigDecimal.valueOf(product.getPrice())
-                      .multiply(BigDecimal.valueOf(item.quantity()));
-              return OrderItem.builder(order, product, item.quantity(), itemPrice).build();
+              Price itemPrice = new Price(product.getPrice()).multiply(item.quantity());
+              return OrderItem.builder(order, product, item.quantity(), itemPrice.value()).build();
             })
         .toList();
   }

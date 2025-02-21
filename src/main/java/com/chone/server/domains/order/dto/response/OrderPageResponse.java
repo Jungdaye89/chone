@@ -3,7 +3,6 @@ package com.chone.server.domains.order.dto.response;
 import com.chone.server.domains.order.domain.OrderStatus;
 import com.chone.server.domains.order.domain.OrderType;
 import com.querydsl.core.annotations.QueryProjection;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -13,7 +12,7 @@ public record OrderPageResponse(
     String storeName,
     String type,
     String status,
-    BigDecimal totalPrice,
+    int totalPrice,
     LocalDateTime createdAt,
     LocalDateTime updatedAt) {
 
@@ -24,7 +23,7 @@ public record OrderPageResponse(
       String storeName,
       OrderType type,
       OrderStatus status,
-      BigDecimal totalPrice,
+      int totalPrice,
       LocalDateTime createdAt,
       LocalDateTime updatedAt) {
     this(

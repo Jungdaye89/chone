@@ -16,7 +16,7 @@ public record CreateOrderResponse(
         order.getId(),
         new OrderResponse(
             order.getId(),
-            order.getTotalPrice().intValue(),
+            order.getTotalPrice(),
             order.getOrderType().getDescription(),
             order.getStatus().getDescription(),
             order.getCreatedAt()),

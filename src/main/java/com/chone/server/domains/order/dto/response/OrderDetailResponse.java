@@ -4,7 +4,6 @@ import com.chone.server.domains.order.domain.OrderCancelReason;
 import com.chone.server.domains.order.domain.OrderStatus;
 import com.chone.server.domains.order.domain.OrderType;
 import com.querydsl.core.annotations.QueryProjection;
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,19 +17,14 @@ public record OrderDetailResponse(
   public OrderDetailResponse {}
 
   public record OrderResponse(
-      UUID id,
-      String type,
-      String status,
-      BigDecimal totalPrice,
-      String cancelReason,
-      String request) {
+      UUID id, String type, String status, int totalPrice, String cancelReason, String request) {
 
     @QueryProjection
     public OrderResponse(
         UUID id,
         OrderType type,
         OrderStatus status,
-        BigDecimal totalPrice,
+        int totalPrice,
         OrderCancelReason cancelReason,
         String request) {
       this(

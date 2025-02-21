@@ -15,7 +15,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -65,7 +64,8 @@ public class Order extends BaseEntity {
   @NotNull
   @Column(nullable = false, precision = 10, scale = 2)
   @Comment("총 가격")
-  private BigDecimal totalPrice = BigDecimal.ZERO;
+  @Builder.Default
+  private int totalPrice = 0;
 
   @NotNull
   @Enumerated(EnumType.STRING)
@@ -93,7 +93,7 @@ public class Order extends BaseEntity {
   private List<OrderItem> orderItems = new ArrayList<>();
 
   public static OrderBuilder builder(
-      Store store, User user, OrderType orderType, BigDecimal totalPrice, OrderStatus status) {
+      Store store, User user, OrderType orderType, int totalPrice, OrderStatus status) {
 
     return Order.innerBuilder()
         .store(store)

@@ -16,7 +16,7 @@ public record CreatePaymentResponse(
     this(
         payment.getId(),
         order.getId(),
-        order.getTotalPrice().intValue(),
+        order.getTotalPrice(),
         payment.getStatus().getDescription(),
         payment.getPaymentMethod().getDescription(),
         payment.getCreatedAt());
