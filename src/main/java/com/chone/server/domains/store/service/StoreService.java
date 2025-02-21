@@ -189,6 +189,11 @@ public class StoreService {
     }
   }
 
+  public List<Store> findAllStoreByUserId(Long id) {
+
+    return storeRepository.findAllByUserIdAndDeletedByIsNull(id);
+  }
+
   public void checkRoleWithStore(User user, Store store) {
 
     switch (user.getRole()) {

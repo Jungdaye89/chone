@@ -2,6 +2,10 @@ package com.chone.server.domains.user.service;
 
 import com.chone.server.commons.exception.ApiBusinessException;
 import com.chone.server.domains.auth.dto.CustomUserDetails;
+import com.chone.server.domains.product.domain.Product;
+import com.chone.server.domains.product.service.ProductService;
+import com.chone.server.domains.store.domain.Store;
+import com.chone.server.domains.store.service.StoreService;
 import com.chone.server.domains.user.domain.Role;
 import com.chone.server.domains.user.domain.User;
 import com.chone.server.domains.user.dto.request.SignupRequestDto;
@@ -19,6 +23,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -27,6 +33,8 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final StoreService storeService;
+    private final ProductService productService;
 
     //회원가입
     public void signUp(SignupRequestDto signupRequestDto) {
@@ -127,6 +135,15 @@ public class UserService {
         User user = getUserWithAuthorityCheck(id, currentUser);
         user.updateIsAvailable();
         user.delete(user);
+
+        //해당 유저의 가게 찾기
+        List<Store> allStoreByUserId = storeService.findAllStoreByUserId(user.getId());
+        //가게 삭제하기
+        allStoreByUserId.forEach(store -> storeService.deleteStore(currentUser, store.getId()));
+
+        //주문삭제
+
+
     }
 
     private User getUserWithAuthorityCheck(Long id, CustomUserDetails currentUser) {
