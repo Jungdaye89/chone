@@ -1,8 +1,9 @@
 package com.chone.server.domains.user.domain;
 
+import static org.springframework.util.StringUtils.hasText;
+
 import com.chone.server.commons.jpa.BaseEntity;
 import com.chone.server.domains.order.domain.Order;
-import com.chone.server.domains.payment.domain.Payment;
 import com.chone.server.domains.review.domain.Review;
 import com.chone.server.domains.store.domain.Store;
 import jakarta.persistence.*;
@@ -15,8 +16,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
-
-import static org.springframework.util.StringUtils.hasText;
 
 @Entity
 @Getter
@@ -45,7 +44,7 @@ public class User extends BaseEntity {
   private String email;
 
   @NotNull
-  @Column(name = "password", nullable = false, length = 15)
+  @Column(name = "password", nullable = false)
   @Comment("사용자 비밀번호")
   private String password;
 
@@ -88,7 +87,7 @@ public class User extends BaseEntity {
   }
 
   public void updateUser(String email, String password) {
-    if(hasText(email)) this.email = email;
-    if(hasText(password)) this.password = password;
+    if (hasText(email)) this.email = email;
+    if (hasText(password)) this.password = password;
   }
 }
