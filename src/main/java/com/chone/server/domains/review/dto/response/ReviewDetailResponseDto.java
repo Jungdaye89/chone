@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class ReviewDetailResponseDto {
+
   private UUID reviewId;
   private UUID orderId;
   private StoreInfo storeInfo;
@@ -22,6 +23,7 @@ public class ReviewDetailResponseDto {
   private BigDecimal rating;
   private String imageUrl;
   private LocalDateTime writtenAt;
+  private Boolean isPublic;
 
   public static ReviewDetailResponseDto from(Review review) {
     return ReviewDetailResponseDto.builder()
@@ -33,12 +35,14 @@ public class ReviewDetailResponseDto {
         .rating(review.getRating())
         .imageUrl(review.getImageUrl())
         .writtenAt(review.getCreatedAt())
+        .isPublic(review.getIsPublic())
         .build();
   }
 
   @Getter
   @AllArgsConstructor
   public static class StoreInfo {
+
     private UUID storeId;
     private String storeName;
   }
@@ -46,6 +50,7 @@ public class ReviewDetailResponseDto {
   @Getter
   @AllArgsConstructor
   public static class CustomerInfo {
+
     private Long customerId;
     private String username;
   }
