@@ -36,6 +36,8 @@ public class OrderCreationService {
     User user = principal.getUser();
     Store store = storeFacade.findStoreById(request.storeId());
 
+    domainService.validateStoreOwnershipIfRoleOwner(user, store);
+
     List<Product> products =
         productFacade.findAllById(
             request.orderItems().stream().map(OrderItemRequest::productId).toList());

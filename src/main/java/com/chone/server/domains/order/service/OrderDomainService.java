@@ -29,10 +29,15 @@ import org.springframework.stereotype.Service;
 public class OrderDomainService {
   private static final int ORDER_CANCELLATION_TIME_LIMIT_MINUTES = 5;
 
+  public void validateStoreOwnershipIfRoleOwner(User user, Store store) {
+    if (user.getRole().isOwner() && !store.getUser().equals(user)) {
+      throw new ApiBusinessException(OrderExceptionCode.ORDER_STORE_OWNER_ACCESS_DENIED);
+    }
+  }
+
   public void validateStoreAndProducts(Store store, List<Product> products) {
-    UUID storeId = store.getId();
-    if (products.stream().anyMatch(product -> !product.getStore().getId().equals(storeId))) {
-      throw new ApiBusinessException(OrderExceptionCode.MULTIPLE_STORE_ORDER);
+    if (products.stream().anyMatch(product -> !product.getStore().equals(store))) {
+      throwApiException(OrderExceptionCode.MULTIPLE_STORE_ORDER);
     }
   }
 
@@ -40,9 +45,8 @@ public class OrderDomainService {
     return switch (userRole) {
       case OWNER -> OrderType.OFFLINE;
       case CUSTOMER -> {
-        if (!hasText(requestDto.address())) {
-          throw new ApiBusinessException(OrderExceptionCode.MISSING_DELIVERY_ADDRESS);
-        }
+        if (!hasText(requestDto.address()))
+          throwApiException(OrderExceptionCode.MISSING_DELIVERY_ADDRESS);
         yield OrderType.ONLINE;
       }
       default -> throw new ApiBusinessException(OrderExceptionCode.FORBIDDEN_ORDER);
@@ -75,61 +79,53 @@ public class OrderDomainService {
   }
 
   public void validateOrderStatusChangePermission(User user, Order order) {
-    if (user.getRole() == Role.OWNER) {
-      if (!order.getStore().getUser().getId().equals(user.getId())) {
+    if (user.getRole().isOwner()) {
+      if (!order.getStore().getUser().equals(user)) {
         throw new ApiBusinessException(OrderExceptionCode.ORDER_STATUS_CHANGE_NOT_OWNER);
       }
     }
-    if (user.getRole() == Role.CUSTOMER) {
+    if (user.getRole().isCustomer()) {
       throw new ApiBusinessException(OrderExceptionCode.ORDER_STATUS_CHANGE_FORBIDDEN);
     }
   }
 
   public void validateStatusChange(Order order, OrderStatus currentStatus, OrderStatus newStatus) {
-    if (newStatus == OrderStatus.CANCELED)
-      throw new ApiBusinessException(OrderExceptionCode.ORDER_CANCEL_SEPARATE_API);
+    if (newStatus.isSameStatus(OrderStatus.CANCELED))
+      throwApiException(OrderExceptionCode.ORDER_CANCEL_SEPARATE_API);
 
-    if (newStatus == OrderStatus.PAID)
-      throw new ApiBusinessException(OrderExceptionCode.ORDER_PAID_SEPARATE);
+    if (newStatus.isSameStatus(OrderStatus.PAID))
+      throwApiException(OrderExceptionCode.ORDER_PAID_SEPARATE);
 
     if (currentStatus.isTerminal())
-      throw new ApiBusinessException(OrderExceptionCode.ORDER_FINALIZED_STATE_CONFLICT);
+      throwApiException(OrderExceptionCode.ORDER_FINALIZED_STATE_CONFLICT);
 
     if (!newStatus.isProgressableFrom(currentStatus))
-      throw new ApiBusinessException(OrderExceptionCode.ORDER_STATUS_REGRESSION);
+      throwApiException(OrderExceptionCode.ORDER_STATUS_REGRESSION);
 
-    if (order.getOrderType() == OrderType.OFFLINE && !newStatus.isValidForOfflineOrder())
-      throw new ApiBusinessException(OrderExceptionCode.OFFLINE_ORDER_DELIVERY_STATUS);
+    if (order.getOrderType().isSameType(OrderType.OFFLINE) && !newStatus.isValidForOfflineOrder())
+      throwApiException(OrderExceptionCode.OFFLINE_ORDER_DELIVERY_STATUS);
   }
 
   private void validateStoreOperationStatus(Store store) {
-    if (!store.getIsOpen()) {
-      throw new ApiBusinessException(OrderExceptionCode.ORDER_STORE_CLOSED);
-    }
+    if (!store.getIsOpen()) throwApiException(OrderExceptionCode.ORDER_STORE_CLOSED);
   }
 
   private Map<UUID, Product> validateAndGetProductMap(
       List<OrderItemRequest> itemRequests, List<Product> products) {
-    if (products.size() != itemRequests.size()) {
-      throw new ApiBusinessException(OrderExceptionCode.ORDER_PRODUCT_MISMATCH);
-    }
+    if (products.size() != itemRequests.size())
+      throwApiException(OrderExceptionCode.ORDER_PRODUCT_MISMATCH);
 
-    if (products.isEmpty()) {
-      throw new ApiBusinessException(OrderExceptionCode.ORDER_PRODUCT_MISMATCH);
-    }
+    if (products.isEmpty()) throwApiException(OrderExceptionCode.ORDER_PRODUCT_MISMATCH);
 
     Map<UUID, Product> productMap =
         products.stream().collect(Collectors.toMap(Product::getId, product -> product));
-
     products.forEach(this::validateProduct);
 
     return productMap;
   }
 
   private void validateProduct(Product product) {
-    if (!product.getIsAvailable()) {
-      throw new ApiBusinessException(OrderExceptionCode.ORDER_PRODUCT_UNAVAILABLE);
-    }
+    if (!product.getIsAvailable()) throwApiException(OrderExceptionCode.ORDER_PRODUCT_UNAVAILABLE);
   }
 
   private int calculateTotalPrice(Map<UUID, Product> productMap, List<OrderItemRequest> items) {
@@ -160,13 +156,13 @@ public class OrderDomainService {
         return;
       }
       case CUSTOMER -> {
-        if (!order.getUser().getId().equals(user.getId())) {
+        if (!order.getUser().equals(user)) {
           throw new ApiBusinessException(OrderExceptionCode.ORDER_CUSTOMER_ACCESS_DENIED);
         }
         return;
       }
       case OWNER -> {
-        if (!order.getStore().getUser().getId().equals(user.getId())) {
+        if (!order.getStore().getUser().equals(user)) {
           throw new ApiBusinessException(OrderExceptionCode.ORDER_STORE_OWNER_ACCESS_DENIED);
         }
         return;
@@ -176,21 +172,16 @@ public class OrderDomainService {
   }
 
   public void validateCancellation(Order order) {
-    if (order.getStatus() == OrderStatus.CANCELED) {
-      throw new ApiBusinessException(OrderExceptionCode.ORDER_ALREADY_CANCELED);
-    }
+    if (order.getStatus() == OrderStatus.CANCELED)
+      throwApiException(OrderExceptionCode.ORDER_ALREADY_CANCELED);
 
-    if (order.getStatus() == OrderStatus.IN_DELIVERY) {
-      throw new ApiBusinessException(OrderExceptionCode.ORDER_ALREADY_IN_DELIVERY);
-    }
+    if (order.getStatus() == OrderStatus.IN_DELIVERY)
+      throwApiException(OrderExceptionCode.ORDER_ALREADY_IN_DELIVERY);
 
-    if (order.getStatus() == OrderStatus.COMPLETED) {
-      throw new ApiBusinessException(OrderExceptionCode.ORDER_ALREADY_COMPLETED);
-    }
+    if (order.getStatus() == OrderStatus.COMPLETED)
+      throwApiException(OrderExceptionCode.ORDER_ALREADY_COMPLETED);
 
-    if (!order.isCancelable()) {
-      throw new ApiBusinessException(OrderExceptionCode.ORDER_NOT_CANCELABLE);
-    }
+    if (!order.isCancelable()) throwApiException(OrderExceptionCode.ORDER_NOT_CANCELABLE);
   }
 
   public boolean isAfterCancellationTimeLimit(Order order) {
@@ -203,5 +194,9 @@ public class OrderDomainService {
 
   public boolean isDeletableOrder(OrderStatus status) {
     return status.equals(OrderStatus.CANCELED) || status.equals(OrderStatus.COMPLETED);
+  }
+
+  private void throwApiException(OrderExceptionCode exceptionCode) {
+    throw new ApiBusinessException(exceptionCode);
   }
 }

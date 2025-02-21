@@ -10,4 +10,8 @@ public enum OrderType {
   OFFLINE("대면");
 
   private final String description;
+
+  public boolean isSameType(OrderType type) {
+    return this == type;
+  }
 }
