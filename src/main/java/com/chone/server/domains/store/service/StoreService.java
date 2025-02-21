@@ -3,6 +3,8 @@ package com.chone.server.domains.store.service;
 import com.chone.server.commons.exception.ApiBusinessException;
 import com.chone.server.commons.exception.GlobalExceptionCode;
 import com.chone.server.domains.auth.dto.CustomUserDetails;
+import com.chone.server.domains.product.domain.Product;
+import com.chone.server.domains.product.service.ProductService;
 import com.chone.server.domains.store.domain.Category;
 import com.chone.server.domains.store.domain.LegalDongCode;
 import com.chone.server.domains.store.domain.Store;
@@ -38,6 +40,7 @@ public class StoreService {
   private final LegalDongCodeRepository legalDongCodeRepository;
   private final CategoryRepository categoryRepository;
   private final StoreCategoryMapRepository storeCategoryMapRepository;
+  private final ProductService productService;
 
   // MANAGER, MASTER 사용자가 OWNER 사용자의 ID로 가게 생성
   @Transactional
