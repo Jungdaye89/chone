@@ -71,14 +71,14 @@ public class UserService {
 
     //특정 회원정보 조회
     public UserResponseDto findUserByUserId(Long userId) {
-        return UserResponseDto.fromEntity(userRepository.findById(userId)
+        return UserResponseDto.fromEntity(userRepository.findByIdAndDeletedAtIsNull(userId)
                 .orElseThrow(() -> new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND)));
     }
 
     //회원 정보 수정
     @Transactional
     public UserResponseDto updateUser(Long id, UserUpdateRequestDto requestDto, CustomUserDetails currentUser) {
-        User user = userRepository.findById(id)
+        User user = userRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND));
 
         //조회한 아이디와 현재 아이디가 다른 경우에는 수정불가
@@ -99,7 +99,7 @@ public class UserService {
     //Master나 Manager가 회원의 권한을 Owner로 변경
     @Transactional
     public UserResponseDto updateUserRole(Long id, UserRoleUpdateRequestDto userRoleUpdateRequestDto, CustomUserDetails currentUser) {
-        User user = userRepository.findById(id)
+        User user = userRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND));
 
         // 현재 사용자의 역할이 MANAGER 또는 MASTER인지 체크
@@ -130,7 +130,7 @@ public class UserService {
     }
 
     private User getUserWithAuthorityCheck(Long id, CustomUserDetails currentUser) {
-        User user = userRepository.findById(id)
+        User user = userRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND));
 
         //권한 체크(본인이거나, MANAGER 또는 MASTER 권한이어야 함)

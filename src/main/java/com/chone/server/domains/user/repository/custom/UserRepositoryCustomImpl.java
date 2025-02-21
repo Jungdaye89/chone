@@ -27,6 +27,8 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom{
     public Page<User> findUsers(String username, String email, String role, LocalDate startDate, LocalDate endDate, Pageable pageable) {
         BooleanBuilder builder = new BooleanBuilder();
 
+        builder.and(user.deletedBy.isNull());
+
         // username 검색
         if (username != null && !username.isBlank()) {
             builder.and(user.username.containsIgnoreCase(username));
