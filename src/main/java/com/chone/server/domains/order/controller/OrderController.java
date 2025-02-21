@@ -13,7 +13,11 @@ import com.chone.server.domains.order.dto.response.OrderDetailResponse;
 import com.chone.server.domains.order.dto.response.OrderPageResponse;
 import com.chone.server.domains.order.dto.response.OrderStatusUpdateResponse;
 import com.chone.server.domains.order.dto.response.PageResponse;
-import com.chone.server.domains.order.service.OrderService;
+import com.chone.server.domains.order.service.OrderCancellationService;
+import com.chone.server.domains.order.service.OrderCreationService;
+import com.chone.server.domains.order.service.OrderDeletionService;
+import com.chone.server.domains.order.service.OrderReadService;
+import com.chone.server.domains.order.service.OrderUpdateService;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -37,14 +41,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/orders")
 public class OrderController {
-  private final OrderService service;
+  private final OrderCreationService creationService;
+  private final OrderReadService readService;
+  private final OrderCancellationService cancellationService;
+  private final OrderDeletionService deletionService;
+  private final OrderUpdateService updateService;
 
   @PreAuthorize("hasAnyRole('CUSTOMER', 'OWNER')")
   @PostMapping
   public ResponseEntity<CreateOrderResponse> createOrder(
       @Valid @RequestBody CreateOrderRequest requestDto,
       @AuthenticationPrincipal CustomUserDetails principal) {
-    CreateOrderResponse responseDto = service.createOrder(requestDto, principal);
+    CreateOrderResponse responseDto = creationService.createOrder(requestDto, principal);
 
     return ResponseEntity.created(UriGeneratorUtil.generateUri("/" + responseDto.id().toString()))
         .body(responseDto);
@@ -57,7 +65,7 @@ public class OrderController {
       @PageableDefault(page = 0, size = 10, sort = "createdat", direction = Sort.Direction.DESC)
           Pageable pageable) {
     PageResponse<OrderPageResponse> responseDto =
-        service.getOrders(principal, filterParams, pageable);
+        readService.getOrders(principal, filterParams, pageable);
 
     return ResponseEntity.ok().body(responseDto);
   }
@@ -65,7 +73,7 @@ public class OrderController {
   @GetMapping("/{id}")
   public ResponseEntity<OrderDetailResponse> getOrder(
       @AuthenticationPrincipal CustomUserDetails principal, @PathVariable("id") UUID id) {
-    OrderDetailResponse responseDto = service.getOrderById(principal, id);
+    OrderDetailResponse responseDto = readService.getOrderById(principal, id);
 
     return ResponseEntity.ok().body(responseDto);
   }
@@ -75,7 +83,7 @@ public class OrderController {
       @AuthenticationPrincipal CustomUserDetails principal,
       @PathVariable("id") UUID id,
       @Valid @RequestBody CancelOrderRequest requestDto) {
-    CancelOrderResponse responseDto = service.cancelOrder(principal, id, requestDto);
+    CancelOrderResponse responseDto = cancellationService.cancelOrder(principal, id, requestDto);
 
     return ResponseEntity.ok().body(responseDto);
   }
@@ -84,7 +92,7 @@ public class OrderController {
   @DeleteMapping("/{id}")
   public ResponseEntity<DeleteOrderResponse> deleteOrder(
       @AuthenticationPrincipal CustomUserDetails principal, @PathVariable("id") UUID id) {
-    DeleteOrderResponse responseDto = service.deleteOrder(principal, id);
+    DeleteOrderResponse responseDto = deletionService.deleteOrder(principal, id);
 
     return ResponseEntity.ok().body(responseDto);
   }
@@ -95,7 +103,7 @@ public class OrderController {
       @AuthenticationPrincipal CustomUserDetails principal,
       @PathVariable("id") UUID id,
       @RequestBody OrderStatusUpdateRequest request) {
-    OrderStatusUpdateResponse response = service.updateOrderStatus(principal, id, request);
+    OrderStatusUpdateResponse response = updateService.updateOrderStatus(principal, id, request);
     return ResponseEntity.ok(response);
   }
 }
