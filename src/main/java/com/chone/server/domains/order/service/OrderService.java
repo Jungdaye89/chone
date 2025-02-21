@@ -1,6 +1,8 @@
 package com.chone.server.domains.order.service;
 
 import com.chone.server.commons.exception.ApiBusinessException;
+import com.chone.server.commons.facade.ProductFacade;
+import com.chone.server.commons.facade.StoreFacade;
 import com.chone.server.domains.auth.dto.CustomUserDetails;
 import com.chone.server.domains.order.domain.Order;
 import com.chone.server.domains.order.domain.OrderType;
@@ -17,9 +19,7 @@ import com.chone.server.domains.order.dto.response.PageResponse;
 import com.chone.server.domains.order.exception.OrderExceptionCode;
 import com.chone.server.domains.order.repository.OrderRepository;
 import com.chone.server.domains.product.domain.Product;
-import com.chone.server.domains.product.service.ProductService;
 import com.chone.server.domains.store.domain.Store;
-import com.chone.server.domains.store.service.StoreService;
 import com.chone.server.domains.user.domain.User;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -35,20 +35,22 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Log4j2
 public class OrderService {
+
   private final OrderRepository repository;
 
   private final OrderDomainService domainService;
-  private final ProductService productService;
-  private final StoreService storeService;
+  private final ProductFacade productFacade;
+  private final StoreFacade storeFacade;
 
   @Transactional
   public CreateOrderResponse createOrder(
       @Valid CreateOrderRequest request, CustomUserDetails principal) {
+
     User user = principal.getUser();
-    Store store = storeService.findStoreById(request.storeId());
+    Store store = storeFacade.findStoreById(request.storeId());
 
     List<Product> products =
-        productService.findAllById(
+        productFacade.findAllById(
             request.orderItems().stream().map(OrderItemRequest::productId).toList());
 
     domainService.validateStoreAndProducts(store, products);
@@ -66,16 +68,16 @@ public class OrderService {
     return CreateOrderResponse.from(savedOrder);
   }
 
-
-
   public PageResponse<OrderPageResponse> getOrders(
       CustomUserDetails principal, OrderFilterParams filterParams, Pageable pageable) {
+
     User user = principal.getUser();
 
     return PageResponse.from(findOrdersByRole(user, filterParams, pageable));
   }
 
   public OrderDetailResponse getOrderById(CustomUserDetails principal, UUID id) {
+
     User user = principal.getUser();
     return switch (user.getRole()) {
       case CUSTOMER -> repository.findOrderByIdForCustomer(id, user);
@@ -86,6 +88,7 @@ public class OrderService {
 
   public CancelOrderResponse cancelOrder(
       CustomUserDetails principal, UUID orderId, @Valid CancelOrderRequest requestDto) {
+
     Order order = repository.findForCancellationById(orderId);
     User currentUser = principal.getUser();
 
@@ -107,6 +110,7 @@ public class OrderService {
 
   @Transactional
   public DeleteOrderResponse deleteOrder(CustomUserDetails principal, UUID id) {
+
     Order order = findByOrderId(id);
     if (!domainService.isDeletableOrder(order.getStatus())) {
       throw new ApiBusinessException(OrderExceptionCode.ORDER_NOT_DELETABLE);
@@ -120,11 +124,13 @@ public class OrderService {
   }
 
   public Order findByOrderId(UUID orderId) {
+
     return repository.findById(orderId);
   }
 
   private Page<OrderPageResponse> findOrdersByRole(
       User user, OrderFilterParams filterParams, Pageable pageable) {
+
     return switch (user.getRole()) {
       case CUSTOMER -> repository.findOrdersByCustomer(user, filterParams, pageable);
       case OWNER -> repository.findOrdersByOwner(user, filterParams, pageable);
@@ -134,17 +140,20 @@ public class OrderService {
 
   @Transactional
   void updateNotCancelable(Order order) {
+
     order.updateNotCancelable();
     repository.save(order);
   }
 
   @Transactional
   Order updateAndSaveOrder(Order order, Runnable updateAction) {
+
     updateAction.run();
     return repository.save(order);
   }
 
   public Order saveOrder(Order order) {
+
     return repository.save(order);
   }
 }

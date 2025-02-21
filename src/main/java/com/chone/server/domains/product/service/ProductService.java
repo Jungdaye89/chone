@@ -1,6 +1,8 @@
 package com.chone.server.domains.product.service;
 
 import com.chone.server.commons.exception.ApiBusinessException;
+import com.chone.server.commons.facade.ProductFacade;
+import com.chone.server.commons.facade.StoreFacade;
 import com.chone.server.domains.product.domain.Product;
 import com.chone.server.domains.product.dto.request.CreateRequestDto;
 import com.chone.server.domains.product.dto.request.UpdateRequestDto;
@@ -12,11 +14,7 @@ import com.chone.server.domains.product.exception.ProductExceptionCode;
 import com.chone.server.domains.product.repository.ProductRepository;
 import com.chone.server.domains.s3.service.S3Service;
 import com.chone.server.domains.store.domain.Store;
-import com.chone.server.domains.store.exception.StoreExceptionCode;
-import com.chone.server.domains.store.service.StoreService;
 import com.chone.server.domains.user.domain.User;
-import com.chone.server.domains.user.repository.UserRepository;
-import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -32,27 +30,17 @@ import org.springframework.web.multipart.MultipartFile;
 public class ProductService {
 
   private final ProductRepository productRepository;
-  private final UserRepository userRepository;
-  private final StoreService storeService;
   private final S3Service s3Service;
-
-  public List<Product> findAllById(List<UUID> productIds) {
-
-    return productRepository.findAllById(productIds);
-  }
-
-  public List<Product> findAllByStore(Store store) {
-
-    return productRepository.findAllByStoreAndDeletedByIsNull(store);
-  }
+  private final ProductFacade productFacade;
+  private final StoreFacade storeFacade;
 
   @Transactional
   public CreateResponseDto createProduct(User user, CreateRequestDto createRequestDto,
       MultipartFile file) {
 
-    Store store = storeService.findStoreById(createRequestDto.getStoreId());
+    Store store = storeFacade.findStoreById(createRequestDto.getStoreId());
 
-    storeService.checkRoleWithStore(user, store);
+    storeFacade.checkRoleWithStore(user, store);
 
     if (!file.isEmpty()) {
       createRequestDto.setImageUrl(s3Service.uploadFile(file));
@@ -109,9 +97,9 @@ public class ProductService {
   public void updateProduct(User user, UpdateRequestDto updateRequestDto, MultipartFile file,
       UUID productId) {
 
-    Product product = findProductById(productId);
+    Product product = productFacade.findProductById(productId);
 
-    storeService.checkRoleWithStore(user, product.getStore());
+    storeFacade.checkRoleWithStore(user, product.getStore());
 
     if (!file.isEmpty()) {
       s3Service.removeFile(product.getImageUrl());
@@ -123,38 +111,13 @@ public class ProductService {
     product.update(updateRequestDto);
   }
 
-  private Product findProductById(UUID id) {
-
-    return productRepository
-        .findById(id)
-        .orElseThrow(() -> new ApiBusinessException(ProductExceptionCode.PRODUCT_NOT_FOUND));
-  }
-
   @Transactional
   public void deleteProduct(User user, UUID productId) {
 
-    Product product = findProductById(productId);
+    Product product = productFacade.findProductById(productId);
 
-    storeService.checkRoleWithStore(user, product.getStore());
+    storeFacade.checkRoleWithStore(user, product.getStore());
 
-    deleteProduct(user, product);
-  }
-
-  public void deleteProduct(User user, Product product) {
-
-    s3Service.removeFile(product.getImageUrl());
-
-    product.delete(user);
-  }
-
-  private User findUserById(Long id) {
-
-    return userRepository
-        .findById(id)
-        .orElseThrow(() -> new ApiBusinessException(StoreExceptionCode.USER_NOT_FOUND));
-  }
-
-  public List<Product> findAllByStore(Store store) {
-    return productRepository.findAllByStoreAndDeletedByIsNull(store);
+    productFacade.deleteProduct(user, product);
   }
 }
