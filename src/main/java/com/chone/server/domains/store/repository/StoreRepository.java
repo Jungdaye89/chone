@@ -2,7 +2,6 @@ package com.chone.server.domains.store.repository;
 
 import com.chone.server.domains.store.domain.Store;
 import com.chone.server.domains.store.repository.custom.StoreRepositoryCustom;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
