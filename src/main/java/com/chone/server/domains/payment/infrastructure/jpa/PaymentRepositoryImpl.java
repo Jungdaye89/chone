@@ -7,6 +7,7 @@ import com.chone.server.domains.payment.dto.response.PaymentPageResponse;
 import com.chone.server.domains.payment.exception.PaymentExceptionCode;
 import com.chone.server.domains.payment.repository.PaymentListSearchRepository;
 import com.chone.server.domains.payment.repository.PaymentRepository;
+import com.chone.server.domains.payment.repository.dto.PaymentDetailDto;
 import com.chone.server.domains.user.domain.User;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -60,5 +61,12 @@ public class PaymentRepositoryImpl implements PaymentRepository {
   public Page<PaymentPageResponse> findPaymentsByAdmin(
       User user, PaymentFilterParams filterParams, Pageable pageable) {
     return jpaListSearchRepository.findOrdersByAdmin(user, filterParams, pageable);
+  }
+
+  @Override
+  public PaymentDetailDto findPaymentWithDetails(UUID id) {
+    return jpaRepository
+        .findPaymentDetailById(id)
+        .orElseThrow(() -> new ApiBusinessException(PaymentExceptionCode.NOT_FOUND_PAYMENT));
   }
 }
