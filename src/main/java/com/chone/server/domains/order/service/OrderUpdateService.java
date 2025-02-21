@@ -45,13 +45,12 @@ public class OrderUpdateService {
 
   private void processAdditionalLogic(Order order, OrderStatus newStatus) {
     log.info("주문 상태 변경: {} -> {}", order.getStatus().getDescription(), newStatus.getDescription());
-    int step = newStatus.getStep();
-    if (step >= OrderStatus.FOOD_PREPARING.getStep()) {
-      order.updateNotCancelable();
-    }
-    if (step == OrderStatus.AWAITING_DELIVERY.getStep()) handleAwaitingDelivery(order);
-    if (step == OrderStatus.IN_DELIVERY.getStep()) handleInDelivery(order);
-    if (step == OrderStatus.COMPLETED.getStep()) handleOrderCompletion(order);
+
+    if (newStatus.getStep() >= OrderStatus.FOOD_PREPARING.getStep()) order.updateNotCancelable();
+
+    if (newStatus.isSameStatus(OrderStatus.AWAITING_DELIVERY)) handleAwaitingDelivery(order);
+    if (newStatus.isSameStatus(OrderStatus.IN_DELIVERY)) handleInDelivery(order);
+    if (newStatus.isSameStatus(OrderStatus.COMPLETED)) handleOrderCompletion(order);
   }
 
   private void handleAwaitingDelivery(Order order) {
