@@ -1,10 +1,14 @@
 package com.chone.server.domains.user.service;
 
 import com.chone.server.commons.exception.ApiBusinessException;
+import com.chone.server.commons.facade.OrderFacade;
 import com.chone.server.commons.facade.ProductFacade;
+import com.chone.server.commons.facade.ReviewFacade;
 import com.chone.server.commons.facade.StoreFacade;
 import com.chone.server.domains.auth.dto.CustomUserDetails;
+import com.chone.server.domains.order.domain.Order;
 import com.chone.server.domains.product.service.ProductService;
+import com.chone.server.domains.review.domain.Review;
 import com.chone.server.domains.store.domain.Store;
 import com.chone.server.domains.store.service.StoreService;
 import com.chone.server.domains.user.domain.Role;
@@ -32,10 +36,10 @@ public class UserService {
 
   private final UserRepository userRepository;
   private final BCryptPasswordEncoder bCryptPasswordEncoder;
-  private final StoreService storeService;
   private final StoreFacade storeFacade;
-  private final ProductService productService;
-  private final ProductFacade productFacade;
+  private final ReviewFacade reviewFacade;
+  private final OrderFacade orderFacade;
+
 
   //회원가입
   public void signUp(SignupRequestDto signupRequestDto) {
@@ -153,7 +157,13 @@ public class UserService {
     allStoreByUserId.forEach(
         store -> storeFacade.deleteStore(currentUser.getUser(), store));
 
+    //리뷰삭제
+    List<Review> allReviewByUserId = reviewFacade.findAllReviews(user.getId());
+    allReviewByUserId.forEach(review -> reviewFacade.deleteReview(user, review));
+
     //주문삭제
+    List<Order> userOrders = orderFacade.findAllOrderByUserId(user.getId());
+    userOrders.forEach(order -> orderFacade.deleteOrder(user, order));
 
   }
 
