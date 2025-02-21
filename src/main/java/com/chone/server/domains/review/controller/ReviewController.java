@@ -61,9 +61,9 @@ public class ReviewController {
   }
 
   @PreAuthorize("hasRole('CUSTOMER')")
-  @GetMapping("/user/{userId}")
+  @GetMapping("/user/{id}")
   public ResponseEntity<List<ReviewDetailResponseDto>> getReviewsByUserId(
-      @PathVariable Long userId, @AuthenticationPrincipal CustomUserDetails principal) {
+      @PathVariable("id") Long userId, @AuthenticationPrincipal CustomUserDetails principal) {
 
     List<ReviewDetailResponseDto> response = reviewService.getReviewsByUserId(userId, principal);
     return ResponseEntity.ok(response);
