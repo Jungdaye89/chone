@@ -55,7 +55,7 @@ public class Product extends BaseEntity {
   @NotNull
   @Column(nullable = false)
   @Comment("가격")
-  private double price;
+  private int price;
 
   @Comment("상품 사진")
   private String imageUrl;
@@ -66,8 +66,7 @@ public class Product extends BaseEntity {
 
   public static ProductBuilder builder(Store store) {
 
-    return Product.innerBuilder()
-        .store(store);
+    return Product.innerBuilder().store(store);
   }
 
   public void update(UpdateRequestDto updateRequestDto) {

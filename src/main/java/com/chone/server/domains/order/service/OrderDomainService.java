@@ -7,7 +7,6 @@ import com.chone.server.domains.order.domain.Order;
 import com.chone.server.domains.order.domain.OrderItem;
 import com.chone.server.domains.order.domain.OrderStatus;
 import com.chone.server.domains.order.domain.OrderType;
-import com.chone.server.domains.order.domain.vo.Price;
 import com.chone.server.domains.order.dto.request.CreateOrderRequest;
 import com.chone.server.domains.order.dto.request.CreateOrderRequest.OrderItemRequest;
 import com.chone.server.domains.order.exception.OrderExceptionCode;
@@ -15,7 +14,6 @@ import com.chone.server.domains.product.domain.Product;
 import com.chone.server.domains.store.domain.Store;
 import com.chone.server.domains.user.domain.Role;
 import com.chone.server.domains.user.domain.User;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -40,12 +38,12 @@ public class OrderDomainService {
 
   public OrderType determineOrderType(Role userRole, CreateOrderRequest requestDto) {
     return switch (userRole) {
-      case OWNER -> OrderType.ONLINE;
+      case OWNER -> OrderType.OFFLINE;
       case CUSTOMER -> {
         if (!hasText(requestDto.address())) {
           throw new ApiBusinessException(OrderExceptionCode.MISSING_DELIVERY_ADDRESS);
         }
-        yield OrderType.OFFLINE;
+        yield OrderType.ONLINE;
       }
       default -> throw new ApiBusinessException(OrderExceptionCode.FORBIDDEN_ORDER);
     };
@@ -61,10 +59,10 @@ public class OrderDomainService {
 
     validateStoreOperationStatus(store);
     Map<UUID, Product> productMap = validateAndGetProductMap(itemRequests, products);
-    Price totalPrice = calculateTotalPrice(productMap, itemRequests);
+    int totalPrice = calculateTotalPrice(productMap, itemRequests);
 
     Order order =
-        Order.builder(store, user, orderType, totalPrice.value(), OrderStatus.PENDING)
+        Order.builder(store, user, orderType, totalPrice, OrderStatus.PENDING)
             .request(requestText)
             .build();
 
@@ -104,17 +102,14 @@ public class OrderDomainService {
     }
   }
 
-  private Price calculateTotalPrice(Map<UUID, Product> productMap, List<OrderItemRequest> items) {
-    BigDecimal total =
-        items.stream()
-            .map(
-                item -> {
-                  Product product = productMap.get(item.productId());
-                  return BigDecimal.valueOf(product.getPrice())
-                      .multiply(BigDecimal.valueOf(item.quantity()));
-                })
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
-    return new Price(total);
+  private int calculateTotalPrice(Map<UUID, Product> productMap, List<OrderItemRequest> items) {
+    return items.stream()
+        .mapToInt(
+            item -> {
+              Product product = productMap.get(item.productId());
+              return product.getPrice() * item.quantity();
+            })
+        .sum();
   }
 
   private List<OrderItem> createOrderItems(
@@ -123,9 +118,7 @@ public class OrderDomainService {
         .map(
             item -> {
               Product product = productMap.get(item.productId());
-              BigDecimal itemPrice =
-                  BigDecimal.valueOf(product.getPrice())
-                      .multiply(BigDecimal.valueOf(item.quantity()));
+              int itemPrice = product.getPrice() * item.quantity();
               return OrderItem.builder(order, product, item.quantity(), itemPrice).build();
             })
         .toList();

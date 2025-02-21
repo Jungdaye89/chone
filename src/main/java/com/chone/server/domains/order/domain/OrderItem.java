@@ -10,7 +10,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import java.math.BigDecimal;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -56,11 +55,9 @@ public class OrderItem extends BaseEntity {
   @NotNull
   @Column(nullable = false, precision = 10, scale = 2)
   @Comment("주문한 상품의 총 금액")
-  private BigDecimal price = BigDecimal.ZERO;
+  private int price = 0;
 
-  public static OrderItemBuilder builder(
-      Order order, Product product, int amount, BigDecimal price) {
-
+  public static OrderItemBuilder builder(Order order, Product product, int amount, int price) {
     return OrderItem.innerBuilder().order(order).product(product).amount(amount).price(price);
   }
 

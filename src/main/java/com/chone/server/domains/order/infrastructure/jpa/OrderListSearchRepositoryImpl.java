@@ -17,7 +17,6 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -162,11 +161,11 @@ public class OrderListSearchRepositoryImpl implements OrderListSearchRepository 
   private BooleanExpression totalPriceBetween(Integer minPrice, Integer maxPrice) {
     try {
       if (minPrice != null && maxPrice != null) {
-        return order.totalPrice.between(BigDecimal.valueOf(minPrice), BigDecimal.valueOf(maxPrice));
+        return order.totalPrice.between(minPrice, maxPrice);
       } else if (minPrice != null) {
-        return order.totalPrice.goe(BigDecimal.valueOf(minPrice));
+        return order.totalPrice.goe(minPrice);
       } else if (maxPrice != null) {
-        return order.totalPrice.loe(BigDecimal.valueOf(maxPrice));
+        return order.totalPrice.loe(maxPrice);
       }
     } catch (NumberFormatException e) {
       log.warn("가격 형변환 실패: {}", e.getMessage());

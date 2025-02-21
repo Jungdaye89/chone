@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 public enum OrderStatus {
   PENDING("주문 접수"),
   ACCEPTED("주문 수락"),
+  PAID("주문 결제 완료"),
   FOOD_PREPARING("음식 준비 중"),
   FOOD_PREPARED("음식 준비 완료"),
   AWAITING_DELIVERY("배달 접수 중"),

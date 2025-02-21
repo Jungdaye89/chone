@@ -15,7 +15,7 @@ public class CreateRequestDto {
 
   private UUID storeId;
   private String name;
-  private double price;
+  private int price;
   @Setter
   private String imageUrl;
   private String description;

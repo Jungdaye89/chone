@@ -1,8 +1,9 @@
 package com.chone.server.domains.payment.domain;
 
+import static org.springframework.util.StringUtils.hasText;
+
 import com.chone.server.commons.jpa.BaseEntity;
 import com.chone.server.domains.order.domain.Order;
-import com.chone.server.domains.user.domain.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -13,7 +14,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import java.math.BigDecimal;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -46,17 +46,6 @@ public class Payment extends BaseEntity {
   private Order order;
 
   @NotNull
-  @ManyToOne(fetch = FetchType.LAZY, optional = false)
-  @JoinColumn(name = "user_id", nullable = false)
-  @Comment("고객")
-  private User user;
-
-  @NotNull
-  @Column(nullable = false, precision = 10, scale = 2)
-  @Comment("결제 총 가격")
-  private BigDecimal totalPrice = BigDecimal.ZERO;
-
-  @NotNull
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
   @Comment("결제 상태(대기, 승인, 완료, 취소요청, 취소, 실패)")
@@ -72,25 +61,17 @@ public class Payment extends BaseEntity {
   @Comment("결제 방식")
   private PaymentMethod paymentMethod;
 
-  @NotNull
-  @Column(length = 100, unique = true, nullable = false)
-  @Comment("결제 회사(또는 PG사, 은행 등)에서 발급하는 거래 식별 번호")
-  private String transactionId;
-
   public static PaymentBuilder builder(
-      Order order,
-      User user,
-      BigDecimal totalPrice,
-      PaymentStatus status,
-      PaymentMethod paymentMethod,
-      String transactionId) {
+      Order order, PaymentStatus status, PaymentMethod paymentMethod) {
 
-    return Payment.innerBuilder()
-        .order(order)
-        .user(user)
-        .totalPrice(totalPrice)
-        .status(status)
-        .paymentMethod(paymentMethod)
-        .transactionId(transactionId);
+    return Payment.innerBuilder().order(order).status(status).paymentMethod(paymentMethod);
+  }
+
+  public void updateStatus(PaymentStatus status) {
+    if (status != null) this.status = status;
+  }
+
+  public void updateCancelReason(String cancelReason) {
+    if (!hasText(cancelReason)) this.cancelReason = cancelReason;
   }
 }
