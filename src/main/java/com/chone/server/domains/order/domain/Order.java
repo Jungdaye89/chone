@@ -88,6 +88,10 @@ public class Order extends BaseEntity {
   @Comment("주문 요청 사항")
   private String request;
 
+  @Column(length = 30)
+  @Comment("배송지")
+  private String address;
+
   @Builder.Default
   @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<OrderItem> orderItems = new ArrayList<>();
