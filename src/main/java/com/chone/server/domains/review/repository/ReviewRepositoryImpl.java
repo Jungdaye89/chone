@@ -32,11 +32,12 @@ public class ReviewRepositoryImpl implements ReviewSearchRepository {
     BooleanBuilder predicate = new BooleanBuilder();
 
     predicate.and(review.deletedAt.isNull());
-    predicate.and(review.user.id.eq(customer.getId()).or(review.isPublic.isTrue()));
+
+    predicate.and(review.isPublic.isTrue().or(review.user.id.eq(customer.getId())));
 
     applyFilters(predicate, filterParams, review);
 
-    return executeQuery(predicate, pageable);
+    return executeQuery(predicate, pageable, review);
   }
 
   @Override
@@ -47,11 +48,12 @@ public class ReviewRepositoryImpl implements ReviewSearchRepository {
     BooleanBuilder predicate = new BooleanBuilder();
 
     predicate.and(review.deletedAt.isNull());
+
     predicate.and(review.store.user.id.eq(owner.getId()).or(review.isPublic.isTrue()));
 
     applyFilters(predicate, filterParams, review);
 
-    return executeQuery(predicate, pageable);
+    return executeQuery(predicate, pageable, review);
   }
 
   @Override
@@ -65,7 +67,29 @@ public class ReviewRepositoryImpl implements ReviewSearchRepository {
 
     applyFilters(predicate, filterParams, review);
 
-    return executeQuery(predicate, pageable);
+    return executeQuery(predicate, pageable, review);
+  }
+
+  private Page<ReviewPageResponseDto> executeQuery(
+      BooleanBuilder predicate, Pageable pageable, QReview review) {
+
+    List<OrderSpecifier<?>> orderSpecifiers = getSortOrders(review, pageable);
+
+    List<ReviewPageResponseDto> content =
+        queryFactory
+            .selectFrom(review)
+            .where(predicate)
+            .orderBy(orderSpecifiers.toArray(new OrderSpecifier[0]))
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
+            .fetch()
+            .stream()
+            .map(ReviewPageResponseDto::from)
+            .toList();
+
+    long total = queryFactory.selectFrom(review).where(predicate).fetchCount();
+
+    return new PageImpl<>(content, pageable, total);
   }
 
   private void applyFilters(
@@ -88,45 +112,27 @@ public class ReviewRepositoryImpl implements ReviewSearchRepository {
     }
   }
 
-  private Page<ReviewPageResponseDto> executeQuery(BooleanBuilder predicate, Pageable pageable) {
-
-    QReview review = QReview.review;
+  private List<OrderSpecifier<?>> getSortOrders(QReview review, Pageable pageable) {
     List<OrderSpecifier<?>> orderSpecifiers = new ArrayList<>();
 
     for (Sort.Order order : pageable.getSort()) {
-      OrderSpecifier<?> orderSpecifier = getSortOrder(review, order);
-      if (orderSpecifier != null) {
-        orderSpecifiers.add(orderSpecifier);
+      switch (order.getProperty()) {
+        case "rating":
+          orderSpecifiers.add(order.isAscending() ? review.rating.asc() : review.rating.desc());
+          break;
+        case "createdAt":
+          orderSpecifiers.add(
+              order.isAscending() ? review.createdAt.asc() : review.createdAt.desc());
+          break;
+        case "updatedAt":
+          orderSpecifiers.add(
+              order.isAscending() ? review.updatedAt.asc() : review.updatedAt.desc());
+          break;
+        default:
+          orderSpecifiers.add(review.createdAt.desc());
       }
     }
 
-    List<ReviewPageResponseDto> content =
-        queryFactory
-            .selectFrom(review)
-            .where(predicate)
-            .orderBy(orderSpecifiers.toArray(new OrderSpecifier[0]))
-            .offset(pageable.getOffset())
-            .limit(pageable.getPageSize())
-            .fetch()
-            .stream()
-            .map(ReviewPageResponseDto::from)
-            .toList();
-
-    long total = queryFactory.selectFrom(review).where(predicate).fetchCount();
-
-    return new PageImpl<>(content, pageable, total);
-  }
-
-  private OrderSpecifier<?> getSortOrder(QReview review, Sort.Order order) {
-    switch (order.getProperty()) {
-      case "rating":
-        return order.isAscending() ? review.rating.asc() : review.rating.desc();
-      case "createdAt":
-        return order.isAscending() ? review.createdAt.asc() : review.createdAt.desc();
-      case "updatedAt":
-        return order.isAscending() ? review.updatedAt.asc() : review.updatedAt.desc();
-      default:
-        return null;
-    }
+    return orderSpecifiers;
   }
 }
