@@ -8,7 +8,8 @@ import com.chone.server.domains.payment.dto.request.PaymentFilterParams;
 import com.chone.server.domains.payment.dto.response.CreatePaymentResponse;
 import com.chone.server.domains.payment.dto.response.PaymentDetailResponse;
 import com.chone.server.domains.payment.dto.response.PaymentPageResponse;
-import com.chone.server.domains.payment.service.PaymentService;
+import com.chone.server.domains.payment.service.PaymentProcessService;
+import com.chone.server.domains.payment.service.PaymentReadService;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -29,13 +30,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/payments")
 public class PaymentController {
-  private final PaymentService service;
+  private final PaymentProcessService processService;
+  private final PaymentReadService readService;
 
   @PostMapping
   public ResponseEntity<CreatePaymentResponse> createOrder(
       @Valid @RequestBody CreatePaymentRequest requestDto,
       @AuthenticationPrincipal CustomUserDetails principal) {
-    CreatePaymentResponse responseDto = service.processPayment(requestDto, principal);
+    CreatePaymentResponse responseDto = processService.processPayment(requestDto, principal);
 
     return ResponseEntity.created(UriGeneratorUtil.generateUri("/" + responseDto.id().toString()))
         .body(responseDto);
@@ -48,15 +50,15 @@ public class PaymentController {
       @PageableDefault(page = 0, size = 10, sort = "createdat", direction = Sort.Direction.DESC)
           Pageable pageable) {
     PageResponse<PaymentPageResponse> responseDto =
-        service.getPayments(principal, filterParams, pageable);
+        readService.getPayments(principal, filterParams, pageable);
 
     return ResponseEntity.ok().body(responseDto);
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<PaymentDetailResponse> getOrder(
+  public ResponseEntity<PaymentDetailResponse> getPayment(
       @AuthenticationPrincipal CustomUserDetails principal, @PathVariable("id") UUID id) {
-    PaymentDetailResponse responseDto = service.getPaymentById(principal, id);
+    PaymentDetailResponse responseDto = readService.getPaymentById(principal, id);
 
     return ResponseEntity.ok().body(responseDto);
   }
