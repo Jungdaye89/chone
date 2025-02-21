@@ -4,7 +4,6 @@ import com.chone.server.commons.exception.ApiBusinessException;
 import com.chone.server.domains.order.domain.Order;
 import com.chone.server.domains.order.domain.OrderStatus;
 import com.chone.server.domains.order.domain.OrderType;
-import com.chone.server.domains.order.exception.OrderExceptionCode;
 import com.chone.server.domains.payment.domain.Payment;
 import com.chone.server.domains.payment.domain.PaymentStatus;
 import com.chone.server.domains.payment.dto.request.CreatePaymentRequest;
@@ -43,10 +42,10 @@ public class PaymentDomainService {
   }
 
   private void validateCancellation(Payment payment) {
-    if (payment.getStatus() == PaymentStatus.CANCELED) {
+    if (payment.getStatus().isSameStauts(PaymentStatus.CANCELED)) {
       throw new ApiBusinessException(PaymentExceptionCode.PAYMENT_ALREADY_CANCELED);
     }
-    if (payment.getStatus() == PaymentStatus.FAILED) {
+    if (payment.getStatus().isSameStauts(PaymentStatus.FAILED)) {
       throw new ApiBusinessException(PaymentExceptionCode.FAILED_PAYMENT);
     }
 
@@ -57,37 +56,33 @@ public class PaymentDomainService {
 
   private void validateCancellationPermission(User user, Payment payment) {
     switch (user.getRole()) {
-      case MANAGER, MASTER -> {
-        return;
-      }
       case CUSTOMER -> {
-        if (!payment.getOrder().getUser().getId().equals(user.getId())) {
-          throw new ApiBusinessException(OrderExceptionCode.ORDER_CUSTOMER_ACCESS_DENIED);
-        }
+        if (!isOrderOwner(user, payment))
+          throwApiException(PaymentExceptionCode.ORDER_CUSTOMER_ACCESS_DENIED);
         return;
       }
       case OWNER -> {
-        if (!payment.getOrder().getStore().getUser().getId().equals(user.getId())) {
-          throw new ApiBusinessException(OrderExceptionCode.ORDER_STORE_OWNER_ACCESS_DENIED);
-        }
+        if (!isOrderStoreOwner(user, payment))
+          throwApiException(PaymentExceptionCode.ORDER_STORE_OWNER_ACCESS_DENIED);
         return;
       }
+      case MANAGER, MASTER -> {}
     }
-    throw new ApiBusinessException(OrderExceptionCode.ORDER_CANCEL_PERMISSION_DENIED);
+    throw new ApiBusinessException(PaymentExceptionCode.CANCEL_PERMISSION_DENIED);
   }
 
   private void validateOrderStatus(Order order) {
-    if (order.getStatus() == OrderStatus.CANCELED) {
-      throw new ApiBusinessException(PaymentExceptionCode.CANCELED_ORDER);
+    if (order.getStatus().isSameStatus(OrderStatus.CANCELED)) {
+      throwApiException(PaymentExceptionCode.CANCELED_ORDER);
     }
-    if (order.getStatus() == OrderStatus.PAID) {
-      throw new ApiBusinessException(PaymentExceptionCode.ALREADY_PAID);
+    if (order.getStatus().isSameStatus(OrderStatus.PAID)) {
+      throwApiException(PaymentExceptionCode.ALREADY_PAID);
     }
   }
 
   private void validatePriceMatch(Order order, CreatePaymentRequest requestDto) {
     if (order.getTotalPrice() != requestDto.totalPrice()) {
-      throw new ApiBusinessException(PaymentExceptionCode.PRICE_MISMATCH);
+      throwApiException(PaymentExceptionCode.PRICE_MISMATCH);
     }
   }
 
@@ -104,7 +99,7 @@ public class PaymentDomainService {
       throw new ApiBusinessException(PaymentExceptionCode.NOT_ALLOW_PAY_ONLINE_ORDER);
     }
 
-    if (!(order.getUser().getId().equals(currentUser.getId()))) {
+    if (!(order.getUser().equals(currentUser))) {
       throw new ApiBusinessException(PaymentExceptionCode.NOT_CUSTOMER_PAYMENT);
     }
   }
@@ -114,8 +109,26 @@ public class PaymentDomainService {
       throw new ApiBusinessException(PaymentExceptionCode.NOT_ALLOW_PAY_OFFLINE_ORDER);
     }
 
-    if (!(order.getStore().getUser().getId().equals(currentUser.getId()))) {
+    if (!(order.getStore().getUser().equals(currentUser))) {
       throw new ApiBusinessException(PaymentExceptionCode.NOT_OWNER_PAYMENT);
     }
+  }
+
+  private boolean isOrderOwner(User currentUser, Payment payment) {
+    User orderOwner = payment.getOrder().getUser();
+    return isSameUser(orderOwner, currentUser);
+  }
+
+  private boolean isOrderStoreOwner(User currentUser, Payment payment) {
+    User storeOwner = payment.getOrder().getStore().getUser();
+    return isSameUser(storeOwner, currentUser);
+  }
+
+  private boolean isSameUser(User currentUser, User targetUser) {
+    return currentUser.equals(targetUser);
+  }
+
+  private void throwApiException(PaymentExceptionCode exceptionCode) {
+    throw new ApiBusinessException(exceptionCode);
   }
 }

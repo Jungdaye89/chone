@@ -43,7 +43,12 @@ public enum PaymentExceptionCode implements ExceptionCode {
   PAYMENT_CANCELLATION_IN_PROGRESS(SERVICE_UNAVAILABLE, "결제 취소가 진행 중입니다. 잠시 후 다시 시도해주세요."),
   PAYMENT_CANCELLATION_ERROR(INTERNAL_SERVER_ERROR, "결제 취소 처리 중 오류가 발생했습니다."),
 
-  PAYMENT_CANCELLATION_FAILED(SERVICE_UNAVAILABLE, "결제 취소 요청이 거부되었습니다.");
+  PAYMENT_CANCELLATION_FAILED(SERVICE_UNAVAILABLE, "결제 취소 요청이 거부되었습니다."),
+  ORDER_CUSTOMER_ACCESS_DENIED(FORBIDDEN, "접근 권한이 없습니다. 해당 주문의 소유자가 아닙니다."),
+
+  ORDER_STORE_OWNER_ACCESS_DENIED(FORBIDDEN, "접근 권한이 없습니다. 해당 매장의 소유자가 아닙니다."),
+  CANCEL_PERMISSION_DENIED(FORBIDDEN, "결제 취소 권한이 없습니다."),
+  ;
   private final HttpStatus status;
   private final String message;
   private final String code = this.name();

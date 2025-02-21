@@ -11,7 +11,11 @@ public enum OrderType {
 
   private final String description;
 
-  public boolean isSameType(OrderType type) {
-    return this == type;
+  public boolean isOnline() {
+    return this == OrderType.ONLINE;
+  }
+
+  public boolean isOffline() {
+    return this == OrderType.ONLINE;
   }
 }

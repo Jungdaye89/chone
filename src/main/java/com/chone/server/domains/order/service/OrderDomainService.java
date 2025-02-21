@@ -102,7 +102,7 @@ public class OrderDomainService {
     if (!newStatus.isProgressableFrom(currentStatus))
       throwApiException(OrderExceptionCode.ORDER_STATUS_REGRESSION);
 
-    if (order.getOrderType().isSameType(OrderType.OFFLINE) && !newStatus.isValidForOfflineOrder())
+    if (order.getOrderType().isOffline() && !newStatus.isValidForOfflineOrder())
       throwApiException(OrderExceptionCode.OFFLINE_ORDER_DELIVERY_STATUS);
   }
 
