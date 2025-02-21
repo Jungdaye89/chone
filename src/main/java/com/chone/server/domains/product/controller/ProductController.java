@@ -39,7 +39,7 @@ public class ProductController {
       @RequestPart("data") CreateRequestDto createRequestDto,
       @RequestPart(value = "file", required = false) MultipartFile file) {
 
-    CreateResponseDto createResponseDto = productService.createProduct(userDetails,
+    CreateResponseDto createResponseDto = productService.createProduct(userDetails.getUser(),
         createRequestDto, file);
 
     return ResponseEntity.ok(createResponseDto);
@@ -77,7 +77,7 @@ public class ProductController {
       @RequestPart(value = "file", required = false) MultipartFile file,
       @PathVariable("productId") UUID productId) {
 
-    productService.updateProduct(userDetails, updateRequestDto, file, productId);
+    productService.updateProduct(userDetails.getUser(), updateRequestDto, file, productId);
 
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
@@ -88,7 +88,7 @@ public class ProductController {
       @AuthenticationPrincipal CustomUserDetails userDetails,
       @PathVariable("productId") UUID productId) {
 
-    productService.deleteProduct(userDetails, productId);
+    productService.deleteProduct(userDetails.getUser(), productId);
 
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }

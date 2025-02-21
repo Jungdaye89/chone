@@ -74,7 +74,7 @@ public class StoreController {
   public ResponseEntity<Void> updateStore(@AuthenticationPrincipal CustomUserDetails userDetails,
       @PathVariable("storeId") UUID storeId, @RequestBody UpdateRequestDto updateRequestDto) {
 
-    storeService.updateStore(userDetails, storeId, updateRequestDto);
+    storeService.updateStore(userDetails.getUser(), storeId, updateRequestDto);
 
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
@@ -84,7 +84,7 @@ public class StoreController {
   public ResponseEntity<Void> deleteStore(@AuthenticationPrincipal CustomUserDetails userDetails,
       @PathVariable("storeId") UUID storeId) {
 
-    storeService.deleteStore(userDetails, storeId);
+    storeService.deleteStore(userDetails.getUser(), storeId);
 
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
