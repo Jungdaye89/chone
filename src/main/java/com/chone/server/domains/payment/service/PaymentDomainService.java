@@ -5,6 +5,7 @@ import com.chone.server.domains.order.domain.Order;
 import com.chone.server.domains.order.domain.OrderStatus;
 import com.chone.server.domains.order.domain.OrderType;
 import com.chone.server.domains.payment.dto.request.CreatePaymentRequest;
+import com.chone.server.domains.payment.dto.response.PaymentDetailResponse;
 import com.chone.server.domains.payment.exception.PaymentExceptionCode;
 import com.chone.server.domains.user.domain.User;
 import jakarta.validation.Valid;
@@ -37,29 +38,42 @@ public class PaymentDomainService {
 
   private void validatePermissionByRole(Order order, User currentUser) {
     switch (currentUser.getRole()) {
-      case CUSTOMER -> validateCustomerPermission(order, currentUser);
-      case OWNER -> validateOwnerPermission(order, currentUser);
+      case CUSTOMER -> validateCustomerPayPermission(order, currentUser);
+      case OWNER -> validateOwnerPayPermission(order, currentUser);
       case MANAGER, MASTER -> {}
     }
   }
 
-  private void validateCustomerPermission(Order order, User currentUser) {
+  private void validateCustomerPayPermission(Order order, User currentUser) {
     if (order.getOrderType() != OrderType.ONLINE) {
-      throw new ApiBusinessException(PaymentExceptionCode.CUSTOMER_OFFLINE_ORDER);
+      throw new ApiBusinessException(PaymentExceptionCode.NOT_ALLOW_PAY_ONLINE_ORDER);
     }
 
-    if (!order.getUser().getId().equals(currentUser.getId())) {
-      throw new ApiBusinessException(PaymentExceptionCode.NOT_ORDER_CUSTOMER);
+    if (!(order.getUser().getId().equals(currentUser.getId()))) {
+      throw new ApiBusinessException(PaymentExceptionCode.NOT_CUSTOMER_PAYMENT);
     }
   }
 
-  private void validateOwnerPermission(Order order, User currentUser) {
+  private void validateOwnerPayPermission(Order order, User currentUser) {
     if (order.getOrderType() != OrderType.OFFLINE) {
-      throw new ApiBusinessException(PaymentExceptionCode.NOT_OWNER_STORE);
+      throw new ApiBusinessException(PaymentExceptionCode.NOT_ALLOW_PAY_OFFLINE_ORDER);
     }
 
-    if (!order.getStore().getUser().getId().equals(currentUser.getId())) {
-      throw new ApiBusinessException(PaymentExceptionCode.NOT_OWNER_STORE);
+    if (!(order.getStore().getUser().getId().equals(currentUser.getId()))) {
+      throw new ApiBusinessException(PaymentExceptionCode.NOT_OWNER_PAYMENT);
+    }
+  }
+
+  public void validateCustomerViewPermission(
+      PaymentDetailResponse paymentResponse, User currentUser) {
+    if (!(paymentResponse.order().userId().equals(currentUser.getId()))) {
+      throw new ApiBusinessException(PaymentExceptionCode.NOT_CUSTOMER_PAYMENT_HISTORY);
+    }
+  }
+
+  public void validateOwnerViewPermission(PaymentDetailResponse paymentResponse, User currentUser) {
+    if (!(paymentResponse.order().storeUserId().equals(currentUser.getId()))) {
+      throw new ApiBusinessException(PaymentExceptionCode.NOT_OWNER_PAYMENT_HISTORY);
     }
   }
 }

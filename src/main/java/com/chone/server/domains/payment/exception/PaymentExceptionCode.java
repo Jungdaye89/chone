@@ -13,9 +13,14 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 @Getter
 public enum PaymentExceptionCode implements ExceptionCode {
-  CUSTOMER_OFFLINE_ORDER(FORBIDDEN, "고객은 오프라인 주문에 대한 결제 권한이 없습니다."),
-  NOT_OWNER_STORE(FORBIDDEN, "해당 매장의 점주만 결제할 수 있습니다."),
-  NOT_ORDER_CUSTOMER(FORBIDDEN, "주문자만 결제할 수 있습니다."),
+  NOT_ALLOW_PAY_OFFLINE_ORDER(FORBIDDEN, "가게는 배달 주문에 대한 결제 권한이 없습니다."),
+  NOT_ALLOW_PAY_ONLINE_ORDER(FORBIDDEN, "고객은 현장 결제에 대한 결제 권한이 없습니다."),
+
+  NOT_OWNER_PAYMENT(FORBIDDEN, "해당 가게의 주인만 결제할 수 있습니다."),
+  NOT_CUSTOMER_PAYMENT(FORBIDDEN, "주문자만 결제할 수 있습니다."),
+  NOT_OWNER_PAYMENT_HISTORY(FORBIDDEN, "해당 가게의 주인만 결제 내역을 조회할 수 있습니다."),
+  NOT_CUSTOMER_PAYMENT_HISTORY(FORBIDDEN, "주문자만 결제 내역을 조회할 수 있습니다."),
+
   CUSTOMER_PAYMENT_FILTERING_ACCESS_DENIED(FORBIDDEN, "사용자별 주문 조회 권한이 없습니다."),
   STORE_PAYMENT_FILTERING_ACCESS_DENIED(FORBIDDEN, "가게별 주문 조회 권한이 없습니다."),
 
