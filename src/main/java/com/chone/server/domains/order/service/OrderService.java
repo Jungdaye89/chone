@@ -1,20 +1,24 @@
 package com.chone.server.domains.order.service;
 
 import com.chone.server.commons.exception.ApiBusinessException;
+import com.chone.server.commons.facade.DeliveryFacade;
 import com.chone.server.commons.facade.ProductFacade;
 import com.chone.server.commons.facade.StoreFacade;
 import com.chone.server.domains.auth.dto.CustomUserDetails;
 import com.chone.server.domains.order.domain.Order;
+import com.chone.server.domains.order.domain.OrderStatus;
 import com.chone.server.domains.order.domain.OrderType;
 import com.chone.server.domains.order.dto.request.CancelOrderRequest;
 import com.chone.server.domains.order.dto.request.CreateOrderRequest;
 import com.chone.server.domains.order.dto.request.CreateOrderRequest.OrderItemRequest;
 import com.chone.server.domains.order.dto.request.OrderFilterParams;
+import com.chone.server.domains.order.dto.request.OrderStatusUpdateRequest;
 import com.chone.server.domains.order.dto.response.CancelOrderResponse;
 import com.chone.server.domains.order.dto.response.CreateOrderResponse;
 import com.chone.server.domains.order.dto.response.DeleteOrderResponse;
 import com.chone.server.domains.order.dto.response.OrderDetailResponse;
 import com.chone.server.domains.order.dto.response.OrderPageResponse;
+import com.chone.server.domains.order.dto.response.OrderStatusUpdateResponse;
 import com.chone.server.domains.order.dto.response.PageResponse;
 import com.chone.server.domains.order.exception.OrderExceptionCode;
 import com.chone.server.domains.order.repository.OrderRepository;
@@ -37,10 +41,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class OrderService {
 
   private final OrderRepository repository;
-
   private final OrderDomainService domainService;
+
   private final ProductFacade productFacade;
   private final StoreFacade storeFacade;
+  private final DeliveryFacade deliveryFacade;
 
   @Transactional
   public CreateOrderResponse createOrder(
@@ -129,6 +134,24 @@ public class OrderService {
     return DeleteOrderResponse.from(order);
   }
 
+  @Transactional
+  public OrderStatusUpdateResponse updateOrderStatus(
+      CustomUserDetails principal, UUID id, OrderStatusUpdateRequest request) {
+    Order order = repository.findById(id);
+
+    OrderStatus newStatus = request.status();
+    OrderStatus currentStatus = order.getStatus();
+
+    domainService.validateOrderStatusChangePermission(principal.getUser(), order);
+    domainService.validateStatusChange(order, currentStatus, newStatus);
+
+    order.updateStatus(newStatus);
+    processAdditionalLogic(order, newStatus);
+
+    Order savedOrder = repository.save(order);
+    return OrderStatusUpdateResponse.from(savedOrder);
+  }
+
   public Order findByOrderId(UUID orderId) {
 
     return repository.findById(orderId);
@@ -143,6 +166,23 @@ public class OrderService {
       case MANAGER, MASTER -> repository.findOrdersByAdmin(user, filterParams, pageable);
     };
   }
+
+  private void processAdditionalLogic(Order order, OrderStatus newStatus) {
+    log.info("주문 상태 변경: {} -> {}", order.getStatus().getDescription(), newStatus.getDescription());
+    int step = newStatus.getStep();
+    if (step >= OrderStatus.FOOD_PREPARING.getStep()) {
+      order.updateNotCancelable();
+    }
+    if (step == OrderStatus.AWAITING_DELIVERY.getStep()) handleAwaitingDelivery(order);
+    if (step == OrderStatus.IN_DELIVERY.getStep()) handleInDelivery(order);
+    if (step == OrderStatus.COMPLETED.getStep()) handleOrderCompletion(order);
+  }
+
+  private void handleAwaitingDelivery(Order order) {}
+
+  private void handleInDelivery(Order order) {}
+
+  private void handleOrderCompletion(Order order) {}
 
   @Transactional
   void updateNotCancelable(Order order) {
