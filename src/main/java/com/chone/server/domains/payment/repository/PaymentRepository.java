@@ -3,6 +3,7 @@ package com.chone.server.domains.payment.repository;
 import com.chone.server.domains.payment.domain.Payment;
 import com.chone.server.domains.payment.dto.request.PaymentFilterParams;
 import com.chone.server.domains.payment.dto.response.PaymentPageResponse;
+import com.chone.server.domains.payment.repository.dto.PaymentDetailDto;
 import com.chone.server.domains.user.domain.User;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -26,4 +27,6 @@ public interface PaymentRepository {
 
   Page<PaymentPageResponse> findPaymentsByAdmin(
       User user, PaymentFilterParams filterParams, Pageable pageable);
+
+  PaymentDetailDto findPaymentWithDetails(UUID id);
 }

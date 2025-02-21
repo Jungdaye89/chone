@@ -26,10 +26,9 @@ import org.hibernate.annotations.Comment;
 @Comment("사용자")
 public class User extends BaseEntity {
 
-  @NotNull
-  @Column(name = "id")
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id")
   @Comment("사용자 기본키")
   private Long id;
 

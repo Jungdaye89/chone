@@ -15,6 +15,7 @@ import com.chone.server.domains.payment.domain.PgStatus;
 import com.chone.server.domains.payment.dto.request.CreatePaymentRequest;
 import com.chone.server.domains.payment.dto.request.PaymentFilterParams;
 import com.chone.server.domains.payment.dto.response.CreatePaymentResponse;
+import com.chone.server.domains.payment.dto.response.PaymentDetailResponse;
 import com.chone.server.domains.payment.dto.response.PaymentPageResponse;
 import com.chone.server.domains.payment.exception.PaymentExceptionCode;
 import com.chone.server.domains.payment.infrastructure.pg.PgApiService;
@@ -73,6 +74,19 @@ public class PaymentService {
       CustomUserDetails principal, PaymentFilterParams filterParams, Pageable pageable) {
     User user = principal.getUser();
     return PageResponse.from(findPaymentsByRole(user, filterParams, pageable));
+  }
+
+  public PaymentDetailResponse getPaymentById(CustomUserDetails principal, UUID id) {
+    User user = principal.getUser();
+    PaymentDetailResponse paymentResponse = repository.findPaymentWithDetails(id).toResponse();
+
+    switch (user.getRole()) {
+      case CUSTOMER -> domainService.validateCustomerViewPermission(paymentResponse, user);
+      case OWNER -> domainService.validateOwnerViewPermission(paymentResponse, user);
+      case MANAGER, MASTER -> {}
+    }
+
+    return paymentResponse;
   }
 
   private CreatePaymentResponse executePaymentWithLock(
