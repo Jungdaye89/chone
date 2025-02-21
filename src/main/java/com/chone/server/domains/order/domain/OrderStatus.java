@@ -33,4 +33,8 @@ public enum OrderStatus {
   public boolean isTerminal() {
     return this == COMPLETED || this == CANCELED;
   }
+
+  public boolean isSameStatus(OrderStatus status) {
+    return this == status;
+  }
 }
