@@ -17,19 +17,19 @@ public enum Role {
   }
 
   public boolean isCustomer() {
-    return this.equals(Role.CUSTOMER);
+    return this == Role.CUSTOMER;
   }
 
   public boolean isOwner() {
-    return this.equals(Role.OWNER);
+    return this == Role.OWNER;
   }
 
   public boolean isManager() {
-    return this.equals(Role.MANAGER);
+    return this == Role.MANAGER;
   }
 
   public boolean isMaster() {
-    return this.equals(Role.MASTER);
+    return this == Role.MASTER;
   }
 
   public static class Authority {

@@ -193,7 +193,7 @@ public class OrderDomainService {
   }
 
   public boolean isDeletableOrder(OrderStatus status) {
-    return status.equals(OrderStatus.CANCELED) || status.equals(OrderStatus.COMPLETED);
+    return status.isSameStatus(OrderStatus.CANCELED) || status.isSameStatus(OrderStatus.COMPLETED);
   }
 
   private void throwApiException(OrderExceptionCode exceptionCode) {
