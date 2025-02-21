@@ -2,6 +2,7 @@ package com.chone.server.domains.review.facade;
 
 import com.chone.server.commons.exception.ApiBusinessException;
 import com.chone.server.commons.facade.ReviewFacade;
+import com.chone.server.domains.review.domain.Review;
 import com.chone.server.domains.review.dto.response.ReviewDetailResponseDto;
 import com.chone.server.domains.review.repository.ReviewDetailSearchRepository;
 import com.chone.server.domains.review.repository.ReviewRepository;
@@ -23,6 +24,11 @@ public class ReviewFacadeImpl implements ReviewFacade {
   private final UserRepository userRepository;
 
   @Override
+  public List<Review> findAllReviews(Long userId) {
+    return reviewRepository.findAllByUserId(userId);
+  }
+
+  @Override
   public List<ReviewDetailResponseDto> findReviewsByUserId(Long userId) {
 
     User user =
@@ -39,5 +45,10 @@ public class ReviewFacadeImpl implements ReviewFacade {
   public ReviewDetailResponseDto findReviewDetailById(UUID reviewId) {
 
     return reviewDetailSearchRepository.findReviewDetailById(reviewId);
+  }
+
+  @Override
+  public void deleteReview(User user, Review review) {
+    review.delete(user);
   }
 }
