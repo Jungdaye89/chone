@@ -1,7 +1,6 @@
 package com.chone.server.domains.product.service;
 
 import com.chone.server.commons.exception.ApiBusinessException;
-import com.chone.server.domains.auth.dto.CustomUserDetails;
 import com.chone.server.domains.product.domain.Product;
 import com.chone.server.domains.product.dto.request.CreateRequestDto;
 import com.chone.server.domains.product.dto.request.UpdateRequestDto;
@@ -48,10 +47,9 @@ public class ProductService {
   }
 
   @Transactional
-  public CreateResponseDto createProduct(
-      CustomUserDetails userDetails, CreateRequestDto createRequestDto, MultipartFile file) {
+  public CreateResponseDto createProduct(User user, CreateRequestDto createRequestDto,
+      MultipartFile file) {
 
-    User user = findUserById(userDetails.getUser().getId());
     Store store = storeService.findStoreById(createRequestDto.getStoreId());
 
     storeService.checkRoleWithStore(user, store);
@@ -108,11 +106,8 @@ public class ProductService {
   }
 
   @Transactional
-  public void updateProduct(
-      CustomUserDetails userDetails, UpdateRequestDto updateRequestDto, MultipartFile file,
+  public void updateProduct(User user, UpdateRequestDto updateRequestDto, MultipartFile file,
       UUID productId) {
-
-    User user = findUserById(userDetails.getUser().getId());
 
     Product product = findProductById(productId);
 
@@ -136,13 +131,16 @@ public class ProductService {
   }
 
   @Transactional
-  public void deleteProduct(CustomUserDetails userDetails, UUID productId) {
-
-    User user = findUserById(userDetails.getUser().getId());
+  public void deleteProduct(User user, UUID productId) {
 
     Product product = findProductById(productId);
 
     storeService.checkRoleWithStore(user, product.getStore());
+
+    deleteProduct(user, product);
+  }
+
+  public void deleteProduct(User user, Product product) {
 
     s3Service.removeFile(product.getImageUrl());
 
