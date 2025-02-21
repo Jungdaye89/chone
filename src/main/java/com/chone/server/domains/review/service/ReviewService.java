@@ -17,6 +17,7 @@ import com.chone.server.domains.review.dto.response.ReviewResponseDto;
 import com.chone.server.domains.review.dto.response.ReviewStatisticsResponseDto;
 import com.chone.server.domains.review.dto.response.ReviewUpdateResponseDto;
 import com.chone.server.domains.review.exception.ReviewExceptionCode;
+import com.chone.server.domains.review.repository.ReviewDetailSearchRepository;
 import com.chone.server.domains.review.repository.ReviewRepository;
 import com.chone.server.domains.review.repository.ReviewSearchRepository;
 import com.chone.server.domains.review.repository.ReviewStatisticsRepository;
@@ -43,6 +44,7 @@ public class ReviewService {
   private final OrderRepository orderRepository;
   private final StoreRepository storeRepository;
   private final ReviewSearchRepository reviewSearchRepository;
+  private final ReviewDetailSearchRepository reviewDetailSearchRepository;
   private final ReviewStatisticsRepository reviewStatisticsRepository;
 
   @Transactional
@@ -104,18 +106,18 @@ public class ReviewService {
       throw new ApiBusinessException(ReviewExceptionCode.REVIEW_UNAUTHORIZED);
     }
 
-    Review review =
-        reviewRepository
-            .findByIdAndDeletedAtIsNull(reviewId)
-            .orElseThrow(() -> new ApiBusinessException(ReviewExceptionCode.REVIEW_NOT_FOUND));
+    ReviewDetailResponseDto reviewDetail =
+        reviewDetailSearchRepository.findReviewDetailById(reviewId);
 
-    validateAccess(principal.getUser(), review);
+    validateAccess(principal.getUser(), reviewDetail);
 
-    return ReviewDetailResponseDto.from(review);
+    return reviewDetail;
   }
 
-  private void validateAccess(User user, Review review) {
-    if (!review.getIsPublic() && !review.getUser().getId().equals(user.getId())) {
+  private void validateAccess(User user, ReviewDetailResponseDto reviewDetail) {
+    if (reviewDetail.getIsPublic() != null
+        && !reviewDetail.getIsPublic()
+        && !reviewDetail.getCustomerInfo().getCustomerId().equals(user.getId())) {
       throw new ApiBusinessException(ReviewExceptionCode.REVIEW_FORBIDDEN_ACTION);
     }
   }
