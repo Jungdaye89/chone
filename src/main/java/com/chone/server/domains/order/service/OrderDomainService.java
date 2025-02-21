@@ -55,6 +55,7 @@ public class OrderDomainService {
       List<OrderItemRequest> itemRequests,
       List<Product> products,
       OrderType orderType,
+      String address,
       String requestText) {
 
     validateStoreOperationStatus(store);
@@ -64,12 +65,38 @@ public class OrderDomainService {
     Order order =
         Order.builder(store, user, orderType, totalPrice, OrderStatus.PENDING)
             .request(requestText)
+            .address(address)
             .build();
 
     List<OrderItem> orderItems = createOrderItems(order, productMap, itemRequests);
     order.addOrderItem(orderItems);
 
     return order;
+  }
+
+  public void validateOrderStatusChangePermission(User user, Order order) {
+    if (user.getRole() == Role.OWNER) {
+      if (!order.getStore().getUser().getId().equals(user.getId())) {
+        throw new ApiBusinessException(OrderExceptionCode.ORDER_STATUS_CHANGE_NOT_OWNER);
+      }
+    }
+    if (user.getRole() == Role.CUSTOMER) {
+      throw new ApiBusinessException(OrderExceptionCode.ORDER_STATUS_CHANGE_FORBIDDEN);
+    }
+  }
+
+  public void validateStatusChange(Order order, OrderStatus currentStatus, OrderStatus newStatus) {
+    if (newStatus == OrderStatus.CANCELED)
+      throw new ApiBusinessException(OrderExceptionCode.ORDER_CANCEL_SEPARATE_API);
+
+    if (currentStatus.isTerminal())
+      throw new ApiBusinessException(OrderExceptionCode.ORDER_FINALIZED_STATE_CONFLICT);
+
+    if (!newStatus.isProgressableFrom(currentStatus))
+      throw new ApiBusinessException(OrderExceptionCode.ORDER_STATUS_REGRESSION);
+
+    if (order.getOrderType() == OrderType.OFFLINE && !newStatus.isValidForOfflineOrder())
+      throw new ApiBusinessException(OrderExceptionCode.OFFLINE_ORDER_DELIVERY_STATUS);
   }
 
   private void validateStoreOperationStatus(Store store) {

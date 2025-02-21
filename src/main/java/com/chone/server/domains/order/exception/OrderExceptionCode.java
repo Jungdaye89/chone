@@ -35,7 +35,16 @@ public enum OrderExceptionCode implements ExceptionCode {
   ORDER_NOT_DELETABLE(CONFLICT, "주문 과정이 완료되지 않아 삭제할 수 없는 주문입니다."),
 
   ORDER_ALREADY_IN_DELIVERY(CONFLICT, "배달 중인 주문은 취소할 수 없습니다."),
-  ORDER_ALREADY_COMPLETED(CONFLICT, "완료된 주문은 취소할 수 없습니다");
+  ORDER_ALREADY_COMPLETED(CONFLICT, "완료된 주문은 취소할 수 없습니다"),
+
+  ORDER_CANCEL_SEPARATE_API(BAD_REQUEST, "주문 취소는 별도의 취소 요청(/api/v1/orders/{id} PATCH) 통해서만 가능합니다."),
+  ORDER_STATUS_REGRESSION(CONFLICT, "주문 상태를 이전 단계로 변경할 수 없습니다."),
+  ORDER_FINALIZED_STATE_CONFLICT(CONFLICT, "취소되거나, 완료된 주문의 상태를 변경할 수 없습니다."),
+  OFFLINE_ORDER_DELIVERY_STATUS(CONFLICT, "매장 주문은 배달 관련 상태로 변경할 수 없습니다."),
+
+  ORDER_STATUS_CHANGE_FORBIDDEN(FORBIDDEN, "고객은 주문 상태를 변경할 수 없습니다."),
+  ORDER_STATUS_CHANGE_NOT_OWNER(FORBIDDEN, "본인 가게의 주문만 상태를 변경할 수 있습니다."),
+  ;
   private final HttpStatus status;
   private final String message;
   private final String code = this.name();

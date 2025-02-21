@@ -92,8 +92,10 @@ public class OrderController {
   @PreAuthorize("!hasAnyRole('CUSTOMER')")
   @PatchMapping("/{id}/status")
   public ResponseEntity<OrderStatusUpdateResponse> updateOrderStatus(
-      @PathVariable("id") UUID id, @RequestBody OrderStatusUpdateRequest request) {
-    OrderStatusUpdateResponse response = service.updateOrderStatus(id, request);
+      @AuthenticationPrincipal CustomUserDetails principal,
+      @PathVariable("id") UUID id,
+      @RequestBody OrderStatusUpdateRequest request) {
+    OrderStatusUpdateResponse response = service.updateOrderStatus(principal, id, request);
     return ResponseEntity.ok(response);
   }
 }
