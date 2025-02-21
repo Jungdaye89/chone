@@ -5,6 +5,8 @@ import com.chone.server.commons.facade.DeliveryFacade;
 import com.chone.server.commons.facade.ProductFacade;
 import com.chone.server.commons.facade.StoreFacade;
 import com.chone.server.domains.auth.dto.CustomUserDetails;
+import com.chone.server.domains.order.domain.Delivery;
+import com.chone.server.domains.order.domain.DeliveryStatus;
 import com.chone.server.domains.order.domain.Order;
 import com.chone.server.domains.order.domain.OrderStatus;
 import com.chone.server.domains.order.domain.OrderType;
@@ -178,7 +180,18 @@ public class OrderService {
     if (step == OrderStatus.COMPLETED.getStep()) handleOrderCompletion(order);
   }
 
-  private void handleAwaitingDelivery(Order order) {}
+  private void handleAwaitingDelivery(Order order) {
+    Delivery existingDelivery = deliveryFacade.findByOrderOrNull(order);
+
+    if (existingDelivery == null) {
+      Delivery delivery =
+          Delivery.builder(order, DeliveryStatus.PENDING, order.getAddress()).build();
+      deliveryFacade.save(delivery);
+    } else if (existingDelivery.getStatus() != DeliveryStatus.PENDING) {
+      existingDelivery.updateStatus(DeliveryStatus.PENDING);
+      deliveryFacade.save(existingDelivery);
+    }
+  }
 
   private void handleInDelivery(Order order) {}
 
