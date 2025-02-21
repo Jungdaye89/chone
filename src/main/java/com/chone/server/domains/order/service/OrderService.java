@@ -201,7 +201,17 @@ public class OrderService {
     deliveryFacade.save(delivery);
   }
 
-  private void handleOrderCompletion(Order order) {}
+  private void handleOrderCompletion(Order order) {
+    if (order.getOrderType() == OrderType.ONLINE) {
+      try {
+        Delivery delivery = deliveryFacade.findByOrder(order);
+        delivery.updateStatus(DeliveryStatus.COMPLETED);
+        deliveryFacade.save(delivery);
+      } catch (Exception e) {
+        log.warn("온라인 주문({})에 배달 정보가 없습니다.", order.getId());
+      }
+    }
+  }
 
   @Transactional
   void updateNotCancelable(Order order) {
