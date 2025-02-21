@@ -8,17 +8,18 @@ import com.chone.server.domains.order.exception.OrderExceptionCode;
 import com.chone.server.domains.order.repository.OrderRepository;
 import com.chone.server.domains.user.domain.User;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 public class OrderFacadeImpl implements OrderFacade {
-  private final OrderRepository orderRepository;
+  private final OrderRepository repository;
 
   @Override
   public List<Order> findAllOrderByUserId(Long userId) {
-    return orderRepository.findOrderByUserId(userId);
+    return repository.findOrderByUserId(userId);
   }
 
   @Override
@@ -37,5 +38,15 @@ public class OrderFacadeImpl implements OrderFacade {
   public void validateOrderStatus(Order order, OrderStatus status) {
     if (!order.getStatus().isSameStatus(status))
       throw new ApiBusinessException(OrderExceptionCode.ORDER_STATUS_MISMATCH);
+  }
+
+  @Override
+  public Order findById(UUID orderId) {
+    return repository.findById(orderId);
+  }
+
+  @Override
+  public Order save(Order order) {
+    return repository.save(order);
   }
 }

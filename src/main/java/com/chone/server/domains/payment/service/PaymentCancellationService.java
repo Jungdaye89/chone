@@ -1,11 +1,11 @@
 package com.chone.server.domains.payment.service;
 
 import com.chone.server.commons.exception.ApiBusinessException;
+import com.chone.server.commons.facade.OrderFacade;
 import com.chone.server.commons.lock.DistributedLockTemplate;
 import com.chone.server.domains.auth.dto.CustomUserDetails;
 import com.chone.server.domains.order.domain.Order;
 import com.chone.server.domains.order.domain.OrderCancelReason;
-import com.chone.server.domains.order.service.OrderService;
 import com.chone.server.domains.payment.domain.Payment;
 import com.chone.server.domains.payment.domain.PaymentStatus;
 import com.chone.server.domains.payment.domain.PgPaymentLog;
@@ -38,7 +38,7 @@ public class PaymentCancellationService {
   private final PgPaymentLogRepository pgPaymentLogRepository;
 
   private final PaymentDomainService domainService;
-  private final OrderService orderService;
+  private final OrderFacade orderFacade;
   private final PgApiService pgApiService;
   private final DistributedLockTemplate lockTemplate;
 
@@ -98,10 +98,10 @@ public class PaymentCancellationService {
 
   private Order cancelOrder(Payment payment) {
     // todo listener
-    Order order = orderService.findByOrderId(payment.getOrder().getId());
+    Order order = orderFacade.findById(payment.getOrder().getId());
     OrderCancelReason cancelReason = OrderCancelReason.CANCEL_PAYMENT;
     order.cancel(cancelReason);
-    return orderService.saveOrder(order);
+    return orderFacade.save(order);
   }
 
   private void updatePaymentCancellation(Payment payment, String reason) {

@@ -1,7 +1,6 @@
 package com.chone.server.domains.order.infrastructure.jpa;
 
 import com.chone.server.domains.order.domain.Order;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;

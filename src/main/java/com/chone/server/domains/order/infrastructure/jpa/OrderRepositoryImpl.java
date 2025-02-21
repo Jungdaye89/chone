@@ -10,7 +10,6 @@ import com.chone.server.domains.order.repository.OrderDetailSearchRepository;
 import com.chone.server.domains.order.repository.OrderListSearchRepository;
 import com.chone.server.domains.order.repository.OrderRepository;
 import com.chone.server.domains.user.domain.User;
-
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
