@@ -103,6 +103,7 @@ public class OrderService {
     return CancelOrderResponse.from(savedOrder);
   }
 
+  @Transactional
   public DeleteOrderResponse deleteOrder(CustomUserDetails principal, UUID id) {
     Order order = findByOrderId(id);
     if (!domainService.isDeletableOrder(order.getStatus())) {

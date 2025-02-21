@@ -12,5 +12,6 @@ public record PaymentFilterParams(
     Long customerId,
     PaymentStatus status,
     PaymentMethod method,
+    int totalPrice,
     Integer minPrice,
     Integer maxPrice) {}
