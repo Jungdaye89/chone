@@ -89,6 +89,9 @@ public class OrderDomainService {
     if (newStatus == OrderStatus.CANCELED)
       throw new ApiBusinessException(OrderExceptionCode.ORDER_CANCEL_SEPARATE_API);
 
+    if (newStatus == OrderStatus.PAID)
+      throw new ApiBusinessException(OrderExceptionCode.ORDER_PAID_SEPARATE);
+
     if (currentStatus.isTerminal())
       throw new ApiBusinessException(OrderExceptionCode.ORDER_FINALIZED_STATE_CONFLICT);
 

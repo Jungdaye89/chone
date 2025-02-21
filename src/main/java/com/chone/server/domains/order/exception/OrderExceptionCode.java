@@ -38,6 +38,7 @@ public enum OrderExceptionCode implements ExceptionCode {
   ORDER_ALREADY_COMPLETED(CONFLICT, "완료된 주문은 취소할 수 없습니다"),
 
   ORDER_CANCEL_SEPARATE_API(BAD_REQUEST, "주문 취소는 별도의 취소 요청(/api/v1/orders/{id} PATCH) 통해서만 가능합니다."),
+  ORDER_PAID_SEPARATE(BAD_REQUEST, "주문 결제 완료는 결제 요청 후 변경 가능한 상태입니다."),
   ORDER_STATUS_REGRESSION(CONFLICT, "주문 상태를 이전 단계로 변경할 수 없습니다."),
   ORDER_FINALIZED_STATE_CONFLICT(CONFLICT, "취소되거나, 완료된 주문의 상태를 변경할 수 없습니다."),
   OFFLINE_ORDER_DELIVERY_STATUS(CONFLICT, "매장 주문은 배달 관련 상태로 변경할 수 없습니다."),
