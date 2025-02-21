@@ -16,6 +16,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
 
+import static org.springframework.util.StringUtils.hasText;
+
 @Entity
 @Getter
 @Builder(access = AccessLevel.PUBLIC, builderMethodName = "innerBuilder")
@@ -75,5 +77,18 @@ public class User extends BaseEntity {
         .password(hashedPassword)
         .role(role)
         .isAvailable(isAvailable);
+  }
+
+  public void updateIsAvailable() {
+    this.isAvailable = !this.isAvailable;
+  }
+
+  public void updateRole(Role role) {
+    this.role = role;
+  }
+
+  public void updateUser(String email, String password) {
+    if(hasText(email)) this.email = email;
+    if(hasText(password)) this.password = password;
   }
 }
