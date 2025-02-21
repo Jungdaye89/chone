@@ -48,7 +48,7 @@ public class User extends BaseEntity {
   private String password;
 
   @NotNull
-  @Column(name = "role", nullable = false, unique = true)
+  @Column(name = "role", nullable = false)
   @Enumerated(EnumType.STRING)
   @Comment("사용자 역할")
   private Role role;
