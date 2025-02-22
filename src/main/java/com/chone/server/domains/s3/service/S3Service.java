@@ -46,6 +46,10 @@ public class S3Service {
 
   public void removeFile(String fileUrl) {
 
+    if (fileUrl == null || fileUrl.isEmpty()) {
+      return;
+    }
+
     String fileKey = extractFileKey(fileUrl);
     amazonS3.deleteObject(bucketName, fileKey);
   }
