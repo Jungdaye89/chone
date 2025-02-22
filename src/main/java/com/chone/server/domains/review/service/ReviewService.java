@@ -1,11 +1,12 @@
 package com.chone.server.domains.review.service;
 
 import com.chone.server.commons.exception.ApiBusinessException;
+import com.chone.server.commons.facade.OrderFacade;
 import com.chone.server.commons.facade.ReviewFacade;
+import com.chone.server.commons.facade.StoreFacade;
 import com.chone.server.domains.auth.dto.CustomUserDetails;
 import com.chone.server.domains.order.domain.Order;
 import com.chone.server.domains.order.domain.OrderStatus;
-import com.chone.server.domains.order.repository.OrderRepository;
 import com.chone.server.domains.review.domain.Review;
 import com.chone.server.domains.review.dto.request.CreateRequestDto;
 import com.chone.server.domains.review.dto.request.DeleteRequestDto;
@@ -18,7 +19,6 @@ import com.chone.server.domains.review.dto.response.ReviewResponseDto;
 import com.chone.server.domains.review.dto.response.ReviewStatisticsResponseDto;
 import com.chone.server.domains.review.dto.response.ReviewUpdateResponseDto;
 import com.chone.server.domains.review.exception.ReviewExceptionCode;
-import com.chone.server.domains.review.repository.ReviewDetailSearchRepository;
 import com.chone.server.domains.review.repository.ReviewRepository;
 import com.chone.server.domains.review.repository.ReviewSearchRepository;
 import com.chone.server.domains.review.repository.ReviewStatisticsRepository;
@@ -43,32 +43,23 @@ import org.springframework.transaction.annotation.Transactional;
 public class ReviewService {
 
   private final ReviewRepository reviewRepository;
-  private final OrderRepository orderRepository;
   private final StoreRepository storeRepository;
   private final ReviewSearchRepository reviewSearchRepository;
-  private final ReviewDetailSearchRepository reviewDetailSearchRepository;
   private final ReviewStatisticsRepository reviewStatisticsRepository;
   private final ReviewFacade reviewFacade;
+  private final StoreFacade storeFacade;
+  private final OrderFacade orderFacade;
 
   @Transactional
   public ReviewResponseDto createReview(CreateRequestDto request, User user) {
 
-    Order order = orderRepository.findById(request.getOrderId());
+    Order order = orderFacade.findById(request.getOrderId());
+    orderFacade.validateOrderOwnership(order, user);
+    orderFacade.validateOrderStatus(order, OrderStatus.COMPLETED);
 
-    Store store =
-        storeRepository
-            .findById(request.getStoreId())
-            .orElseThrow(() -> new ApiBusinessException(ReviewExceptionCode.STORE_NOT_FOUND));
+    Store store = storeFacade.findStoreById(request.getStoreId());
 
-    if (!order.getUser().getId().equals(user.getId())) {
-      throw new ApiBusinessException(ReviewExceptionCode.REVIEW_FORBIDDEN);
-    }
-
-    if (!order.getStatus().equals(OrderStatus.COMPLETED)) {
-      throw new ApiBusinessException(ReviewExceptionCode.ORDER_NOT_COMPLETED);
-    }
-
-    if (reviewRepository.findByOrderId(order.getId()).isPresent()) {
+    if (reviewFacade.findByOrderId(order.getId()).isPresent()) {
       throw new ApiBusinessException(ReviewExceptionCode.REVIEW_ALREADY_EXISTS);
     }
 
@@ -143,10 +134,7 @@ public class ReviewService {
       throw new ApiBusinessException(ReviewExceptionCode.REVIEW_UNAUTHORIZED);
     }
 
-    Review review =
-        reviewRepository
-            .findByIdAndDeletedAtIsNull(reviewId)
-            .orElseThrow(() -> new ApiBusinessException(ReviewExceptionCode.REVIEW_NOT_FOUND));
+    Review review = reviewFacade.findReviewById(reviewId);
 
     if (!review.getUser().getId().equals(principal.getUser().getId())) {
       throw new ApiBusinessException(ReviewExceptionCode.REVIEW_FORBIDDEN_ACTION);
@@ -170,10 +158,7 @@ public class ReviewService {
       throw new ApiBusinessException(ReviewExceptionCode.REVIEW_UNAUTHORIZED);
     }
 
-    Review review =
-        reviewRepository
-            .findByIdAndDeletedAtIsNull(reviewId)
-            .orElseThrow(() -> new ApiBusinessException(ReviewExceptionCode.REVIEW_NOT_FOUND));
+    Review review = reviewFacade.findReviewById(reviewId);
 
     if (review.getDeletedAt() != null) {
       throw new ApiBusinessException(ReviewExceptionCode.ALREADY_DELETED);
