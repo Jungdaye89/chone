@@ -14,19 +14,19 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ReadResponseDto {
-    private Long id;
-    private String username;
-    private String email;
-    private Role role;
-    private LocalDateTime createdAt;
+  private Long id;
+  private String username;
+  private String email;
+  private Role role;
+  private LocalDateTime createdAt;
 
-    public static ReadResponseDto fromEntity(User user) {
-        return ReadResponseDto.builder()
-                .id(user.getId())
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .role(user.getRole())
-                .createdAt(user.getCreatedAt())
-                .build();
-    }
+  public static ReadResponseDto fromEntity(User user) {
+    return ReadResponseDto.builder()
+        .id(user.getId())
+        .username(user.getUsername())
+        .email(user.getEmail())
+        .role(user.getRole())
+        .createdAt(user.getCreatedAt())
+        .build();
+  }
 }

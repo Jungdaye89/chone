@@ -7,16 +7,16 @@ import lombok.Setter;
 @Setter
 public class DataResponseBody<T> extends BaseResponseBody {
 
-    // 바디 데이터
-    private T data;
+  // 바디 데이터
+  private T data;
 
-    public static <T> DataResponseBody<T> of(int status, String message, String code, T data) {
-        DataResponseBody<T> body = new DataResponseBody<>();
-        body.setStatus(status);
-        body.setMessage(message);
-        body.setCode(code);
-        body.setData(data);
+  public static <T> DataResponseBody<T> of(int status, String message, String code, T data) {
+    DataResponseBody<T> body = new DataResponseBody<>();
+    body.setStatus(status);
+    body.setMessage(message);
+    body.setCode(code);
+    body.setData(data);
 
-        return body;
-    }
+    return body;
+  }
 }

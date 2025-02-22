@@ -14,6 +14,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SearchUserResponseDto {
-    private List<ReadResponseDto> content;
-    private PageInfoDto pageInfo;
+  private List<ReadResponseDto> content;
+  private PageInfoDto pageInfo;
 }
