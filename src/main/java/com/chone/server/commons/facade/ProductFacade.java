@@ -9,7 +9,14 @@ import java.util.UUID;
 public interface ProductFacade {
 
   List<Product> findAllById(List<UUID> productIds);
+
   List<Product> findAllByStore(Store store);
+
   Product findProductById(UUID id);
+
   void deleteProduct(User user, Product product);
+
+  Product findByIdAndStoreUser(UUID productId, User user);
+
+  void updateDescription(Product product, String description);
 }

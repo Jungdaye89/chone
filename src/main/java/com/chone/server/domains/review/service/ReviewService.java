@@ -1,12 +1,12 @@
 package com.chone.server.domains.review.service;
 
 import com.chone.server.commons.exception.ApiBusinessException;
+import com.chone.server.commons.facade.OrderFacade;
 import com.chone.server.commons.facade.ReviewFacade;
 import com.chone.server.commons.facade.StoreFacade;
 import com.chone.server.domains.auth.dto.CustomUserDetails;
 import com.chone.server.domains.order.domain.Order;
 import com.chone.server.domains.order.domain.OrderStatus;
-import com.chone.server.domains.order.repository.OrderRepository;
 import com.chone.server.domains.review.domain.Review;
 import com.chone.server.domains.review.dto.request.CreateRequestDto;
 import com.chone.server.domains.review.dto.request.DeleteRequestDto;
@@ -43,27 +43,21 @@ import org.springframework.transaction.annotation.Transactional;
 public class ReviewService {
 
   private final ReviewRepository reviewRepository;
-  private final OrderRepository orderRepository;
   private final StoreRepository storeRepository;
   private final ReviewSearchRepository reviewSearchRepository;
   private final ReviewStatisticsRepository reviewStatisticsRepository;
   private final ReviewFacade reviewFacade;
   private final StoreFacade storeFacade;
+  private final OrderFacade orderFacade;
 
   @Transactional
   public ReviewResponseDto createReview(CreateRequestDto request, User user) {
 
-    Order order = orderRepository.findById(request.getOrderId());
+    Order order = orderFacade.findById(request.getOrderId());
+    orderFacade.validateOrderOwnership(order, user);
+    orderFacade.validateOrderStatus(order, OrderStatus.COMPLETED);
 
     Store store = storeFacade.findStoreById(request.getStoreId());
-
-    if (!order.getUser().getId().equals(user.getId())) {
-      throw new ApiBusinessException(ReviewExceptionCode.REVIEW_FORBIDDEN);
-    }
-
-    if (!order.getStatus().equals(OrderStatus.COMPLETED)) {
-      throw new ApiBusinessException(ReviewExceptionCode.ORDER_NOT_COMPLETED);
-    }
 
     if (reviewFacade.findByOrderId(order.getId()).isPresent()) {
       throw new ApiBusinessException(ReviewExceptionCode.REVIEW_ALREADY_EXISTS);

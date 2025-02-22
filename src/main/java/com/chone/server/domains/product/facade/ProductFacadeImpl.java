@@ -47,4 +47,16 @@ public class ProductFacadeImpl implements ProductFacade {
 
     product.delete(user);
   }
+
+  @Override
+  public Product findByIdAndStoreUser(UUID productId, User user) {
+    return productRepository
+        .findByIdAndStoreUser(productId, user)
+        .orElseThrow(() -> new ApiBusinessException(ProductExceptionCode.PRODUCT_NOT_FOUND));
+  }
+
+  @Override
+  public void updateDescription(Product product, String description) {
+    product.updateDescription(description);
+  }
 }
