@@ -41,7 +41,6 @@ public class OrderCancellationService {
     Order savedOrder = updateAndSaveOrder(order, () -> order.cancel(requestDto.reasonNum()));
 
     // TODO: 1. 결제 -> listener
-    //       2. 배달 -> listener
     return CancelOrderResponse.from(savedOrder);
   }
 

@@ -175,11 +175,11 @@ public class OrderDomainService {
     if (order.getStatus() == OrderStatus.CANCELED)
       throwApiException(OrderExceptionCode.ORDER_ALREADY_CANCELED);
 
-    if (order.getStatus() == OrderStatus.IN_DELIVERY)
-      throwApiException(OrderExceptionCode.ORDER_ALREADY_IN_DELIVERY);
-
     if (order.getStatus() == OrderStatus.COMPLETED)
       throwApiException(OrderExceptionCode.ORDER_ALREADY_COMPLETED);
+
+    if (order.getStatus().getStep() >= OrderStatus.FOOD_PREPARING.getStep())
+      throwApiException(OrderExceptionCode.ORDER_PREPARATION_STARTED);
 
     if (!order.isCancelable()) throwApiException(OrderExceptionCode.ORDER_NOT_CANCELABLE);
   }
