@@ -31,6 +31,13 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        // 스웨거 경로를 확인하고 필터 적용을 건너뛰기
+        if (request.getRequestURI().startsWith("/api/swagger-ui") ||
+                request.getRequestURI().startsWith("/api/v3/api-docs")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         //request에서 Authorization 헤더를 찾음
         String tokenValue = jwtUtil.getJwtFromHeader(request);
 
