@@ -8,6 +8,11 @@ import com.chone.server.domains.product.dto.response.ReadResponseDto;
 import com.chone.server.domains.product.dto.response.SearchResponseDto;
 import com.chone.server.domains.product.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +41,28 @@ public class ProductController {
   private final ProductService productService;
 
   @Operation(summary = "상품 등록 API", description = "\n\n OWNER, MANAGER, MASTER 계정만 상품을 등록할 수 있습니다.")
+  @ApiResponses(value = {
+      @ApiResponse(
+          responseCode = "ALL",
+          description = "성공",
+          content =
+          @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = com.chone.server.domains.store.dto.response.SearchResponseDto.class),
+              examples = {
+                  @ExampleObject(name = "상품 등록 성공",
+                      description = "상품 등록 성공 시 다음과 같은 응답데이터를 받습니다.",
+                      value =
+                          """
+                              {
+                                  "storeId": "c513edd6-6ecf-4504-949a-20c5b96956d8",
+                                  "name": "라면",
+                                  "price": 3000.0,
+                                  "imageUrl": null,
+                                  "description": "라면입니다."
+                              }
+                              """
+                  )}))})
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @PreAuthorize("!hasRole('CUSTOMER')")
   public ResponseEntity<CreateResponseDto> createProduct(
@@ -50,6 +77,39 @@ public class ProductController {
   }
 
   @Operation(summary = "상품 검색 API", description = "\n\n 해당 가게의 상품을 검색합니다.")
+  @ApiResponses(value = {
+      @ApiResponse(
+          responseCode = "ALL",
+          description = "성공",
+          content =
+          @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = com.chone.server.domains.store.dto.response.SearchResponseDto.class),
+              examples = {
+                  @ExampleObject(name = "상품 검색 성공",
+                      description = "상품 검색 성공 시 다음과 같은 응답데이터를 받습니다.",
+                      value =
+                          """
+                              {
+                                  "content": [
+                                      {
+                                          "productId": "d5885bb6-113c-42ca-806a-e26238e62f61",
+                                          "name": "라면",
+                                          "description": "라면입니다.",
+                                          "price": 3000.0,
+                                          "imageUrl": null,
+                                          "isAvailable": true
+                                      }
+                                  ],
+                                  "pageInfo": {
+                                      "page": 0,
+                                      "size": 10,
+                                      "totalElements": 1,
+                                      "totalPages": 1
+                                  }
+                              }
+                              """
+                  )}))})
   @GetMapping("/{storeId}")
   public ResponseEntity<SearchResponseDto> searchProducts(
       @PathVariable("storeId") UUID storeId,
@@ -67,6 +127,29 @@ public class ProductController {
   }
 
   @Operation(summary = "상품 상세 조회 API", description = "\n\n 해당 가게의 한 상품을 조회합니다.")
+  @ApiResponses(value = {
+      @ApiResponse(
+          responseCode = "ALL",
+          description = "성공",
+          content =
+          @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = com.chone.server.domains.store.dto.response.SearchResponseDto.class),
+              examples = {
+                  @ExampleObject(name = "상품 조회 성공",
+                      description = "상품 조회 성공 시 다음과 같은 응답데이터를 받습니다.",
+                      value =
+                          """
+                              {
+                                  "productId": "d5885bb6-113c-42ca-806a-e26238e62f61",
+                                  "name": "라면",
+                                  "description": "라면입니다.",
+                                  "price": 3000.0,
+                                  "imageUrl": null,
+                                  "isAvailable": true
+                              }
+                              """
+                  )}))})
   @GetMapping("/{storeId}/{productId}")
   public ResponseEntity<ReadResponseDto> getProduct(@PathVariable("storeId") UUID storeId,
       @PathVariable("productId") UUID productId) {
