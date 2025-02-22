@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,7 @@ public class OrderCancellationService {
 
   private final OrderRepository repository;
   private final OrderDomainService domainService;
+  private final ApplicationEventPublisher eventPublisher;
 
   public CancelOrderResponse cancelOrder(
       CustomUserDetails principal, UUID orderId, @Valid CancelOrderRequest requestDto) {
@@ -40,20 +42,20 @@ public class OrderCancellationService {
 
     Order savedOrder = updateAndSaveOrder(order, () -> order.cancel(requestDto.reasonNum()));
 
-    // TODO: 1. 결제 -> listener
+    eventPublisher.publishEvent(new OrderCancelledEvent(savedOrder, true));
+    log.info("주문 취소 이벤트 발행: orderId={}, reason={}", savedOrder.getId(), requestDto.reasonNum());
+
     return CancelOrderResponse.from(savedOrder);
   }
 
   @Transactional
   void updateNotCancelable(Order order) {
-
     order.updateNotCancelable();
     repository.save(order);
   }
 
   @Transactional
   Order updateAndSaveOrder(Order order, Runnable updateAction) {
-
     updateAction.run();
     return repository.save(order);
   }
