@@ -14,8 +14,9 @@ public class UserResponseDto {
     private String username;
     private String email;
     private Role role;
+    private boolean isAvailable;
 
     public static UserResponseDto fromEntity(User user) {
-        return new UserResponseDto(user.getId(), user.getUsername(), user.getEmail(), user.getRole());
+        return new UserResponseDto(user.getId(), user.getUsername(), user.getEmail(), user.getRole(), user.getIsAvailable());
     }
 }
