@@ -42,7 +42,7 @@ public class ProductService {
 
     storeFacade.checkRoleWithStore(user, store);
 
-    if (!file.isEmpty()) {
+    if (file != null && !file.isEmpty()) {
       createRequestDto.setImageUrl(s3Service.uploadFile(file));
     }
 
@@ -101,7 +101,7 @@ public class ProductService {
 
     storeFacade.checkRoleWithStore(user, product.getStore());
 
-    if (!file.isEmpty()) {
+    if (file != null && !file.isEmpty()) {
       s3Service.removeFile(product.getImageUrl());
       updateRequestDto.setImageUrl(s3Service.uploadFile(file));
     } else {
