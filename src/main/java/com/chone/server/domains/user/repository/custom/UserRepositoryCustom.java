@@ -10,6 +10,11 @@ import java.time.LocalDate;
 
 @Repository
 public interface UserRepositoryCustom {
-    Page<User> findUsers(String username, String email, String role,
-                         LocalDate startDate, LocalDate endDate, Pageable pageable);
+  Page<User> findUsers(
+      String username,
+      String email,
+      String role,
+      LocalDate startDate,
+      LocalDate endDate,
+      Pageable pageable);
 }

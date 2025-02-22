@@ -7,5 +7,5 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserRoleUpdateRequestDto {
-    private Role role;
+  private Role role;
 }

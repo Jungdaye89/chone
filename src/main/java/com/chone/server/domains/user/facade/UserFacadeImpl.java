@@ -11,11 +11,12 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class UserFacadeImpl implements UserFacade {
-    private final UserRepository userRepository;
+  private final UserRepository userRepository;
 
-    @Override
-    public User findUserById(Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(()-> new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND));
-    }
+  @Override
+  public User findUserById(Long id) {
+    return userRepository
+        .findById(id)
+        .orElseThrow(() -> new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND));
+  }
 }

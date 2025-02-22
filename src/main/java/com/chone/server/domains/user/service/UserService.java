@@ -16,13 +16,18 @@ import com.chone.server.domains.user.domain.User;
 import com.chone.server.domains.user.dto.request.SignupRequestDto;
 import com.chone.server.domains.user.dto.request.UserRoleUpdateRequestDto;
 import com.chone.server.domains.user.dto.request.UserUpdateRequestDto;
+import com.chone.server.domains.user.dto.response.PageInfoDto;
+import com.chone.server.domains.user.dto.response.ReadResponseDto;
 import com.chone.server.domains.user.dto.response.SearchUserResponseDto;
 import com.chone.server.domains.user.dto.response.UserResponseDto;
 import com.chone.server.domains.user.exception.UserExceptionCode;
 import com.chone.server.domains.user.repository.UserRepository;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -40,8 +45,7 @@ public class UserService {
   private final ReviewFacade reviewFacade;
   private final OrderFacade orderFacade;
 
-
-  //회원가입
+  // 회원가입
   public void signUp(SignupRequestDto signupRequestDto) {
 
     String username = signupRequestDto.getUsername();
@@ -61,46 +65,69 @@ public class UserService {
       throw new ApiBusinessException(UserExceptionCode.USER_EXIST_EMAIL);
     }
 
-    User user = User.builder(username,
-        email,
-        bCryptPasswordEncoder.encode(password),
-        role != null ? role : Role.CUSTOMER, // 요청에 role이 없으면 기본값 CUSTOMER,
-        true
-    ).build();
+    User user =
+        User.builder(
+                username,
+                email,
+                bCryptPasswordEncoder.encode(password),
+                role != null ? role : Role.CUSTOMER, // 요청에 role이 없으면 기본값 CUSTOMER,
+                true)
+            .build();
 
     userRepository.save(user);
   }
 
-  //회원목록 조회
-  public Page<SearchUserResponseDto> findUsers(CustomUserDetails currentUser, String username,
-      String email, String role,
-      LocalDate startDate, LocalDate endDate, Pageable pageable) {
-    //현재 사용자가 MASTER, MANAGER인지 확인
+  // 회원목록 조회
+  public SearchUserResponseDto findUsers(
+      CustomUserDetails currentUser,
+      String username,
+      String email,
+      String role,
+      LocalDate startDate,
+      LocalDate endDate,
+      Pageable pageable) {
+    // 현재 사용자가 MASTER, MANAGER인지 확인
     if (!(currentUser.getRole() == Role.MASTER || currentUser.getRole() == Role.MANAGER)) {
       throw new ApiBusinessException(UserExceptionCode.USER_NOT_AUTHORITY);
     }
-    Page<User> findUsers = userRepository.findUsers(username, email, role, startDate, endDate,
-        pageable);
+    Page<User> findUsers =
+        userRepository.findUsers(username, email, role, startDate, endDate, pageable);
 
-    return findUsers.map(SearchUserResponseDto::fromEntity);
+    return SearchUserResponseDto.builder()
+        .content(
+            findUsers.getContent().stream()
+                .map(ReadResponseDto::fromEntity)
+                .collect(Collectors.toList()))
+        .pageInfo(
+            PageInfoDto.builder()
+                .page(findUsers.getNumber())
+                .size(findUsers.getSize())
+                .totalElements(findUsers.getTotalElements())
+                .totalPages(findUsers.getTotalPages())
+                .build())
+        .build();
   }
 
-  //특정 회원정보 조회
+  // 특정 회원정보 조회
   public UserResponseDto findUserByUserId(Long userId) {
 
-    return UserResponseDto.fromEntity(userRepository.findByIdAndDeletedAtIsNull(userId)
-        .orElseThrow(() -> new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND)));
+    return UserResponseDto.fromEntity(
+        userRepository
+            .findByIdAndDeletedAtIsNull(userId)
+            .orElseThrow(() -> new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND)));
   }
 
-  //회원 정보 수정
+  // 회원 정보 수정
   @Transactional
-  public UserResponseDto updateUser(Long id, UserUpdateRequestDto requestDto,
-      CustomUserDetails currentUser) {
+  public UserResponseDto updateUser(
+      Long id, UserUpdateRequestDto requestDto, CustomUserDetails currentUser) {
 
-    User user = userRepository.findByIdAndDeletedAtIsNull(id)
-        .orElseThrow(() -> new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND));
+    User user =
+        userRepository
+            .findByIdAndDeletedAtIsNull(id)
+            .orElseThrow(() -> new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND));
 
-    //조회한 아이디와 현재 아이디가 다른 경우에는 수정불가
+    // 조회한 아이디와 현재 아이디가 다른 경우에는 수정불가
     if (!user.getUsername().equals(currentUser.getUsername())) {
       throw new ApiBusinessException(UserExceptionCode.USER_NOT_AUTHORITY);
     }
@@ -116,13 +143,15 @@ public class UserService {
     return UserResponseDto.fromEntity(user);
   }
 
-  //Master나 Manager가 회원의 권한을 Owner로 변경
+  // Master나 Manager가 회원의 권한을 Owner로 변경
   @Transactional
-  public UserResponseDto updateUserRole(Long id, UserRoleUpdateRequestDto userRoleUpdateRequestDto,
-      CustomUserDetails currentUser) {
+  public UserResponseDto updateUserRole(
+      Long id, UserRoleUpdateRequestDto userRoleUpdateRequestDto, CustomUserDetails currentUser) {
 
-    User user = userRepository.findByIdAndDeletedAtIsNull(id)
-        .orElseThrow(() -> new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND));
+    User user =
+        userRepository
+            .findByIdAndDeletedAtIsNull(id)
+            .orElseThrow(() -> new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND));
 
     // 현재 사용자의 역할이 MANAGER 또는 MASTER인지 체크
     if (!(currentUser.getRole() == Role.MANAGER || currentUser.getRole() == Role.MASTER)) {
@@ -133,7 +162,7 @@ public class UserService {
     return UserResponseDto.fromEntity(user);
   }
 
-  //휴면 계정 전환
+  // 휴면 계정 전환
   @Transactional
   public UserResponseDto updateStatus(Long id, CustomUserDetails currentUser) {
 
@@ -151,31 +180,31 @@ public class UserService {
     user.updateIsAvailable();
     user.delete(user);
 
-    //해당 유저의 가게 찾기
+    // 해당 유저의 가게 찾기
     List<Store> allStoreByUserId = storeFacade.findAllStoreByUserId(user.getId());
-    //가게 삭제하기
-    allStoreByUserId.forEach(
-        store -> storeFacade.deleteStore(currentUser.getUser(), store));
+    // 가게 삭제하기
+    allStoreByUserId.forEach(store -> storeFacade.deleteStore(currentUser.getUser(), store));
 
-    //리뷰삭제
+    // 리뷰삭제
     List<Review> allReviewByUserId = reviewFacade.findAllReviews(user.getId());
     allReviewByUserId.forEach(review -> reviewFacade.deleteReview(user, review));
 
-    //주문삭제
+    // 주문삭제
     List<Order> userOrders = orderFacade.findAllOrderByUserId(user.getId());
     userOrders.forEach(order -> orderFacade.deleteOrder(user, order));
-
   }
 
   private User getUserWithAuthorityCheck(Long id, CustomUserDetails currentUser) {
 
-    User user = userRepository.findByIdAndDeletedAtIsNull(id)
-        .orElseThrow(() -> new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND));
+    User user =
+        userRepository
+            .findByIdAndDeletedAtIsNull(id)
+            .orElseThrow(() -> new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND));
 
-    //권한 체크(본인이거나, MANAGER 또는 MASTER 권한이어야 함)
-    if (!(user.getUsername().equals(currentUser.getUsername()) ||
-        currentUser.getRole().equals(Role.MANAGER) ||
-        currentUser.getRole().equals(Role.MASTER))) {
+    // 권한 체크(본인이거나, MANAGER 또는 MASTER 권한이어야 함)
+    if (!(user.getUsername().equals(currentUser.getUsername())
+        || currentUser.getRole().equals(Role.MANAGER)
+        || currentUser.getRole().equals(Role.MASTER))) {
       throw new ApiBusinessException(UserExceptionCode.USER_NOT_AUTHORITY);
     }
     return user;
