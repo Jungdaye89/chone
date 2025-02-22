@@ -43,7 +43,8 @@ public class OrderCancellationService {
     Order savedOrder = updateAndSaveOrder(order, () -> order.cancel(requestDto.reasonNum()));
 
     eventPublisher.publishEvent(new OrderCancelledEvent(savedOrder, true));
-    log.info("주문 취소 이벤트 발행: orderId={}, reason={}", savedOrder.getId(), requestDto.reasonNum());
+    log.info(
+        "주문 취소 이벤트 발행: orderId={}, reason={}", savedOrder.getId(), savedOrder.getCancelReason());
 
     return CancelOrderResponse.from(savedOrder);
   }

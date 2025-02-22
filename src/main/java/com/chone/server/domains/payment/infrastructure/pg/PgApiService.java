@@ -35,7 +35,7 @@ public class PgApiService {
     }
 
     public Map<String, String> processCancel() {
-      boolean isSuccess = false;
+      boolean isSuccess = true;
       String status = isSuccess ? "success" : "fail";
       String message =
           "저희 서비스의 %s로 결제 취소가 %s했습니다."
