@@ -11,9 +11,11 @@ import com.chone.server.domains.payment.dto.response.PaymentDetailResponse;
 import com.chone.server.domains.payment.exception.PaymentExceptionCode;
 import com.chone.server.domains.user.domain.User;
 import jakarta.validation.Valid;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
 @Service
+@Log4j2
 public class PaymentDomainService {
 
   public void validatePaymentRequest(
@@ -39,6 +41,17 @@ public class PaymentDomainService {
   public void validateCancelPaymentRequest(User user, Payment payment) {
     validateCancellationPermission(user, payment);
     validateCancellation(payment);
+  }
+
+  public void validateEventBasedCancellation(Payment payment) {
+    if (payment.getStatus().isSameStauts(PaymentStatus.CANCELED)) {
+      log.info("이미 취소된 결제: paymentId={}, orderId={}", payment.getId());
+      throw new ApiBusinessException(PaymentExceptionCode.PAYMENT_ALREADY_CANCELED);
+    }
+    if (payment.getStatus().isSameStauts(PaymentStatus.FAILED)) {
+      log.info("결제된 적 없는 결제: paymentId={}, orderId={}", payment.getId());
+      throw new ApiBusinessException(PaymentExceptionCode.FAILED_PAYMENT);
+    }
   }
 
   private void validateCancellation(Payment payment) {
@@ -99,7 +112,7 @@ public class PaymentDomainService {
       throw new ApiBusinessException(PaymentExceptionCode.NOT_ALLOW_PAY_ONLINE_ORDER);
     }
 
-    if (!(order.getUser().equals(currentUser))) {
+    if (!(order.getUser().getId().equals(currentUser.getId()))) {
       throw new ApiBusinessException(PaymentExceptionCode.NOT_CUSTOMER_PAYMENT);
     }
   }
@@ -109,7 +122,7 @@ public class PaymentDomainService {
       throw new ApiBusinessException(PaymentExceptionCode.NOT_ALLOW_PAY_OFFLINE_ORDER);
     }
 
-    if (!(order.getStore().getUser().equals(currentUser))) {
+    if (!(order.getStore().getUser().getId().equals(currentUser.getId()))) {
       throw new ApiBusinessException(PaymentExceptionCode.NOT_OWNER_PAYMENT);
     }
   }
@@ -125,7 +138,7 @@ public class PaymentDomainService {
   }
 
   private boolean isSameUser(User currentUser, User targetUser) {
-    return currentUser.equals(targetUser);
+    return currentUser.getId().equals(targetUser.getId());
   }
 
   private void throwApiException(PaymentExceptionCode exceptionCode) {

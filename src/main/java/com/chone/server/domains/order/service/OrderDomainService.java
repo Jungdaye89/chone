@@ -30,13 +30,13 @@ public class OrderDomainService {
   private static final int ORDER_CANCELLATION_TIME_LIMIT_MINUTES = 5;
 
   public void validateStoreOwnershipIfRoleOwner(User user, Store store) {
-    if (user.getRole().isOwner() && !store.getUser().equals(user)) {
+    if (user.getRole().isOwner() && !store.getUser().getId().equals(user.getId())) {
       throw new ApiBusinessException(OrderExceptionCode.ORDER_STORE_OWNER_ACCESS_DENIED);
     }
   }
 
   public void validateStoreAndProducts(Store store, List<Product> products) {
-    if (products.stream().anyMatch(product -> !product.getStore().equals(store))) {
+    if (products.stream().anyMatch(product -> !product.getStore().getId().equals(store.getId()))) {
       throwApiException(OrderExceptionCode.MULTIPLE_STORE_ORDER);
     }
   }
@@ -80,7 +80,7 @@ public class OrderDomainService {
 
   public void validateOrderStatusChangePermission(User user, Order order) {
     if (user.getRole().isOwner()) {
-      if (!order.getStore().getUser().equals(user)) {
+      if (!order.getStore().getUser().getId().equals(user.getId())) {
         throw new ApiBusinessException(OrderExceptionCode.ORDER_STATUS_CHANGE_NOT_OWNER);
       }
     }
@@ -156,13 +156,13 @@ public class OrderDomainService {
         return;
       }
       case CUSTOMER -> {
-        if (!order.getUser().equals(user)) {
+        if (!order.getUser().getId().equals(user.getId())) {
           throw new ApiBusinessException(OrderExceptionCode.ORDER_CUSTOMER_ACCESS_DENIED);
         }
         return;
       }
       case OWNER -> {
-        if (!order.getStore().getUser().equals(user)) {
+        if (!order.getStore().getUser().getId().equals(user.getId())) {
           throw new ApiBusinessException(OrderExceptionCode.ORDER_STORE_OWNER_ACCESS_DENIED);
         }
         return;
