@@ -2,6 +2,7 @@ package com.chone.server.domains.payment.infrastructure.jpa;
 
 import com.chone.server.domains.payment.domain.Payment;
 import com.chone.server.domains.payment.repository.dto.PaymentDetailDto;
+import jakarta.annotation.Nullable;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -30,4 +31,8 @@ public interface PaymentJpaRepository extends JpaRepository<Payment, UUID> {
     AND p.deletedAt IS NULL
     """)
   Optional<PaymentDetailDto> findPaymentDetailById(@Param("id") UUID id);
+
+  @Nullable
+  @Query("SELECT p FROM Payment p WHERE p.order.id = :orderId AND p.deletedAt IS NULL")
+  Payment findByOrderIdOrNull(@Param("orderId") UUID orderId);
 }

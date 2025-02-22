@@ -37,4 +37,9 @@ public class DeliveryRepositoryImpl implements DeliveryRepository {
   public Delivery findByOrderOrNull(Order order) {
     return jpaRepository.findByOrderAndDeletedAtNull(order).orElse(null);
   }
+
+  @Override
+  public Delivery findByOrderIdOrNull(UUID id) {
+    return jpaRepository.findByOrderIdOrNull(id);
+  }
 }

@@ -13,4 +13,6 @@ public interface DeliveryRepository {
   Delivery findByOrder(Order order);
 
   Delivery findByOrderOrNull(Order order);
+
+  Delivery findByOrderIdOrNull(UUID id);
 }

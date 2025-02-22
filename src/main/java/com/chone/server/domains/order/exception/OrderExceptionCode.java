@@ -46,7 +46,7 @@ public enum OrderExceptionCode implements ExceptionCode {
   ORDER_STATUS_CHANGE_FORBIDDEN(FORBIDDEN, "고객은 주문 상태를 변경할 수 없습니다."),
   ORDER_STATUS_CHANGE_NOT_OWNER(FORBIDDEN, "본인 가게의 주문만 상태를 변경할 수 있습니다."),
   ORDER_STATUS_MISMATCH(BAD_REQUEST, "주문의 현재 상태와 요청된 상태가 일치하지 않습니다."),
-  ;
+  ORDER_PREPARATION_STARTED(CONFLICT, "음식 준비가 시작된 주문은 취소할 수 없습니다.");
   private final HttpStatus status;
   private final String message;
   private final String code = this.name();

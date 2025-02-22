@@ -30,7 +30,7 @@ public class OrderFacadeImpl implements OrderFacade {
   @Override
   public void validateOrderOwnership(Order order, User currentUser) {
     User orderOwnerUser = order.getUser();
-    if (orderOwnerUser.equals(currentUser))
+    if (orderOwnerUser.getId().equals(currentUser.getId()))
       throw new ApiBusinessException(OrderExceptionCode.ORDER_CUSTOMER_ACCESS_DENIED);
   }
 

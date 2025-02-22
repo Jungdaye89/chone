@@ -46,6 +46,11 @@ public class PaymentRepositoryImpl implements PaymentRepository {
   }
 
   @Override
+  public Payment findByOrderIdOrNull(UUID orderId) {
+    return jpaRepository.findByOrderIdOrNull(orderId);
+  }
+
+  @Override
   public Page<PaymentPageResponse> findPaymentsByCustomer(
       User user, PaymentFilterParams filterParams, Pageable pageable) {
     return jpaListSearchRepository.findOrdersByCustomer(user, filterParams, pageable);

@@ -19,6 +19,8 @@ public interface PaymentRepository {
 
   Payment findByOrderId(UUID id);
 
+  Payment findByOrderIdOrNull(UUID orderId);
+
   Page<PaymentPageResponse> findPaymentsByCustomer(
       User user, PaymentFilterParams filterParams, Pageable pageable);
 
