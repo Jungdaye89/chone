@@ -8,6 +8,11 @@ import com.chone.server.domains.store.dto.response.ReadResponseDto;
 import com.chone.server.domains.store.dto.response.SearchResponseDto;
 import com.chone.server.domains.store.service.StoreService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -35,6 +40,24 @@ public class StoreController {
   private final StoreService storeService;
 
   @Operation(summary = "가게 등록 API", description = "MANAGER, MASTER 계정이 OWNER 계정의 가게를 등록할 수 있습니다.")
+  @ApiResponses(value = {
+      @ApiResponse(
+          responseCode = "ALL",
+          description = "성공",
+          content =
+          @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = CreateResponseDto.class),
+              examples = {
+                  @ExampleObject(name = "가게 등록 성공",
+                      description = "가게 등록 성공 시 다음과 같은 응답데이터를 받습니다.",
+                      value =
+                          """
+                                  {
+                                      "id": "c513edd6-6ecf-4504-949a-20c5b96956d8"
+                                  }
+                              """
+                  )}))})
   @PostMapping
   @PreAuthorize("hasAnyRole('MASTER', 'MANAGER')")
   public ResponseEntity<CreateResponseDto> createStore(
@@ -46,6 +69,44 @@ public class StoreController {
   }
 
   @Operation(summary = "가게 검색 API", description = "해당 조건으로 가게를 검색합니다.")
+  @ApiResponses(value = {
+      @ApiResponse(
+          responseCode = "ALL",
+          description = "성공",
+          content =
+          @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = SearchResponseDto.class),
+              examples = {
+                  @ExampleObject(name = "가게 검색 성공",
+                      description = "가게 검색 성공 시 다음과 같은 응답데이터를 받습니다.",
+                      value =
+                          """
+                                  {
+                                      "content": [
+                                          {
+                                              "id": "c513edd6-6ecf-4504-949a-20c5b96956d8",
+                                              "name": "Test Store",
+                                              "sido": "서울특별시",
+                                              "sigungu": "종로구",
+                                              "dong": "청운동",
+                                              "address": "상세주소",
+                                              "category": [
+                                                  "한식",
+                                                  "중식"
+                                              ],
+                                              "isOpen": true
+                                          }
+                                      ],
+                                      "pageInfo": {
+                                          "page": 0,
+                                          "size": 10,
+                                          "totalElements": 1,
+                                          "totalPages": 1
+                                      }
+                                  }
+                              """
+                  )}))})
   @GetMapping
   public ResponseEntity<SearchResponseDto> searchStores(
       @RequestParam(name = "page", required = false, defaultValue = "0") int page,
@@ -67,6 +128,34 @@ public class StoreController {
   }
 
   @Operation(summary = "가게 조회 API", description = "가게를 조회합니다.")
+  @ApiResponses(value = {
+      @ApiResponse(
+          responseCode = "ALL",
+          description = "성공",
+          content =
+          @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = SearchResponseDto.class),
+              examples = {
+                  @ExampleObject(name = "가게 조회 성공",
+                      description = "가게 조회 성공 시 다음과 같은 응답데이터를 받습니다.",
+                      value =
+                          """
+                                  {
+                                      "id": "c513edd6-6ecf-4504-949a-20c5b96956d8",
+                                      "name": "Test Store",
+                                      "sido": "서울특별시",
+                                      "sigungu": "종로구",
+                                      "dong": "청운동",
+                                      "address": "상세주소",
+                                      "category": [
+                                          "한식",
+                                          "중식"
+                                      ],
+                                      "isOpen": true
+                                  }
+                              """
+                  )}))})
   @GetMapping("/{storeId}")
   public ResponseEntity<ReadResponseDto> getStore(@PathVariable("storeId") UUID storeId) {
 
