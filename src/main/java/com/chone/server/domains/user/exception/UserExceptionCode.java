@@ -8,10 +8,6 @@ import org.springframework.http.HttpStatus;
 @Getter
 @RequiredArgsConstructor
 public enum UserExceptionCode implements ExceptionCode {
-  // 인증
-  INVALID_TOKEN(HttpStatus.FORBIDDEN, "유효하지 않은 JwtToken"),
-  EXPIRED_TOKEN(HttpStatus.FORBIDDEN, "만료된 JwtToken"),
-
   // 회원
   INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "잘못된 아이디 또는 비밀번호입니다."),
   USER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 사용자입니다."),
