@@ -18,6 +18,7 @@ import com.chone.server.domains.store.repository.CategoryRepository;
 import com.chone.server.domains.store.repository.LegalDongCodeRepository;
 import com.chone.server.domains.store.repository.StoreCategoryMapRepository;
 import com.chone.server.domains.store.repository.StoreRepository;
+import com.chone.server.domains.user.domain.Role;
 import com.chone.server.domains.user.domain.User;
 import java.time.LocalDate;
 import java.util.List;
@@ -44,6 +45,10 @@ public class StoreService {
   public CreateResponseDto createStore(CreateRequestDto createRequestDto) {
 
     User owner = userFacade.findUserById(createRequestDto.getUserId());
+
+    if (owner.getRole() != Role.OWNER) {
+      throw new ApiBusinessException(StoreExceptionCode.USER_NOT_OWNER);
+    }
 
     LegalDongCode legalDongCode =
         findLegalDongCodeBySidoAndSigunguAndDong(
