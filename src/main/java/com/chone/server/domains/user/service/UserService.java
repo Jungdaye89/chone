@@ -116,8 +116,8 @@ public class UserService {
   }
 
   // 특정 회원정보 조회
-  public UserResponseDto findUserByUserId(Long userId) {
-
+  public UserResponseDto findUserByUserId(Long userId, CustomUserDetails currentUser) {
+    getUserWithAuthorityCheck(userId, currentUser);
     return UserResponseDto.fromEntity(
         userRepository
             .findByIdAndDeletedAtIsNull(userId)
@@ -169,7 +169,7 @@ public class UserService {
     return UserResponseDto.fromEntity(user);
   }
 
-  // 휴면 계정 전환
+  // 계정 비활성화
   @Transactional
   public UserResponseDto deactivateUser(Long id, CustomUserDetails currentUser) {
 
@@ -183,7 +183,12 @@ public class UserService {
     return UserResponseDto.fromEntity(user);
   }
 
-  public UserResponseDto activateUser(Long id, String username, String password) {
+  // 계정 활성화
+  @Transactional
+  public UserResponseDto activateUser(String username, String password) {
+    // 아이디 & 비밀번호 인증 (SecurityContext 사용 X)
+    authenticateUser(username, password);
+
     // username으로 사용자 조회 (SecurityContext 사용 X)
     User user = userRepository.findByUsernameAndDeletedAtIsNull(username)
         .orElseThrow(() -> new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND));
@@ -192,9 +197,6 @@ public class UserService {
     if (Boolean.TRUE.equals(user.getIsAvailable())) {
       throw new ApiBusinessException(UserExceptionCode.USER_ALREADY_ACTIVE);
     }
-
-    // 아이디 & 비밀번호 인증 (SecurityContext 사용 X)
-    authenticateUser(username, password);
 
     // 계정 활성화
     user.updateIsAvailable();

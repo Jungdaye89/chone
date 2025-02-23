@@ -208,8 +208,10 @@ public class UserController {
                     }))
       })
   @GetMapping("/{userId}")
-  public ResponseEntity<? extends DataResponseBody> getUser(@PathVariable Long userId) {
-    UserResponseDto userResponseDto = userService.findUserByUserId(userId);
+  public ResponseEntity<? extends DataResponseBody> getUser(
+      @PathVariable Long userId,
+      @AuthenticationPrincipal CustomUserDetails currentUser) {
+    UserResponseDto userResponseDto = userService.findUserByUserId(userId, currentUser);
     return ResponseEntity.status(HttpStatus.OK)
         .body(DataResponseBody.of(200, "유저 상세조회 성공", "SUCCESS", userResponseDto));
   }
@@ -425,12 +427,11 @@ public class UserController {
                         """)
                     }))
       })
-  @PatchMapping("/{id}/activate")
+  @PatchMapping("/activate")
   public ResponseEntity<? extends DataResponseBody> activateUser(
-      @PathVariable Long id,
       @RequestBody ActivateUserRequestDto request) {
     UserResponseDto updatedUserDto =
-        userService.activateUser(id, request.getUsername(), request.getPassword());
+        userService.activateUser(request.getUsername(), request.getPassword());
     return ResponseEntity.status(HttpStatus.OK)
         .body(DataResponseBody.of(200, "계정 활성화", "SUCCESS", updatedUserDto));
   }
