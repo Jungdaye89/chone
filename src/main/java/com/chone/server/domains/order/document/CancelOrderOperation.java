@@ -1,5 +1,49 @@
 package com.chone.server.domains.order.document;
 
+import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.CODE_BAD_REQUEST;
+import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.CODE_CONFLICT;
+import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.CODE_FORBIDDEN;
+import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.CODE_NOT_FOUND;
+import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.CODE_OK;
+import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.CODE_UNAUTHORIZED;
+import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.MEDIA_TYPE;
+import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.SECURITY_REQUIREMENT;
+import static com.chone.server.domains.order.document.constants.OrderOperationDescriptionConstants.CANCEL_DESCRIPTION;
+import static com.chone.server.domains.order.document.constants.OrderOperationDescriptionConstants.CANCEL_SUMMARY;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.BAD_REQUEST_DESCRIPTION;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.Cancel.FAILED_PAYMENT_NAME;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.Cancel.FAILED_PAYMENT_VALUE;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.Cancel.NOT_FOUND_ORDER_VALUE;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.Cancel.ORDER_ALREADY_CANCELED_NAME;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.Cancel.ORDER_ALREADY_CANCELED_VALUE;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.Cancel.ORDER_ALREADY_COMPLETED_NAME;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.Cancel.ORDER_ALREADY_COMPLETED_VALUE;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.Cancel.ORDER_CANCELLATION_TIMEOUT_NAME;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.Cancel.ORDER_CANCELLATION_TIMEOUT_VALUE;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.Cancel.ORDER_CANCEL_PERMISSION_DENIED_NAME;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.Cancel.ORDER_CANCEL_PERMISSION_DENIED_VALUE;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.Cancel.ORDER_CUSTOMER_ACCESS_DENIED_VALUE;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.Cancel.ORDER_NOT_CANCELABLE_NAME;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.Cancel.ORDER_NOT_CANCELABLE_VALUE;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.Cancel.ORDER_PREPARATION_STARTED_NAME;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.Cancel.ORDER_PREPARATION_STARTED_VALUE;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.Cancel.ORDER_REASON_NULL_NAME;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.Cancel.ORDER_STORE_OWNER_ACCESS_DENIED_VALUE;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.Cancel.PAYMENT_ALREADY_CANCELED_NAME;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.Cancel.PAYMENT_ALREADY_CANCELED_VALUE;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.Cancel.PAYMENT_CANCELLATION_FAILED_NAME;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.Cancel.PAYMENT_CANCELLATION_FAILED_VALUE;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.Cancel.SUCCESS_DESCRIPTION;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.Cancel.SUCCESS_EXAMPLE;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.Cancel.UNAUTHORIZED_VALUE;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.FORBIDDEN_DESCRIPTION;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.ORDER_CUSTOMER_ACCESS_DENIED_NAME;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.ORDER_NOT_FOUND_DESCRIPTION;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.ORDER_NOT_FOUND_NAME;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.ORDER_STORE_OWNER_ACCESS_DENIED_NAME;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.UNAUTHORIZED_DESCRIPTION;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.UNAUTHORIZED_NAME;
+
 import com.chone.server.domains.order.dto.response.CancelOrderResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -15,295 +59,93 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-@Operation(
-    summary = CancelOrderOperationConstants.SUMMARY,
-    description = CancelOrderOperationConstants.DESCRIPTION)
-@SecurityRequirement(name = CancelOrderOperationConstants.SECURITY_REQUIREMENT)
+@Operation(summary = CANCEL_SUMMARY, description = CANCEL_DESCRIPTION)
+@SecurityRequirement(name = SECURITY_REQUIREMENT)
 @ApiResponses(
     value = {
       @ApiResponse(
-          responseCode = CancelOrderOperationConstants.SUCCESS_RESPONSE_CODE,
-          description = "주문 취소 성공",
+          responseCode = CODE_OK,
+          description = SUCCESS_DESCRIPTION,
           content =
               @Content(
-                  mediaType = CancelOrderOperationConstants.MEDIA_TYPE,
+                  mediaType = MEDIA_TYPE,
                   schema = @Schema(implementation = CancelOrderResponse.class),
-                  examples =
-                      @ExampleObject(value = CancelOrderOperationConstants.SUCCESS_EXAMPLE))),
+                  examples = @ExampleObject(value = SUCCESS_EXAMPLE))),
       @ApiResponse(
-          responseCode = "401",
-          description = "인증이 필요함",
+          responseCode = CODE_UNAUTHORIZED,
+          description = UNAUTHORIZED_DESCRIPTION,
           content =
               @Content(
-                  mediaType = CancelOrderOperationConstants.MEDIA_TYPE,
+                  mediaType = MEDIA_TYPE,
                   examples = {
-                    @ExampleObject(
-                        name = "인증이 필요함",
-                        value = CancelOrderOperationConstants.UNAUTHORIZED_RESPONSE)
+                    @ExampleObject(name = UNAUTHORIZED_NAME, value = UNAUTHORIZED_VALUE)
                   })),
       @ApiResponse(
-          responseCode = "404",
-          description = "주문을 찾을 수 없음",
+          responseCode = CODE_NOT_FOUND,
+          description = ORDER_NOT_FOUND_DESCRIPTION,
           content =
               @Content(
-                  mediaType = CancelOrderOperationConstants.MEDIA_TYPE,
+                  mediaType = MEDIA_TYPE,
                   examples = {
-                    @ExampleObject(
-                        name = "해당 주문을 찾을 수 없습니다.",
-                        value = CancelOrderOperationConstants.NOT_FOUND_ORDER_RESPONSE)
+                    @ExampleObject(name = ORDER_NOT_FOUND_NAME, value = NOT_FOUND_ORDER_VALUE)
                   })),
       @ApiResponse(
-          responseCode = "403",
-          description = "접근 권한이 없음",
+          responseCode = CODE_FORBIDDEN,
+          description = FORBIDDEN_DESCRIPTION,
           content =
               @Content(
-                  mediaType = CancelOrderOperationConstants.MEDIA_TYPE,
+                  mediaType = MEDIA_TYPE,
                   examples = {
                     @ExampleObject(
-                        name = "접근 권한이 없습니다. 해당 주문의 소유자가 아닙니다.",
-                        value =
-                            CancelOrderOperationConstants.ORDER_CUSTOMER_ACCESS_DENIED_RESPONSE),
+                        name = ORDER_CUSTOMER_ACCESS_DENIED_NAME,
+                        value = ORDER_CUSTOMER_ACCESS_DENIED_VALUE),
                     @ExampleObject(
-                        name = "접근 권한이 없습니다. 해당 매장의 소유자가 아닙니다.",
-                        value =
-                            CancelOrderOperationConstants.ORDER_STORE_OWNER_ACCESS_DENIED_RESPONSE),
+                        name = ORDER_STORE_OWNER_ACCESS_DENIED_NAME,
+                        value = ORDER_STORE_OWNER_ACCESS_DENIED_VALUE),
                     @ExampleObject(
-                        name = "주문 취소 권한이 없습니다.",
-                        value =
-                            CancelOrderOperationConstants.ORDER_CANCEL_PERMISSION_DENIED_RESPONSE)
+                        name = ORDER_CANCEL_PERMISSION_DENIED_NAME,
+                        value = ORDER_CANCEL_PERMISSION_DENIED_VALUE)
                   })),
       @ApiResponse(
-          responseCode = "400",
-          description = "잘못된 요청",
+          responseCode = CODE_BAD_REQUEST,
+          description = BAD_REQUEST_DESCRIPTION,
           content =
               @Content(
-                  mediaType = CancelOrderOperationConstants.MEDIA_TYPE,
+                  mediaType = MEDIA_TYPE,
                   examples = {
                     @ExampleObject(
-                        name = "이미 취소된 주문입니다.",
-                        value = CancelOrderOperationConstants.ORDER_ALREADY_CANCELED_RESPONSE),
+                        name = ORDER_ALREADY_CANCELED_NAME,
+                        value = ORDER_ALREADY_CANCELED_VALUE),
                     @ExampleObject(
-                        name = "취소할 수 없는 주문입니다.",
-                        value = CancelOrderOperationConstants.ORDER_NOT_CANCELABLE_RESPONSE),
+                        name = ORDER_NOT_CANCELABLE_NAME,
+                        value = ORDER_NOT_CANCELABLE_VALUE),
                     @ExampleObject(
-                        name = "주문 생성 후 5분이 경과하여 취소할 수 없습니다.",
-                        value = CancelOrderOperationConstants.ORDER_CANCELLATION_TIMEOUT_RESPONSE),
+                        name = ORDER_CANCELLATION_TIMEOUT_NAME,
+                        value = ORDER_CANCELLATION_TIMEOUT_VALUE),
+                    @ExampleObject(name = FAILED_PAYMENT_NAME, value = FAILED_PAYMENT_VALUE),
                     @ExampleObject(
-                        name = "실패된 결제입니다(결제된 적이 없습니다).",
-                        value = CancelOrderOperationConstants.FAILED_PAYMENT_RESPONSE),
-                    @ExampleObject(
-                        name = "취소 이유는 필수입니다.",
-                        value = CancelOrderOperationConstants.ORDER_REASON_NULL_RESPONSE)
+                        name = ORDER_REASON_NULL_NAME,
+                        value = ORDER_ALREADY_COMPLETED_VALUE)
                   })),
       @ApiResponse(
-          responseCode = "409",
+          responseCode = CODE_CONFLICT,
           description = "충돌 발생",
           content =
               @Content(
-                  mediaType = CancelOrderOperationConstants.MEDIA_TYPE,
+                  mediaType = MEDIA_TYPE,
                   examples = {
                     @ExampleObject(
-                        name = "완료된 주문은 취소할 수 없습니다.",
-                        value = CancelOrderOperationConstants.ORDER_ALREADY_COMPLETED_RESPONSE),
+                        name = ORDER_ALREADY_COMPLETED_NAME,
+                        value = ORDER_ALREADY_COMPLETED_VALUE),
                     @ExampleObject(
-                        name = "음식 준비가 시작된 주문은 취소할 수 없습니다.",
-                        value = CancelOrderOperationConstants.ORDER_PREPARATION_STARTED_RESPONSE),
+                        name = ORDER_PREPARATION_STARTED_NAME,
+                        value = ORDER_PREPARATION_STARTED_VALUE),
                     @ExampleObject(
-                        name = "이미 취소된 결제입니다.",
-                        value = CancelOrderOperationConstants.PAYMENT_ALREADY_CANCELED_RESPONSE),
+                        name = PAYMENT_ALREADY_CANCELED_NAME,
+                        value = PAYMENT_ALREADY_CANCELED_VALUE),
                     @ExampleObject(
-                        name = "결제 취소 요청이 거부되었습니다.",
-                        value = CancelOrderOperationConstants.PAYMENT_CANCELLATION_FAILED_RESPONSE)
+                        name = PAYMENT_CANCELLATION_FAILED_NAME,
+                        value = PAYMENT_CANCELLATION_FAILED_VALUE)
                   }))
     })
 public @interface CancelOrderOperation {}
-
-final class CancelOrderOperationConstants {
-  static final String SUMMARY = "주문 취소 API";
-  static final String DESCRIPTION =
-      """
-     - 사용자가 주문을 취소할 수 있는 API입니다.
-       - 메서드: PATCH
-       - 경로: /api/orders/{id}
-       - 권한: 모든 역할 접근 가능 (역할별 권한 제한)
-       - 파라미터: id (주문 UUID), 요청 바디
-       - 응답: 200 OK
-
-     역할별 접근 제어
-     - 역할: CUSTOMER
-       - 취소 가능 범위: 자신의 주문만 취소 가능
-     - 역할: OWNER
-       - 취소 가능 범위: 자신의 매장 주문만 취소 가능
-     - 역할: MANAGER, MASTER
-       - 취소 가능 범위: 모든 주문 취소 가능
-     """;
-  static final String SECURITY_REQUIREMENT = "Bearer Authentication";
-  static final String MEDIA_TYPE = "application/json";
-  // == 200 OK 응답 ==
-  static final String SUCCESS_RESPONSE_CODE = "200";
-  static final String SUCCESS_EXAMPLE =
-      """
-                              {
-                                "message": "주문이 성공적으로 취소되었습니다."
-                              }
-                              """;
-  static final String UNAUTHORIZED_RESPONSE =
-      """
-                            {
-                              "httpMethod": "PATCH",
-                              "httpStatus": "401",
-                              "errorCode": "UNAUTHORIZED",
-                              "timestamp": "2025-02-23T15:32:45.123456",
-                              "message": "로그인이 필요한 서비스입니다. 로그인 후 다시 시도해주세요.",
-                              "path": "/api/v1/orders/{id}"
-                            }
-                        """;
-
-  // == 에러 응답 예시 ==
-  static final String NOT_FOUND_ORDER_RESPONSE =
-      """
-                            {
-                              "httpMethod": "PATCH",
-                              "httpStatus": "404",
-                              "errorCode": "NOT_FOUND_ORDER",
-                              "timestamp": "2025-02-23T15:32:45.123456",
-                              "message": "해당 주문을 찾을 수 없습니다.",
-                              "path": "/api/v1/orders/{id}"
-                            }
-                        """;
-  static final String ORDER_CUSTOMER_ACCESS_DENIED_RESPONSE =
-      """
-                            {
-                              "httpMethod": "PATCH",
-                              "httpStatus": "403",
-                              "errorCode": "ORDER_CUSTOMER_ACCESS_DENIED",
-                              "timestamp": "2025-02-23T15:32:45.123456",
-                              "message": "접근 권한이 없습니다. 해당 주문의 소유자가 아닙니다.",
-                              "path": "/api/v1/orders/{id}"
-                            }
-                        """;
-  static final String ORDER_STORE_OWNER_ACCESS_DENIED_RESPONSE =
-      """
-                            {
-                              "httpMethod": "PATCH",
-                              "httpStatus": "403",
-                              "errorCode": "ORDER_STORE_OWNER_ACCESS_DENIED",
-                              "timestamp": "2025-02-23T15:32:45.123456",
-                              "message": "접근 권한이 없습니다. 해당 매장의 소유자가 아닙니다.",
-                              "path": "/api/v1/orders/{id}"
-                            }
-                        """;
-  static final String ORDER_CANCEL_PERMISSION_DENIED_RESPONSE =
-      """
-                            {
-                              "httpMethod": "PATCH",
-                              "httpStatus": "403",
-                              "errorCode": "ORDER_CANCEL_PERMISSION_DENIED",
-                              "timestamp": "2025-02-23T15:32:45.123456",
-                              "message": "주문 취소 권한이 없습니다.",
-                              "path": "/api/v1/orders/{id}"
-                            }
-                        """;
-  static final String ORDER_ALREADY_CANCELED_RESPONSE =
-      """
-                            {
-                              "httpMethod": "PATCH",
-                              "httpStatus": "400",
-                              "errorCode": "ORDER_ALREADY_CANCELED",
-                              "timestamp": "2025-02-23T15:32:45.123456",
-                              "message": "이미 취소된 주문입니다.",
-                              "path": "/api/v1/orders/{id}"
-                            }
-                        """;
-  static final String ORDER_NOT_CANCELABLE_RESPONSE =
-      """
-                            {
-                              "httpMethod": "PATCH",
-                              "httpStatus": "400",
-                              "errorCode": "ORDER_NOT_CANCELABLE",
-                              "timestamp": "2025-02-23T15:32:45.123456",
-                              "message": "취소할 수 없는 주문입니다.",
-                              "path": "/api/v1/orders/{id}"
-                            }
-                        """;
-  static final String ORDER_CANCELLATION_TIMEOUT_RESPONSE =
-      """
-                            {
-                              "httpMethod": "PATCH",
-                              "httpStatus": "400",
-                              "errorCode": "ORDER_CANCELLATION_TIMEOUT",
-                              "timestamp": "2025-02-23T15:32:45.123456",
-                              "message": "주문 생성 후 5분이 경과하여 취소할 수 없습니다.",
-                              "path": "/api/v1/orders/{id}"
-                            }
-                        """;
-  static final String FAILED_PAYMENT_RESPONSE =
-      """
-                            {
-                              "httpMethod": "PATCH",
-                              "httpStatus": "400",
-                              "errorCode": "FAILED_PAYMENT",
-                              "timestamp": "2025-02-23T15:32:45.123456",
-                              "message": "실패된 결제입니다(결제된 적이 없습니다).",
-                              "path": "/api/v1/orders/{id}"
-                            }
-                        """;
-  static final String ORDER_ALREADY_COMPLETED_RESPONSE =
-      """
-                            {
-                              "httpMethod": "PATCH",
-                              "httpStatus": "409",
-                              "errorCode": "ORDER_ALREADY_COMPLETED",
-                              "timestamp": "2025-02-23T15:32:45.123456",
-                              "message": "완료된 주문은 취소할 수 없습니다.",
-                              "path": "/api/v1/orders/{id}"
-                            }
-                        """;
-  static final String ORDER_PREPARATION_STARTED_RESPONSE =
-      """
-                            {
-                              "httpMethod": "PATCH",
-                              "httpStatus": "409",
-                              "errorCode": "ORDER_PREPARATION_STARTED",
-                              "timestamp": "2025-02-23T15:32:45.123456",
-                              "message": "음식 준비가 시작된 주문은 취소할 수 없습니다.",
-                              "path": "/api/v1/orders/{id}"
-                            }
-                        """;
-  static final String PAYMENT_ALREADY_CANCELED_RESPONSE =
-      """
-                            {
-                              "httpMethod": "PATCH",
-                              "httpStatus": "409",
-                              "errorCode": "PAYMENT_ALREADY_CANCELED",
-                              "timestamp": "2025-02-23T15:32:45.123456",
-                              "message": "이미 취소된 결제입니다.",
-                              "path": "/api/v1/orders/{id}"
-                            }
-                        """;
-  static final String PAYMENT_CANCELLATION_FAILED_RESPONSE =
-      """
-                            {
-                              "httpMethod": "PATCH",
-                              "httpStatus": "503",
-                              "errorCode": "PAYMENT_CANCELLATION_FAILED",
-                              "timestamp": "2025-02-23T15:32:45.123456",
-                              "message": "결제 취소 요청이 거부되었습니다.",
-                              "path": "/api/v1/orders/{id}"
-                            }
-                        """;
-  // 추가된 요청 본문 검증 에러 응답
-  static final String ORDER_REASON_NULL_RESPONSE =
-      """
-                            {
-                              "httpMethod": "PATCH",
-                              "httpStatus": "400",
-                              "errorCode": "ORDER_REASON_NULL",
-                              "timestamp": "2025-02-23T15:32:45.123456",
-                              "message": "취소 이유가 null일 수 없습니다.",
-                              "path": "/api/v1/orders/{id}"
-                            }
-                        """;
-
-  private CancelOrderOperationConstants() {}
-}

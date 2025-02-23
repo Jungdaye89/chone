@@ -1,5 +1,23 @@
 package com.chone.server.domains.order.document;
 
+import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.CODE_FORBIDDEN;
+import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.CODE_OK;
+import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.CODE_UNAUTHORIZED;
+import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.MEDIA_TYPE;
+import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.SECURITY_REQUIREMENT;
+import static com.chone.server.domains.order.document.constants.OrderOperationDescriptionConstants.LIST_DESCRIPTION;
+import static com.chone.server.domains.order.document.constants.OrderOperationDescriptionConstants.LIST_SUMMARY;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.FORBIDDEN_DESCRIPTION;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.List.CUSTOMER_ORDER_FILTERING_ACCESS_DENIED_NAME;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.List.CUSTOMER_ORDER_FILTERING_ACCESS_DENIED_VALUE;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.List.STORE_ORDER_FILTERING_ACCESS_DENIED_NAME;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.List.STORE_ORDER_FILTERING_ACCESS_DENIED_VALUE;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.List.SUCCESS_DESCRIPTION;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.List.SUCCESS_EXAMPLE;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.List.UNAUTHORIZED_VALUE;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.UNAUTHORIZED_DESCRIPTION;
+import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.UNAUTHORIZED_NAME;
+
 import com.chone.server.domains.order.dto.request.OrderFilterParams;
 import com.chone.server.domains.order.dto.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,8 +37,8 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Operation(
-    summary = OrderListOperationConstants.SUMMARY,
-    description = OrderListOperationConstants.DESCRIPTION,
+    summary = LIST_SUMMARY,
+    description = LIST_DESCRIPTION,
     parameters = {
       @Parameter(
           name = "filterParams",
@@ -51,134 +69,39 @@ import java.lang.annotation.Target;
             @ExampleObject(value = "totalprice,asc")
           })
     })
-@SecurityRequirement(name = OrderListOperationConstants.SECURITY_REQUIREMENT)
+@SecurityRequirement(name = SECURITY_REQUIREMENT)
 @ApiResponses(
     value = {
       @ApiResponse(
-          responseCode = OrderListOperationConstants.SUCCESS_RESPONSE_CODE,
-          description = "주문 조회 성공",
+          responseCode = CODE_OK,
+          description = SUCCESS_DESCRIPTION,
           content =
               @Content(
-                  mediaType = OrderListOperationConstants.MEDIA_TYPE,
+                  mediaType = MEDIA_TYPE,
                   schema = @Schema(implementation = PageResponse.class),
-                  examples = @ExampleObject(value = OrderListOperationConstants.SUCCESS_EXAMPLE))),
+                  examples = @ExampleObject(value = SUCCESS_EXAMPLE))),
       @ApiResponse(
-          responseCode = "401",
-          description = "인증이 필요함",
+          responseCode = CODE_UNAUTHORIZED,
+          description = UNAUTHORIZED_DESCRIPTION,
           content =
               @Content(
-                  mediaType = OrderListOperationConstants.MEDIA_TYPE,
+                  mediaType = MEDIA_TYPE,
                   examples = {
-                    @ExampleObject(
-                        name = "인증이 필요함",
-                        value = OrderListOperationConstants.UNAUTHORIZED_RESPONSE)
+                    @ExampleObject(name = UNAUTHORIZED_NAME, value = UNAUTHORIZED_VALUE)
                   })),
       @ApiResponse(
-          responseCode = "403",
-          description = "접근 권한이 없음",
+          responseCode = CODE_FORBIDDEN,
+          description = FORBIDDEN_DESCRIPTION,
           content =
               @Content(
-                  mediaType = OrderListOperationConstants.MEDIA_TYPE,
+                  mediaType = MEDIA_TYPE,
                   examples = {
                     @ExampleObject(
-                        name = "사용자별 주문 조회 권한이 없습니다.",
-                        value =
-                            OrderListOperationConstants
-                                .CUSTOMER_ORDER_FILTERING_ACCESS_DENIED_RESPONSE),
+                        name = CUSTOMER_ORDER_FILTERING_ACCESS_DENIED_NAME,
+                        value = CUSTOMER_ORDER_FILTERING_ACCESS_DENIED_VALUE),
                     @ExampleObject(
-                        name = "가게별 주문 조회 권한이 없습니다.",
-                        value =
-                            OrderListOperationConstants
-                                .STORE_ORDER_FILTERING_ACCESS_DENIED_RESPONSE)
+                        name = STORE_ORDER_FILTERING_ACCESS_DENIED_NAME,
+                        value = STORE_ORDER_FILTERING_ACCESS_DENIED_VALUE)
                   }))
     })
 public @interface OrderListOperation {}
-
-final class OrderListOperationConstants {
-  static final String SUMMARY = "주문 조회 API";
-  static final String DESCRIPTION =
-      """
-        - 사용자별 또는 가게별로 주문을 조회할 수 있는 API입니다.
-          - 메서드: GET
-          - 경로: /api/v1/orders
-          - 권한: 모든 역할 접근 가능 (역할별 조회 범위 제한)
-          - 페이지네이션: page, size, sort 지원 (기본값: page=0, size=10, sort=createdat,desc)
-          - 응답: 200 OK + PageResponse<OrderPageResponse>
-
-        역할별 조회 가능 범위 및 필터링 제한
-        - 역할: CUSTOMER
-          - 조회 가능 범위: 자신의 주문만 조회
-          - 필터링 제한: 사용자 필터링 불가, 가게 필터링 가능
-        - 역할: OWNER
-          - 조회 가능 범위: 자신의 매장 주문만 조회
-          - 필터링 제한: 사용자 필터링 가능, 가게 필터링 불가
-        - 역할: MANAGER, MASTER
-          - 조회 가능 범위: 모든 주문 조회
-          - 필터링 제한: 모든 필터링 가능
-        """;
-  static final String SECURITY_REQUIREMENT = "Bearer Authentication";
-  static final String MEDIA_TYPE = "application/json";
-  // == 200 OK 응답 ==
-  static final String SUCCESS_RESPONSE_CODE = "200";
-  static final String SUCCESS_EXAMPLE =
-      """
-{
-    "content": [
-        {
-            "id": "3ec24ba4-0164-45d1-9566-73dde029b2c1",
-            "storeId": "db8ad8d5-4b9e-454c-82a0-d5ca1eadc7c1",
-            "storeName": "종로카페",
-            "type": "OFFLINE",
-            "status": "PENDING",
-            "totalPrice": 13000,
-            "createdAt": "2025-02-18T11:52:22.289518",
-            "updatedAt": "2025-02-18T11:52:22.289518"
-        }
-    ],
-    "pageInfo": {
-        "page": 0,
-        "size": 10,
-        "totalElements": 4,
-        "totalPages": 1,
-        "last": true
-    }
-}
-""";
-  static final String UNAUTHORIZED_RESPONSE =
-      """
-                                  {
-                                    "httpMethod": "GET",
-                                    "httpStatus": "401",
-                                    "errorCode": "UNAUTHORIZED",
-                                    "timestamp": "2025-02-23T15:32:45.123456",
-                                    "message": "로그인이 필요한 서비스입니다. 로그인 후 다시 시도해주세요.",
-                                    "path": "/api/v1/orders"
-                                  }
-                              """;
-
-  // == 에러 응답 예시 ==
-  static final String CUSTOMER_ORDER_FILTERING_ACCESS_DENIED_RESPONSE =
-      """
-                                  {
-                                    "httpMethod": "GET",
-                                    "httpStatus": "403",
-                                    "errorCode": "CUSTOMER_ORDER_FILTERING_ACCESS_DENIED",
-                                    "timestamp": "2025-02-23T15:32:45.123456",
-                                    "message": "사용자별 주문 조회 권한이 없습니다.",
-                                    "path": "/api/v1/orders"
-                                  }
-                              """;
-  static final String STORE_ORDER_FILTERING_ACCESS_DENIED_RESPONSE =
-      """
-                                  {
-                                    "httpMethod": "GET",
-                                    "httpStatus": "403",
-                                    "errorCode": "STORE_ORDER_FILTERING_ACCESS_DENIED",
-                                    "timestamp": "2025-02-23T15:32:45.123456",
-                                    "message": "가게별 주문 조회 권한이 없습니다.",
-                                    "path": "/api/v1/orders"
-                                  }
-                              """;
-
-  private OrderListOperationConstants() {}
-}
