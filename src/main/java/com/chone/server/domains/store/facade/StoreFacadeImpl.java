@@ -40,7 +40,7 @@ public class StoreFacadeImpl implements StoreFacade {
 
     switch (user.getRole()) {
       case OWNER -> {
-        if (!store.getUser().equals(user)) {
+        if (!store.getUser().getId().equals(user.getId())) {
           throw new ApiBusinessException(StoreExceptionCode.USER_OWNED_STORE_NOT_FOUND);
         }
       }
