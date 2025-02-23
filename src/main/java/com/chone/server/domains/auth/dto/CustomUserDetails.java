@@ -1,7 +1,9 @@
 package com.chone.server.domains.auth.dto;
 
+import com.chone.server.commons.exception.ApiBusinessException;
 import com.chone.server.domains.user.domain.Role;
 import com.chone.server.domains.user.domain.User;
+import com.chone.server.domains.user.exception.UserExceptionCode;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -64,6 +66,9 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
+        if (this.user.getDeletedAt() != null) {
+            throw new ApiBusinessException(UserExceptionCode.USER_DELETED);
+        }
         return user.getIsAvailable(); //false면 로그인 불가
     }
 }

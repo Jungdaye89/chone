@@ -76,6 +76,7 @@ public class SecurityConfig {
                         .requestMatchers("/","/swagger-ui/**","/v3/api-docs/**").permitAll()
                         .requestMatchers("/api/v1/users/signup").permitAll()
                         .requestMatchers("/api/v1/users/login").permitAll()
+                        .requestMatchers("/api/v1/users/{id}/activate").permitAll() //로그인 안하고 계정 활성화
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

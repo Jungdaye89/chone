@@ -2,15 +2,12 @@ package com.chone.server.domains.user.service;
 
 import com.chone.server.commons.exception.ApiBusinessException;
 import com.chone.server.commons.facade.OrderFacade;
-import com.chone.server.commons.facade.ProductFacade;
 import com.chone.server.commons.facade.ReviewFacade;
 import com.chone.server.commons.facade.StoreFacade;
 import com.chone.server.domains.auth.dto.CustomUserDetails;
 import com.chone.server.domains.order.domain.Order;
-import com.chone.server.domains.product.service.ProductService;
 import com.chone.server.domains.review.domain.Review;
 import com.chone.server.domains.store.domain.Store;
-import com.chone.server.domains.store.service.StoreService;
 import com.chone.server.domains.user.domain.Role;
 import com.chone.server.domains.user.domain.User;
 import com.chone.server.domains.user.dto.request.SignupRequestDto;
@@ -29,12 +26,21 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.catalina.Authenticator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -44,6 +50,7 @@ public class UserService {
   private final StoreFacade storeFacade;
   private final ReviewFacade reviewFacade;
   private final OrderFacade orderFacade;
+  private final AuthenticationManager authenticationManager;
 
   // 회원가입
   public void signUp(SignupRequestDto signupRequestDto) {
@@ -164,9 +171,32 @@ public class UserService {
 
   // 휴면 계정 전환
   @Transactional
-  public UserResponseDto updateStatus(Long id, CustomUserDetails currentUser) {
+  public UserResponseDto deactivateUser(Long id, CustomUserDetails currentUser) {
 
     User user = getUserWithAuthorityCheck(id, currentUser);
+    if(!user.getIsAvailable()){
+      throw new ApiBusinessException(UserExceptionCode.USER_ALREADY_DEACTIVE);
+    }
+    user.updateIsAvailable();
+    userRepository.save(user);
+
+    return UserResponseDto.fromEntity(user);
+  }
+
+  public UserResponseDto activateUser(Long id, String username, String password) {
+    // username으로 사용자 조회 (SecurityContext 사용 X)
+    User user = userRepository.findByUsernameAndDeletedAtIsNull(username)
+        .orElseThrow(() -> new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND));
+
+    // 이미 활성화된 경우 예외 발생
+    if (Boolean.TRUE.equals(user.getIsAvailable())) {
+      throw new ApiBusinessException(UserExceptionCode.USER_ALREADY_ACTIVE);
+    }
+
+    // 아이디 & 비밀번호 인증 (SecurityContext 사용 X)
+    authenticateUser(username, password);
+
+    // 계정 활성화
     user.updateIsAvailable();
     userRepository.save(user);
 
@@ -177,7 +207,10 @@ public class UserService {
   public void deleteUser(Long id, CustomUserDetails currentUser) {
 
     User user = getUserWithAuthorityCheck(id, currentUser);
-    user.updateIsAvailable();
+    //IsAvailable이 true일때 false로 변경(즉 이미 비활성화가 되어 있으면 실행 안함)
+    if(user.getIsAvailable()){
+      user.updateIsAvailable();
+    }
     user.delete(user);
 
     // 해당 유저의 가게 찾기
@@ -208,5 +241,23 @@ public class UserService {
       throw new ApiBusinessException(UserExceptionCode.USER_NOT_AUTHORITY);
     }
     return user;
+  }
+
+
+  // 아이디 & 비밀번호 인증 메서드
+  private void authenticateUser(String username, String password) {
+    UsernamePasswordAuthenticationToken authenticationToken =
+        new UsernamePasswordAuthenticationToken(username, password);
+
+    try {
+      // Spring Security의 인증 매니저를 통해 사용자 인증 시도
+      authenticationManager.authenticate(authenticationToken);
+    } catch (BadCredentialsException e) {
+      // 비밀번호가 일치하지 않는 경우 발생하는 예외 → 사용자가 잘못된 비밀번호를 입력한 경우
+      throw new ApiBusinessException(UserExceptionCode.INVALID_CREDENTIALS);
+    } catch (DisabledException e) {
+      // 계정이 비활성화된 경우라도, 활성화 API이므로 예외를 던지지 않고 통과시킴
+      log.warn("비활성화된 계정 로그인 시도: {}", username);
+    }
   }
 }

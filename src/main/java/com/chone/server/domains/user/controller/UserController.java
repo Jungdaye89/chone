@@ -3,6 +3,7 @@ package com.chone.server.domains.user.controller;
 import com.chone.server.domains.auth.dto.CustomUserDetails;
 import com.chone.server.domains.user.base.BaseResponseBody;
 import com.chone.server.domains.user.base.DataResponseBody;
+import com.chone.server.domains.user.dto.request.ActivateUserRequestDto;
 import com.chone.server.domains.user.dto.request.SignupRequestDto;
 import com.chone.server.domains.user.dto.request.UserRoleUpdateRequestDto;
 import com.chone.server.domains.user.dto.request.UserUpdateRequestDto;
@@ -326,7 +327,7 @@ public class UserController {
         .body(DataResponseBody.of(200, "유저 권한 변경 성공", "SUCCESS", userResponseDto));
   }
 
-  @Operation(summary = "계정 일시정지 API", description = "\n\n 사용자는 계정 일시정지를 한다.")
+  @Operation(summary = "계정 비활성화 API", description = "\n\n 사용자는 계정 비활성화를 한다.")
   @ApiResponses(
       value = {
         @ApiResponse(
@@ -338,13 +339,13 @@ public class UserController {
                     schema = @Schema(implementation = DataResponseBody.class),
                     examples = {
                       @ExampleObject(
-                          name = "계정 일시정지 성공",
-                          description = "사용자는 계정 일시정지 성공시 다음과 같은 응답데이터를 받는다.",
+                          name = "계정 비활성화",
+                          description = "사용자는 계정 비활성화 성공시 다음과 같은 응답데이터를 받는다.",
                           value =
                               """
                         {
                             "status": 201,
-                            "message": "계정 일시정지 성공",
+                            "message": "계정 비활성화",
                             "code": "SUCCESS",
                             "data":
                                 [
@@ -359,24 +360,79 @@ public class UserController {
                         }
                         """),
                       @ExampleObject(
-                          name = "계정 일시정지 실패",
-                          description = "사용자는 계정 일시정지 실패시 다음과 같은 응답데이터를 받는다.",
+                          name = "계정 비활성화 실패",
+                          description = "사용자는 계정 비활성화 실패시 다음과 같은 응답데이터를 받는다.",
                           value =
                               """
                         {
                             "status": 403,
-                            "message": "계정 일시정지 실패",
+                            "message": "계정 비활성화 실패",
                             "code": "FAIL"
                         }
                         """)
                     }))
       })
-  @PatchMapping("/{userId}/status")
-  public ResponseEntity<? extends DataResponseBody> updateUserStatus(
+  @PatchMapping("/{userId}/deactive")
+  public ResponseEntity<? extends DataResponseBody> deactiveUser(
       @PathVariable("userId") Long userId, @AuthenticationPrincipal CustomUserDetails currentUser) {
-    UserResponseDto updatedUserDto = userService.updateStatus(userId, currentUser);
+    UserResponseDto updatedUserDto = userService.deactivateUser(userId, currentUser);
     return ResponseEntity.status(HttpStatus.OK)
-        .body(DataResponseBody.of(200, "계정 일시정지 성공", "SUCCESS", updatedUserDto));
+        .body(DataResponseBody.of(200, "계정 비활성화", "SUCCESS", updatedUserDto));
+  }
+
+  @Operation(summary = "계정 활성화 API", description = "\n\n 사용자는 계정 활성화를 한다.")
+  @ApiResponses(
+      value = {
+        @ApiResponse(
+            responseCode = "ALL",
+            description = "성공 \n\n Success반환",
+            content =
+                @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = DataResponseBody.class),
+                    examples = {
+                      @ExampleObject(
+                          name = "계정 활성화",
+                          description = "사용자는 계정 활성화 성공시 다음과 같은 응답데이터를 받는다.",
+                          value =
+                              """
+                        {
+                            "status": 201,
+                            "message": "계정 활성화",
+                            "code": "SUCCESS",
+                            "data":
+                                [
+                                    {
+                                        "id": 1,
+                                        "username": "john_doe",
+                                        "email": "updatedjohn.doe@example.com",
+                                        "role": "USER",
+                                        "isAvailable": ture
+                                    }
+                                ]
+                        }
+                        """),
+                      @ExampleObject(
+                          name = "계정 활성화 실패",
+                          description = "사용자는 계정 활성화 실패시 다음과 같은 응답데이터를 받는다.",
+                          value =
+                              """
+                        {
+                            "status": 403,
+                            "message": "계정 활성화 실패",
+                            "code": "FAIL"
+                        }
+                        """)
+                    }))
+      })
+  @PatchMapping("/{id}/activate")
+  public ResponseEntity<? extends DataResponseBody> activateUser(
+      @PathVariable Long id,
+      @RequestBody ActivateUserRequestDto request) {
+    UserResponseDto updatedUserDto =
+        userService.activateUser(id, request.getUsername(), request.getPassword());
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(DataResponseBody.of(200, "계정 활성화", "SUCCESS", updatedUserDto));
   }
 
   @Operation(summary = "회원탈퇴 API", description = "\n\n 사용자는 회원탈퇴를 한다.")
@@ -418,7 +474,7 @@ public class UserController {
   public ResponseEntity<? extends BaseResponseBody> deleteUser(
       @PathVariable("userId") Long userId, @AuthenticationPrincipal CustomUserDetails currentUser) {
     userService.deleteUser(userId, currentUser);
-    return ResponseEntity.status(HttpStatus.CREATED)
-        .body(BaseResponseBody.of(201, "회원가입성공", "SUCCESS"));
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(BaseResponseBody.of(201, "회원탈퇴성공", "SUCCESS"));
   }
 }
