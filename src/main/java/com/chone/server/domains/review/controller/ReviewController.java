@@ -24,10 +24,12 @@ import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/reviews")
@@ -76,11 +78,13 @@ public class ReviewController {
                                 """)))
   })
   @PreAuthorize("hasRole('CUSTOMER')")
-  @PostMapping
+  @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<ReviewResponseDto> createReview(
-      @AuthenticationPrincipal CustomUserDetails principal, @RequestBody CreateRequestDto request) {
+      @AuthenticationPrincipal CustomUserDetails principal,
+      @RequestPart(value = "data") CreateRequestDto request,
+      @RequestPart(value = "file", required = false) MultipartFile file) {
 
-    ReviewResponseDto response = reviewService.createReview(request, principal.getUser());
+    ReviewResponseDto response = reviewService.createReview(request, file, principal.getUser());
 
     return ResponseEntity.ok(response);
   }
@@ -331,13 +335,14 @@ public class ReviewController {
                                 }
                                 """)))
   })
-  @PutMapping("/{id}")
+  @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<ReviewUpdateResponseDto> updateReview(
       @PathVariable("id") UUID id,
-      @Valid @RequestBody UpdateRequestDto request,
+      @RequestPart(value = "data") UpdateRequestDto request,
+      @RequestPart(value = "file", required = false) MultipartFile file,
       @AuthenticationPrincipal CustomUserDetails principal) {
 
-    ReviewUpdateResponseDto response = reviewService.updateReview(id, request, principal);
+    ReviewUpdateResponseDto response = reviewService.updateReview(id, request, file, principal);
     return ResponseEntity.ok(response);
   }
 

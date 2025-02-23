@@ -22,6 +22,7 @@ import com.chone.server.domains.review.exception.ReviewExceptionCode;
 import com.chone.server.domains.review.repository.ReviewRepository;
 import com.chone.server.domains.review.repository.ReviewSearchRepository;
 import com.chone.server.domains.review.repository.ReviewStatisticsRepository;
+import com.chone.server.domains.s3.service.S3Service;
 import com.chone.server.domains.store.domain.Store;
 import com.chone.server.domains.store.repository.StoreRepository;
 import com.chone.server.domains.user.domain.User;
@@ -36,6 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @Service
@@ -49,9 +51,10 @@ public class ReviewService {
   private final ReviewFacade reviewFacade;
   private final StoreFacade storeFacade;
   private final OrderFacade orderFacade;
+  private final S3Service s3Service;
 
   @Transactional
-  public ReviewResponseDto createReview(CreateRequestDto request, User user) {
+  public ReviewResponseDto createReview(CreateRequestDto request, MultipartFile file, User user) {
 
     Order order = orderFacade.findById(request.getOrderId());
     orderFacade.validateOrderOwnership(order, user);
@@ -68,9 +71,14 @@ public class ReviewService {
       throw new ApiBusinessException(ReviewExceptionCode.INVALID_RATING);
     }
 
+    String imageUrl = request.getImageUrl();
+    if (file != null && !file.isEmpty()) {
+      imageUrl = s3Service.uploadFile(file);
+    }
+
     Review review =
         Review.builder(order, store, user, request.getContent(), request.getRating(), true)
-            .imageUrl(request.getImageUrl())
+            .imageUrl(imageUrl)
             .build();
 
     Review savedReview = reviewRepository.save(review);
@@ -129,7 +137,8 @@ public class ReviewService {
 
   @Transactional
   public ReviewUpdateResponseDto updateReview(
-      UUID reviewId, UpdateRequestDto request, CustomUserDetails principal) {
+      UUID reviewId, UpdateRequestDto request, MultipartFile file, CustomUserDetails principal) {
+
     if (principal == null || principal.getUser() == null) {
       throw new ApiBusinessException(ReviewExceptionCode.REVIEW_UNAUTHORIZED);
     }
@@ -144,8 +153,15 @@ public class ReviewService {
       throw new ApiBusinessException(ReviewExceptionCode.REVIEW_UPDATE_EXPIRED);
     }
 
-    review.update(
-        request.getContent(), request.getRating(), request.getImageUrl(), request.getIsPublic());
+    String imageUrl = review.getImageUrl();
+    if (file != null && !file.isEmpty()) {
+      if (imageUrl != null) {
+        s3Service.removeFile(imageUrl);
+      }
+      imageUrl = s3Service.uploadFile(file);
+    }
+
+    review.update(request.getContent(), request.getRating(), imageUrl, request.getIsPublic());
 
     return new ReviewUpdateResponseDto(review.getId(), review.getUpdatedAt());
   }
