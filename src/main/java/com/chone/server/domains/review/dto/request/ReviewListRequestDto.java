@@ -59,9 +59,12 @@ public class ReviewListRequestDto {
 
   public static ReviewListRequestDto from(Map<String, String> params) {
 
+    int defaultPage = 0;
+    int defaultSize = 10;
+
     return ReviewListRequestDto.builder()
-        .page(params.containsKey("page") ? Integer.parseInt(params.get("page")) : 0)
-        .size(params.containsKey("size") ? Integer.parseInt(params.get("size")) : 10)
+        .page(params.containsKey("page") ? Integer.parseInt(params.get("page")) : defaultPage)
+        .size(params.containsKey("size") ? Integer.parseInt(params.get("size")) : defaultSize)
         .sort(params.getOrDefault("sort", "createdAt"))
         .direction(params.getOrDefault("direction", "desc"))
         .storeId(params.containsKey("storeId") ? UUID.fromString(params.get("storeId")) : null)

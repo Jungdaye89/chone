@@ -27,6 +27,7 @@ public class ReviewFacadeImpl implements ReviewFacade {
 
   @Override
   public List<Review> findAllReviews(Long userId) {
+
     return reviewRepository.findAllByUserId(userId);
   }
 
@@ -51,6 +52,7 @@ public class ReviewFacadeImpl implements ReviewFacade {
 
   @Override
   public Review findReviewById(UUID reviewId) {
+
     return reviewRepository
         .findByIdAndDeletedAtIsNull(reviewId)
         .orElseThrow(() -> new ApiBusinessException(ReviewExceptionCode.REVIEW_NOT_FOUND));
@@ -58,11 +60,13 @@ public class ReviewFacadeImpl implements ReviewFacade {
 
   @Override
   public Optional<Review> findByOrderId(UUID orderId) {
+
     return reviewRepository.findByOrderId(orderId);
   }
 
   @Override
   public void deleteReview(User user, Review review) {
+
     review.delete(user);
   }
 }
