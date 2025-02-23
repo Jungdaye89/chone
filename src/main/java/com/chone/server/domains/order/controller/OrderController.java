@@ -2,6 +2,12 @@ package com.chone.server.domains.order.controller;
 
 import com.chone.server.commons.util.UriGeneratorUtil;
 import com.chone.server.domains.auth.dto.CustomUserDetails;
+import com.chone.server.domains.order.document.CancelOrderOperation;
+import com.chone.server.domains.order.document.CreateOrderOperation;
+import com.chone.server.domains.order.document.DeleteOrderOperation;
+import com.chone.server.domains.order.document.OrderDetailOperation;
+import com.chone.server.domains.order.document.OrderListOperation;
+import com.chone.server.domains.order.document.UpdateOrderStatusOperation;
 import com.chone.server.domains.order.dto.request.CancelOrderRequest;
 import com.chone.server.domains.order.dto.request.CreateOrderRequest;
 import com.chone.server.domains.order.dto.request.OrderFilterParams;
@@ -18,6 +24,7 @@ import com.chone.server.domains.order.service.OrderCreationService;
 import com.chone.server.domains.order.service.OrderDeletionService;
 import com.chone.server.domains.order.service.OrderReadService;
 import com.chone.server.domains.order.service.OrderUpdateService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +47,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/orders")
+@Tag(name = "주문", description = "주문 API")
 public class OrderController {
   private final OrderCreationService creationService;
   private final OrderReadService readService;
@@ -49,6 +57,7 @@ public class OrderController {
 
   @PreAuthorize("hasAnyRole('CUSTOMER', 'OWNER')")
   @PostMapping
+  @CreateOrderOperation
   public ResponseEntity<CreateOrderResponse> createOrder(
       @Valid @RequestBody CreateOrderRequest requestDto,
       @AuthenticationPrincipal CustomUserDetails principal) {
@@ -59,6 +68,7 @@ public class OrderController {
   }
 
   @GetMapping
+  @OrderListOperation
   public ResponseEntity<PageResponse<OrderPageResponse>> getOrders(
       @AuthenticationPrincipal CustomUserDetails principal,
       @ModelAttribute("filterParams") OrderFilterParams filterParams,
@@ -71,6 +81,7 @@ public class OrderController {
   }
 
   @GetMapping("/{id}")
+  @OrderDetailOperation
   public ResponseEntity<OrderDetailResponse> getOrder(
       @AuthenticationPrincipal CustomUserDetails principal, @PathVariable("id") UUID id) {
     OrderDetailResponse responseDto = readService.getOrderById(principal, id);
@@ -79,6 +90,7 @@ public class OrderController {
   }
 
   @PatchMapping("/{id}")
+  @CancelOrderOperation
   public ResponseEntity<CancelOrderResponse> cancelOrder(
       @AuthenticationPrincipal CustomUserDetails principal,
       @PathVariable("id") UUID id,
@@ -90,6 +102,7 @@ public class OrderController {
 
   @PreAuthorize("hasAnyRole('MANAGER','MASTER')")
   @DeleteMapping("/{id}")
+  @DeleteOrderOperation
   public ResponseEntity<DeleteOrderResponse> deleteOrder(
       @AuthenticationPrincipal CustomUserDetails principal, @PathVariable("id") UUID id) {
     DeleteOrderResponse responseDto = deletionService.deleteOrder(principal, id);
@@ -99,6 +112,7 @@ public class OrderController {
 
   @PreAuthorize("!hasAnyRole('CUSTOMER')")
   @PatchMapping("/{id}/status")
+  @UpdateOrderStatusOperation
   public ResponseEntity<OrderStatusUpdateResponse> updateOrderStatus(
       @AuthenticationPrincipal CustomUserDetails principal,
       @PathVariable("id") UUID id,
