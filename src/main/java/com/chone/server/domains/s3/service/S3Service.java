@@ -46,7 +46,7 @@ public class S3Service {
 
   public void removeFile(String fileUrl) {
 
-    if (fileUrl == null || fileUrl.isEmpty()) {
+    if (fileUrl == null || !fileUrl.startsWith("http")) {
       return;
     }
 
