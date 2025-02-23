@@ -57,9 +57,6 @@ public class OrderCreationService {
 
     Order savedOrder = repository.save(order);
 
-    // TODO: 1. 결제
-    //       2. 배달
-
     return CreateOrderResponse.from(savedOrder);
   }
 }
