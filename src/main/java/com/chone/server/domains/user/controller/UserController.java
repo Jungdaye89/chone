@@ -76,11 +76,7 @@ public class UserController {
       })
   @PostMapping("/signup")
   public ResponseEntity<? extends BaseResponseBody> signup(
-      @Valid @RequestBody SignupRequestDto signupRequestDto, BindingResult result) {
-    if (result.hasErrors()) {
-      ResponseEntity.status(HttpStatus.BAD_REQUEST)
-          .body(BaseResponseBody.of(403, "회원가입실패", "FAIL"));
-    }
+      @Valid @RequestBody SignupRequestDto signupRequestDto) {
     userService.signUp(signupRequestDto);
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(BaseResponseBody.of(201, "회원가입성공", "SUCCESS"));
