@@ -174,7 +174,7 @@ public class UserService {
   public UserResponseDto deactivateUser(Long id, CustomUserDetails currentUser) {
 
     User user = getUserWithAuthorityCheck(id, currentUser);
-    if(!user.getIsAvailable()){
+    if (!user.getIsAvailable()) {
       throw new ApiBusinessException(UserExceptionCode.USER_ALREADY_DEACTIVE);
     }
     user.updateIsAvailable();
@@ -190,8 +190,10 @@ public class UserService {
     authenticateUser(username, password);
 
     // username으로 사용자 조회 (SecurityContext 사용 X)
-    User user = userRepository.findByUsernameAndDeletedAtIsNull(username)
-        .orElseThrow(() -> new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND));
+    User user =
+        userRepository
+            .findByUsernameAndDeletedAtIsNull(username)
+            .orElseThrow(() -> new ApiBusinessException(UserExceptionCode.USER_NOT_FOUND));
 
     // 이미 활성화된 경우 예외 발생
     if (Boolean.TRUE.equals(user.getIsAvailable())) {
@@ -209,8 +211,8 @@ public class UserService {
   public void deleteUser(Long id, CustomUserDetails currentUser) {
 
     User user = getUserWithAuthorityCheck(id, currentUser);
-    //IsAvailable이 true일때 false로 변경(즉 이미 비활성화가 되어 있으면 실행 안함)
-    if(user.getIsAvailable()){
+    // IsAvailable이 true일때 false로 변경(즉 이미 비활성화가 되어 있으면 실행 안함)
+    if (user.getIsAvailable()) {
       user.updateIsAvailable();
     }
     user.delete(user);
@@ -229,8 +231,8 @@ public class UserService {
     userOrders.forEach(order -> orderFacade.deleteOrder(user, order));
   }
 
+  // 본인, 매니저, 마스터 확인메서드
   private User getUserWithAuthorityCheck(Long id, CustomUserDetails currentUser) {
-
     User user =
         userRepository
             .findByIdAndDeletedAtIsNull(id)
@@ -244,7 +246,6 @@ public class UserService {
     }
     return user;
   }
-
 
   // 아이디 & 비밀번호 인증 메서드
   private void authenticateUser(String username, String password) {
