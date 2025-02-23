@@ -1,16 +1,19 @@
 package com.chone.server.domains.order.document;
 
+import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.BAD_REQUEST_DESCRIPTION;
 import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.CODE_BAD_REQUEST;
 import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.CODE_CONFLICT;
 import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.CODE_FORBIDDEN;
 import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.CODE_NOT_FOUND;
 import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.CODE_OK;
 import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.CODE_UNAUTHORIZED;
+import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.FORBIDDEN_DESCRIPTION;
 import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.MEDIA_TYPE;
+import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.ORDER_NOT_FOUND_DESCRIPTION;
 import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.SECURITY_REQUIREMENT;
+import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.UNAUTHORIZED_DESCRIPTION;
 import static com.chone.server.domains.order.document.constants.OrderOperationDescriptionConstants.CANCEL_DESCRIPTION;
 import static com.chone.server.domains.order.document.constants.OrderOperationDescriptionConstants.CANCEL_SUMMARY;
-import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.BAD_REQUEST_DESCRIPTION;
 import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.Cancel.FAILED_PAYMENT_NAME;
 import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.Cancel.FAILED_PAYMENT_VALUE;
 import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.Cancel.NOT_FOUND_ORDER_VALUE;
@@ -36,12 +39,9 @@ import static com.chone.server.domains.order.document.constants.OrderOperationRe
 import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.Cancel.SUCCESS_DESCRIPTION;
 import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.Cancel.SUCCESS_EXAMPLE;
 import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.Cancel.UNAUTHORIZED_VALUE;
-import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.FORBIDDEN_DESCRIPTION;
 import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.ORDER_CUSTOMER_ACCESS_DENIED_NAME;
-import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.ORDER_NOT_FOUND_DESCRIPTION;
 import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.ORDER_NOT_FOUND_NAME;
 import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.ORDER_STORE_OWNER_ACCESS_DENIED_NAME;
-import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.UNAUTHORIZED_DESCRIPTION;
 import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.UNAUTHORIZED_NAME;
 
 import com.chone.server.domains.order.dto.response.CancelOrderResponse;

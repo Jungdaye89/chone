@@ -1,5 +1,27 @@
 package com.chone.server.domains.payment.document;
 
+import static com.chone.server.domains.payment.document.constants.PaymentOperationCommonConstants.CODE_FORBIDDEN;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationCommonConstants.CODE_NOT_FOUND;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationCommonConstants.CODE_OK;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationCommonConstants.CODE_UNAUTHORIZED;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationCommonConstants.FORBIDDEN_DESCRIPTION;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationCommonConstants.MEDIA_TYPE;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationCommonConstants.Payment_NOT_FOUND_DESCRIPTION;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationCommonConstants.SECURITY_REQUIREMENT;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationCommonConstants.UNAUTHORIZED_DESCRIPTION;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationDescriptionConstants.DETAIL_DESCRIPTION;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationDescriptionConstants.DETAIL_SUMMARY;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.Detail.NOT_CUSTOMER_PAYMENT_HISTORY_NAME;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.Detail.NOT_CUSTOMER_PAYMENT_HISTORY_VALUE;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.Detail.NOT_FOUND_PAYMENT_VALUE;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.Detail.NOT_OWNER_PAYMENT_HISTORY_NAME;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.Detail.NOT_OWNER_PAYMENT_HISTORY_VALUE;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.Detail.SUCCESS_DESCRIPTION;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.Detail.SUCCESS_EXAMPLE;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.Detail.UNAUTHORIZED_VALUE;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.PAYMENT_NOT_FOUND_NAME;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.UNAUTHORIZED_NAME;
+
 import com.chone.server.domains.payment.dto.response.PaymentDetailResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -15,147 +37,49 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-@Operation(
-    summary = PaymentDetailOperationConstants.SUMMARY,
-    description = PaymentDetailOperationConstants.DESCRIPTION)
-@SecurityRequirement(name = PaymentDetailOperationConstants.SECURITY_REQUIREMENT)
+@Operation(summary = DETAIL_SUMMARY, description = DETAIL_DESCRIPTION)
+@SecurityRequirement(name = SECURITY_REQUIREMENT)
 @ApiResponses(
     value = {
       @ApiResponse(
-          responseCode = "200",
-          description = "결제 내역 조회 성공",
+          responseCode = CODE_OK,
+          description = SUCCESS_DESCRIPTION,
           content =
               @Content(
-                  mediaType = PaymentDetailOperationConstants.MEDIA_TYPE,
+                  mediaType = MEDIA_TYPE,
                   schema = @Schema(implementation = PaymentDetailResponse.class),
-                  examples =
-                      @ExampleObject(value = PaymentDetailOperationConstants.SUCCESS_EXAMPLE))),
+                  examples = @ExampleObject(value = SUCCESS_EXAMPLE))),
       @ApiResponse(
-          responseCode = "401",
-          description = "인증이 필요함",
+          responseCode = CODE_UNAUTHORIZED,
+          description = UNAUTHORIZED_DESCRIPTION,
           content =
               @Content(
-                  mediaType = PaymentDetailOperationConstants.MEDIA_TYPE,
+                  mediaType = MEDIA_TYPE,
                   examples = {
-                    @ExampleObject(
-                        name = "인증이 필요함",
-                        value = PaymentDetailOperationConstants.UNAUTHORIZED_RESPONSE)
+                    @ExampleObject(name = UNAUTHORIZED_NAME, value = UNAUTHORIZED_VALUE)
                   })),
       @ApiResponse(
-          responseCode = "404",
-          description = "결제 내역을 찾을 수 없음",
+          responseCode = CODE_NOT_FOUND,
+          description = Payment_NOT_FOUND_DESCRIPTION,
           content =
               @Content(
-                  mediaType = PaymentDetailOperationConstants.MEDIA_TYPE,
+                  mediaType = MEDIA_TYPE,
                   examples = {
-                    @ExampleObject(
-                        name = "해당 결제 내역을 찾을 수 없습니다.",
-                        value = PaymentDetailOperationConstants.NOT_FOUND_PAYMENT_RESPONSE)
+                    @ExampleObject(name = PAYMENT_NOT_FOUND_NAME, value = NOT_FOUND_PAYMENT_VALUE)
                   })),
       @ApiResponse(
-          responseCode = "403",
-          description = "접근 권한이 없음",
+          responseCode = CODE_FORBIDDEN,
+          description = FORBIDDEN_DESCRIPTION,
           content =
               @Content(
-                  mediaType = PaymentDetailOperationConstants.MEDIA_TYPE,
+                  mediaType = MEDIA_TYPE,
                   examples = {
                     @ExampleObject(
-                        name = "주문자만 결제 내역을 조회할 수 있습니다.",
-                        value =
-                            PaymentDetailOperationConstants.NOT_CUSTOMER_PAYMENT_HISTORY_RESPONSE),
+                        name = NOT_CUSTOMER_PAYMENT_HISTORY_NAME,
+                        value = NOT_CUSTOMER_PAYMENT_HISTORY_VALUE),
                     @ExampleObject(
-                        name = "해당 가게의 주인만 결제 내역을 조회할 수 있습니다.",
-                        value = PaymentDetailOperationConstants.NOT_OWNER_PAYMENT_HISTORY_RESPONSE)
+                        name = NOT_OWNER_PAYMENT_HISTORY_NAME,
+                        value = NOT_OWNER_PAYMENT_HISTORY_VALUE)
                   }))
     })
 public @interface PaymentDetailOperation {}
-
-final class PaymentDetailOperationConstants {
-  static final String SUMMARY = "결제 내역 조회 API";
-  static final String DESCRIPTION =
-      """
-- 결제 ID에 대한 결제 내역을 조회하는 API입니다.
-- 메서드: **GET**
-- 경로: /api/payments/{id}
-- 권한: 모든 역할 접근 가능 (역할별 조회 범위 제한)
-- 파라미터: id (결제 UUID)
-- 응답: 200 OK
-
-- 역할: 조회 가능 범위
-    - CUSTOMER: 자신의 결제만 조회
-    - OWNER: 자신의 매장 결제만 조회
-    - MANAGER, MASTER: 모든 결제 조회
-""";
-  static final String SECURITY_REQUIREMENT = "Bearer Authentication";
-  static final String MEDIA_TYPE = "application/json";
-
-  // == 200 OK 응답 ==
-  static final String SUCCESS_EXAMPLE =
-      """
-            {
-              "payment": {
-                "id": "123e4567-e89b-12d3-a456-426614174000",
-                "status": "COMPLETED",
-                "cancelReason": null,
-                "method": "카드"
-              },
-              "order": {
-                "id": "123e4567-e89b-12d3-a456-426614174001",
-                "totalPrice": 15000,
-                "type": "포장",
-                "userId": 12345,
-                "storeId": "123e4567-e89b-12d3-a456-426614174002",
-                "storeName": "맛있는 식당"
-              }
-            }
-        """;
-
-  // == 에러 응답 예시 ==
-  static final String UNAUTHORIZED_RESPONSE =
-      """
-                                  {
-                                    "httpMethod": "PATCH",
-                                    "httpStatus": "401",
-                                    "errorCode": "UNAUTHORIZED",
-                                    "timestamp": "2025-02-23T15:32:45.123456",
-                                    "message": "로그인이 필요한 서비스입니다. 로그인 후 다시 시도해주세요.",
-                                    "path": "/api/v1/orders/{id}"
-                                  }
-                              """;
-
-  static final String NOT_FOUND_PAYMENT_RESPONSE =
-      """
-            {
-                "httpMethod": "GET",
-                "httpStatus": "404",
-                "errorCode": "NOT_FOUND_PAYMENT",
-                "timestamp": "2025-02-23T15:32:45.123456",
-                "message": "해당 결제 내역을 찾을 수 없습니다.",
-                "path": "/api/v1/payments/{id}"
-            }
-            """;
-
-  static final String NOT_CUSTOMER_PAYMENT_HISTORY_RESPONSE =
-      """
-            {
-                "httpMethod": "GET",
-                "httpStatus": "403",
-                "errorCode": "NOT_CUSTOMER_PAYMENT_HISTORY",
-                "timestamp": "2025-02-23T15:32:45.123456",
-                "message": "주문자만 결제 내역을 조회할 수 있습니다.",
-                "path": "/api/v1/payments/{id}"
-            }
-            """;
-
-  static final String NOT_OWNER_PAYMENT_HISTORY_RESPONSE =
-      """
-            {
-                "httpMethod": "GET",
-                "httpStatus": "403",
-                "errorCode": "NOT_OWNER_PAYMENT_HISTORY",
-                "timestamp": "2025-02-23T15:32:45.123456",
-                "message": "해당 가게의 주인만 결제 내역을 조회할 수 있습니다.",
-                "path": "/api/v1/payments/{id}"
-            }
-            """;
-}

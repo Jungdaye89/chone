@@ -1,5 +1,36 @@
 package com.chone.server.domains.payment.document;
 
+import static com.chone.server.domains.payment.document.constants.PaymentOperationCommonConstants.BAD_REQUEST_DESCRIPTION;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationCommonConstants.CODE_BAD_REQUEST;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationCommonConstants.CODE_CONFLICT;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationCommonConstants.CODE_CREATED;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationCommonConstants.CODE_FORBIDDEN;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationCommonConstants.CODE_NOT_FOUND;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationCommonConstants.CODE_UNAUTHORIZED;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationCommonConstants.CONFLICT_DESCRIPTION;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationCommonConstants.FORBIDDEN_DESCRIPTION;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationCommonConstants.MEDIA_TYPE;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationCommonConstants.ORDER_NOT_FOUND_DESCRIPTION;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationCommonConstants.SECURITY_REQUIREMENT;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationDescriptionConstants.CREATE_DESCRIPTION;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationDescriptionConstants.CREATE_SUMMARY;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.Create.ALREADY_PAID_NAME;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.Create.ALREADY_PAID_VALUE;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.Create.CANCELED_ORDER_NAME;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.Create.CANCELED_ORDER_VALUE;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.Create.NOT_ALLOW_PAY_ONLINE_ORDER_NAME;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.Create.NOT_ALLOW_PAY_ONLINE_ORDER_VALUE;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.Create.NOT_CUSTOMER_PAYMENT_NAME;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.Create.NOT_CUSTOMER_PAYMENT_VALUE;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.Create.NOT_FOUND_ORDER_NAME;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.Create.NOT_FOUND_ORDER_VALUE;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.Create.PRICE_MISMATCH_NAME;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.Create.PRICE_MISMATCH_VALUE;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.Create.SUCCESS_DESCRIPTION;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.Create.SUCCESS_EXAMPLE;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.Create.UNAUTHORIZED_VALUE;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.UNAUTHORIZED_NAME;
+
 import com.chone.server.domains.payment.dto.response.CreatePaymentResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -15,197 +46,68 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-@Operation(
-    summary = CreatePaymentOperationConstants.SUMMARY,
-    description = CreatePaymentOperationConstants.DESCRIPTION)
-@SecurityRequirement(name = CreatePaymentOperationConstants.SECURITY_REQUIREMENT)
+@Operation(summary = CREATE_SUMMARY, description = CREATE_DESCRIPTION)
+@SecurityRequirement(name = SECURITY_REQUIREMENT)
 @ApiResponses(
     value = {
       @ApiResponse(
-          responseCode = CreatePaymentOperationConstants.SUCCESS_RESPONSE_CODE,
-          description = "결제 생성 성공",
+          responseCode = CODE_CREATED,
+          description = SUCCESS_DESCRIPTION,
           content =
               @Content(
-                  mediaType = CreatePaymentOperationConstants.MEDIA_TYPE,
+                  mediaType = MEDIA_TYPE,
                   schema = @Schema(implementation = CreatePaymentResponse.class),
-                  examples =
-                      @ExampleObject(value = CreatePaymentOperationConstants.SUCCESS_EXAMPLE))),
+                  examples = @ExampleObject(value = SUCCESS_EXAMPLE))),
       @ApiResponse(
-          responseCode = "401",
+          responseCode = CODE_UNAUTHORIZED,
           description = "인증이 필요함",
           content =
               @Content(
-                  mediaType = CreatePaymentOperationConstants.MEDIA_TYPE,
+                  mediaType = MEDIA_TYPE,
                   examples = {
-                    @ExampleObject(
-                        name = "인증이 필요함",
-                        value = CreatePaymentOperationConstants.UNAUTHORIZED_RESPONSE)
+                    @ExampleObject(name = UNAUTHORIZED_NAME, value = UNAUTHORIZED_VALUE)
                   })),
       @ApiResponse(
-          responseCode = "404",
-          description = "주문을 찾을 수 없음",
+          responseCode = CODE_NOT_FOUND,
+          description = ORDER_NOT_FOUND_DESCRIPTION,
           content =
               @Content(
-                  mediaType = CreatePaymentOperationConstants.MEDIA_TYPE,
+                  mediaType = MEDIA_TYPE,
                   examples = {
-                    @ExampleObject(
-                        name = "해당 주문을 찾을 수 없습니다.",
-                        value = CreatePaymentOperationConstants.NOT_FOUND_ORDER_RESPONSE)
+                    @ExampleObject(name = NOT_FOUND_ORDER_NAME, value = NOT_FOUND_ORDER_VALUE)
                   })),
       @ApiResponse(
-          responseCode = "409",
-          description = "이미 결제가 진행된 주문입니다.",
+          responseCode = CODE_CONFLICT,
+          description = CONFLICT_DESCRIPTION,
           content =
               @Content(
-                  mediaType = CreatePaymentOperationConstants.MEDIA_TYPE,
+                  mediaType = MEDIA_TYPE,
                   examples = {
-                    @ExampleObject(
-                        name = "이미 결제가 진행된 주문입니다.",
-                        value = CreatePaymentOperationConstants.ALREADY_PAID_RESPONSE)
+                    @ExampleObject(name = ALREADY_PAID_NAME, value = ALREADY_PAID_VALUE)
                   })),
       @ApiResponse(
-          responseCode = "400",
-          description = "잘못된 요청",
+          responseCode = CODE_BAD_REQUEST,
+          description = BAD_REQUEST_DESCRIPTION,
           content =
               @Content(
-                  mediaType = CreatePaymentOperationConstants.MEDIA_TYPE,
+                  mediaType = MEDIA_TYPE,
                   examples = {
-                    @ExampleObject(
-                        name = "취소된 주문은 결제할 수 없습니다.",
-                        value = CreatePaymentOperationConstants.CANCELED_ORDER_RESPONSE),
-                    @ExampleObject(
-                        name = "결제 금액이 주문 금액과 일치하지 않습니다.",
-                        value = CreatePaymentOperationConstants.PRICE_MISMATCH_RESPONSE)
+                    @ExampleObject(name = CANCELED_ORDER_NAME, value = CANCELED_ORDER_VALUE),
+                    @ExampleObject(name = PRICE_MISMATCH_NAME, value = PRICE_MISMATCH_VALUE)
                   })),
       @ApiResponse(
-          responseCode = "403",
-          description = "접근 권한이 없음",
+          responseCode = CODE_FORBIDDEN,
+          description = FORBIDDEN_DESCRIPTION,
           content =
               @Content(
-                  mediaType = CreatePaymentOperationConstants.MEDIA_TYPE,
+                  mediaType = MEDIA_TYPE,
                   examples = {
                     @ExampleObject(
-                        name = "고객은 현장 결제에 대한 결제 권한이 없습니다.",
-                        value =
-                            CreatePaymentOperationConstants.NOT_ALLOW_PAY_ONLINE_ORDER_RESPONSE),
+                        name = NOT_ALLOW_PAY_ONLINE_ORDER_NAME,
+                        value = NOT_ALLOW_PAY_ONLINE_ORDER_VALUE),
                     @ExampleObject(
-                        name = "주문자만 결제할 수 있습니다.",
-                        value = CreatePaymentOperationConstants.NOT_CUSTOMER_PAYMENT_RESPONSE)
+                        name = NOT_CUSTOMER_PAYMENT_NAME,
+                        value = NOT_CUSTOMER_PAYMENT_VALUE)
                   }))
     })
 public @interface CreatePaymentOperation {}
-
-final class CreatePaymentOperationConstants {
-  static final String SUMMARY = "결제 생성 API";
-  static final String DESCRIPTION =
-      """
-- 주문에 대한 결제를 생성하는 API입니다.
-    - 메서드: **POST**
-    - 경로: /api/v1/payments
-    - 권한: `CUSTOMER`, `OWNER`, `MANAGER`, `MASTER` 역할 접근 가능
-    - 요청: `CreatePaymentRequest` (검증 어노테이션 적용)
-    - 응답: 201 Created
-    - Location 헤더: 생성된 결제 리소스 URI
-""";
-  static final String SECURITY_REQUIREMENT = "Bearer Authentication";
-  static final String MEDIA_TYPE = "application/json";
-
-  // == 201 Created 응답 ==
-  static final String SUCCESS_RESPONSE_CODE = "201";
-  static final String SUCCESS_EXAMPLE =
-      """
-            {
-              "id": "123e4567-e89b-12d3-a456-426614174000",
-              "orderId": "123e4567-e89b-12d3-a456-426614174000",
-              "totalPrice": 15000,
-              "status": "COMPLETED",
-              "paymentMethod": "CARD",
-              "createdAt": "2024-02-12T15:30:00"
-            }
-            """;
-
-  // == 에러 응답 예시 ==
-  static final String UNAUTHORIZED_RESPONSE =
-      """
-            {
-                "httpMethod": "POST",
-                "httpStatus": "401",
-                "errorCode": "UNAUTHORIZED",
-                "timestamp": "2025-02-23T15:32:45.123456",
-                "message": "로그인이 필요한 서비스입니다. 로그인 후 다시 시도해주세요.",
-                "path": "/api/v1/payments"
-            }
-            """;
-
-  static final String NOT_FOUND_ORDER_RESPONSE =
-      """
-            {
-                "httpMethod": "POST",
-                "httpStatus": "404",
-                "errorCode": "NOT_FOUND_ORDER",
-                "timestamp": "2025-02-23T15:32:45.123456",
-                "message": "해당 주문을 찾을 수 없습니다.",
-                "path": "/api/v1/payments"
-            }
-            """;
-
-  static final String ALREADY_PAID_RESPONSE =
-      """
-            {
-                "httpMethod": "POST",
-                "httpStatus": "409",
-                "errorCode": "ALREADY_PAID",
-                "timestamp": "2025-02-23T15:32:45.123456",
-                "message": "이미 결제가 진행된 주문입니다.",
-                "path": "/api/v1/payments"
-            }
-            """;
-
-  static final String CANCELED_ORDER_RESPONSE =
-      """
-            {
-                "httpMethod": "POST",
-                "httpStatus": "400",
-                "errorCode": "CANCELED_ORDER",
-                "timestamp": "2025-02-23T15:32:45.123456",
-                "message": "취소된 주문은 결제할 수 없습니다.",
-                "path": "/api/v1/payments"
-            }
-            """;
-
-  static final String PRICE_MISMATCH_RESPONSE =
-      """
-            {
-                "httpMethod": "POST",
-                "httpStatus": "400",
-                "errorCode": "PRICE_MISMATCH",
-                "timestamp": "2025-02-23T15:32:45.123456",
-                "message": "결제 금액이 주문 금액과 일치하지 않습니다.",
-                "path": "/api/v1/payments"
-            }
-            """;
-
-  static final String NOT_ALLOW_PAY_ONLINE_ORDER_RESPONSE =
-      """
-            {
-                "httpMethod": "POST",
-                "httpStatus": "403",
-                "errorCode": "NOT_ALLOW_PAY_ONLINE_ORDER",
-                "timestamp": "2025-02-23T15:32:45.123456",
-                "message": "고객은 현장 결제에 대한 결제 권한이 없습니다.",
-                "path": "/api/v1/payments"
-            }
-            """;
-
-  static final String NOT_CUSTOMER_PAYMENT_RESPONSE =
-      """
-            {
-                "httpMethod": "POST",
-                "httpStatus": "403",
-                "errorCode": "NOT_CUSTOMER_PAYMENT",
-                "timestamp": "2025-02-23T15:32:45.123456",
-                "message": "주문자만 결제할 수 있습니다.",
-                "path": "/api/v1/payments"
-            }
-            """;
-}

@@ -5,6 +5,8 @@ import static com.chone.server.domains.order.document.constants.OrderOperationCo
 import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.CODE_OK;
 import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.CODE_UNAUTHORIZED;
 import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.MEDIA_TYPE;
+import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.ORDER_NOT_FOUND_DESCRIPTION;
+import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.UNAUTHORIZED_DESCRIPTION;
 import static com.chone.server.domains.order.document.constants.OrderOperationDescriptionConstants.DELETE_DESCRIPTION;
 import static com.chone.server.domains.order.document.constants.OrderOperationDescriptionConstants.DELETE_SUMMARY;
 import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.Delete.NOT_FOUND_ORDER_VALUE;
@@ -13,9 +15,7 @@ import static com.chone.server.domains.order.document.constants.OrderOperationRe
 import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.Delete.SUCCESS_DESCRIPTION;
 import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.Delete.SUCCESS_EXAMPLE;
 import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.Delete.UNAUTHORIZED_VALUE;
-import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.ORDER_NOT_FOUND_DESCRIPTION;
 import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.ORDER_NOT_FOUND_NAME;
-import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.UNAUTHORIZED_DESCRIPTION;
 import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.UNAUTHORIZED_NAME;
 
 import com.chone.server.domains.order.document.constants.OrderOperationCommonConstants;

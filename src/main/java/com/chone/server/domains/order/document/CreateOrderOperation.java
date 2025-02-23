@@ -1,14 +1,15 @@
 package com.chone.server.domains.order.document;
 
+import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.BAD_REQUEST_DESCRIPTION;
 import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.CODE_BAD_REQUEST;
 import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.CODE_CREATED;
 import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.CODE_FORBIDDEN;
 import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.CODE_UNAUTHORIZED;
+import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.FORBIDDEN_DESCRIPTION;
 import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.MEDIA_TYPE;
 import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.SECURITY_REQUIREMENT;
 import static com.chone.server.domains.order.document.constants.OrderOperationDescriptionConstants.CREATE_DESCRIPTION;
 import static com.chone.server.domains.order.document.constants.OrderOperationDescriptionConstants.CREATE_SUMMARY;
-import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.BAD_REQUEST_DESCRIPTION;
 import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.Create.MISSING_DELIVERY_ADDRESS_NAME;
 import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.Create.MISSING_DELIVERY_ADDRESS_VALUE;
 import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.Create.MISSING_ORDER_ITEMS_NAME;
@@ -23,7 +24,6 @@ import static com.chone.server.domains.order.document.constants.OrderOperationRe
 import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.Create.SUCCESS_DESCRIPTION;
 import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.Create.SUCCESS_EXAMPLE;
 import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.Create.UNAUTHORIZED_VALUE;
-import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.FORBIDDEN_DESCRIPTION;
 import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.ORDER_STORE_OWNER_ACCESS_DENIED_NAME;
 import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.UNAUTHORIZED_NAME;
 

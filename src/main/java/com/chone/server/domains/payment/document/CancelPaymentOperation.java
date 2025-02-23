@@ -1,5 +1,48 @@
 package com.chone.server.domains.payment.document;
 
+import static com.chone.server.domains.payment.document.constants.PaymentOperationCommonConstants.BAD_REQUEST_DESCRIPTION;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationCommonConstants.CODE_BAD_REQUEST;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationCommonConstants.CODE_CONFLICT;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationCommonConstants.CODE_FORBIDDEN;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationCommonConstants.CODE_INTERNAL_SERVER_ERROR;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationCommonConstants.CODE_NOT_FOUND;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationCommonConstants.CODE_OK;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationCommonConstants.CODE_SERVICE_UNAVAILABLE;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationCommonConstants.CODE_UNAUTHORIZED;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationCommonConstants.CONFLICT_DESCRIPTION;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationCommonConstants.FORBIDDEN_DESCRIPTION;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationCommonConstants.INTERNAL_SERVER_ERROR_DESCRIPTION;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationCommonConstants.MEDIA_TYPE;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationCommonConstants.NOT_FOUND_DESCRIPTION;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationCommonConstants.SECURITY_REQUIREMENT;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationCommonConstants.SERVICE_UNAVAILABLE_DESCRIPTION;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationCommonConstants.UNAUTHORIZED_DESCRIPTION;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationDescriptionConstants.CANCEL_DESCRIPTION;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationDescriptionConstants.CANCEL_SUMMARY;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.CUSTOMER_ACCESS_DENIED_NAME;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.Cancel.CANCEL_PERMISSION_DENIED_NAME;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.Cancel.CANCEL_PERMISSION_DENIED_VALUE;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.Cancel.FAILED_PAYMENT_NAME;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.Cancel.FAILED_PAYMENT_VALUE;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.Cancel.NOT_FOUND_PAYMENT_VALUE;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.Cancel.ORDER_CUSTOMER_ACCESS_DENIED_VALUE;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.Cancel.ORDER_NOT_CANCELABLE_NAME;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.Cancel.ORDER_NOT_CANCELABLE_VALUE;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.Cancel.ORDER_STORE_OWNER_ACCESS_DENIED_VALUE;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.Cancel.PAYMENT_ALREADY_CANCELED_NAME;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.Cancel.PAYMENT_ALREADY_CANCELED_VALUE;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.Cancel.PAYMENT_CANCELLATION_ERROR_NAME;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.Cancel.PAYMENT_CANCELLATION_ERROR_VALUE;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.Cancel.PAYMENT_CANCELLATION_FAILED_VALUE;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.Cancel.PAYMENT_CANCELLATION_IN_PROGRESS_NAME;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.Cancel.PAYMENT_CANCELLATION_IN_PROGRESS_VALUE;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.Cancel.SUCCESS_DESCRIPTION;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.Cancel.SUCCESS_EXAMPLE;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.Cancel.UNAUTHORIZED_VALUE;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.PAYMENT_NOT_FOUND_NAME;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.STORE_OWNER_ACCESS_DENIED_NAME;
+import static com.chone.server.domains.payment.document.constants.PaymentOperationResponseConstants.UNAUTHORIZED_NAME;
+
 import com.chone.server.domains.payment.dto.response.CancelPaymentResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -15,279 +58,96 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-@Operation(
-    summary = CancelPaymentOperationConstants.SUMMARY,
-    description = CancelPaymentOperationConstants.DESCRIPTION)
-@SecurityRequirement(name = CancelPaymentOperationConstants.SECURITY_REQUIREMENT)
+@Operation(summary = CANCEL_SUMMARY, description = CANCEL_DESCRIPTION)
+@SecurityRequirement(name = SECURITY_REQUIREMENT)
 @ApiResponses(
     value = {
       @ApiResponse(
-          responseCode = "200",
-          description = "결제 취소 성공",
+          responseCode = CODE_OK,
+          description = SUCCESS_DESCRIPTION,
           content =
               @Content(
-                  mediaType = CancelPaymentOperationConstants.MEDIA_TYPE,
+                  mediaType = MEDIA_TYPE,
                   schema = @Schema(implementation = CancelPaymentResponse.class),
-                  examples =
-                      @ExampleObject(value = CancelPaymentOperationConstants.SUCCESS_EXAMPLE))),
+                  examples = @ExampleObject(value = SUCCESS_EXAMPLE))),
       @ApiResponse(
-          responseCode = "404",
-          description = "결제 내역을 찾을 수 없음",
+          responseCode = CODE_NOT_FOUND,
+          description = NOT_FOUND_DESCRIPTION,
           content =
               @Content(
-                  mediaType = CancelPaymentOperationConstants.MEDIA_TYPE,
+                  mediaType = MEDIA_TYPE,
                   examples = {
-                    @ExampleObject(
-                        name = "해당 결제 내역을 찾을 수 없습니다.",
-                        value = CancelPaymentOperationConstants.NOT_FOUND_PAYMENT_RESPONSE)
+                    @ExampleObject(name = PAYMENT_NOT_FOUND_NAME, value = NOT_FOUND_PAYMENT_VALUE)
                   })),
       @ApiResponse(
-          responseCode = "401",
-          description = "인증이 필요함",
+          responseCode = CODE_UNAUTHORIZED,
+          description = UNAUTHORIZED_DESCRIPTION,
           content =
               @Content(
-                  mediaType = CancelPaymentOperationConstants.MEDIA_TYPE,
+                  mediaType = MEDIA_TYPE,
                   examples = {
-                    @ExampleObject(
-                        name = "인증이 필요함",
-                        value = CancelPaymentOperationConstants.UNAUTHORIZED_RESPONSE)
+                    @ExampleObject(name = UNAUTHORIZED_NAME, value = UNAUTHORIZED_VALUE)
                   })),
       @ApiResponse(
-          responseCode = "403",
-          description = "접근 권한이 없음",
+          responseCode = CODE_FORBIDDEN,
+          description = FORBIDDEN_DESCRIPTION,
           content =
               @Content(
-                  mediaType = CancelPaymentOperationConstants.MEDIA_TYPE,
+                  mediaType = MEDIA_TYPE,
                   examples = {
                     @ExampleObject(
-                        name = "접근 권한이 없습니다. 해당 주문의 소유자가 아닙니다.",
-                        value =
-                            CancelPaymentOperationConstants.ORDER_CUSTOMER_ACCESS_DENIED_RESPONSE),
+                        name = CUSTOMER_ACCESS_DENIED_NAME,
+                        value = ORDER_CUSTOMER_ACCESS_DENIED_VALUE),
                     @ExampleObject(
-                        name = "접근 권한이 없습니다. 해당 매장의 소유자가 아닙니다.",
-                        value =
-                            CancelPaymentOperationConstants
-                                .ORDER_STORE_OWNER_ACCESS_DENIED_RESPONSE),
+                        name = STORE_OWNER_ACCESS_DENIED_NAME,
+                        value = ORDER_STORE_OWNER_ACCESS_DENIED_VALUE),
                     @ExampleObject(
-                        name = "결제 취소 권한이 없습니다.",
-                        value = CancelPaymentOperationConstants.CANCEL_PERMISSION_DENIED_RESPONSE)
+                        name = CANCEL_PERMISSION_DENIED_NAME,
+                        value = CANCEL_PERMISSION_DENIED_VALUE)
                   })),
       @ApiResponse(
-          responseCode = "409",
-          description = "이미 취소된 결제입니다.",
+          responseCode = CODE_CONFLICT,
+          description = CONFLICT_DESCRIPTION,
           content =
               @Content(
-                  mediaType = CancelPaymentOperationConstants.MEDIA_TYPE,
+                  mediaType = MEDIA_TYPE,
                   examples = {
                     @ExampleObject(
-                        name = "이미 취소된 결제입니다.",
-                        value = CancelPaymentOperationConstants.PAYMENT_ALREADY_CANCELED_RESPONSE)
+                        name = PAYMENT_ALREADY_CANCELED_NAME,
+                        value = PAYMENT_ALREADY_CANCELED_VALUE)
                   })),
       @ApiResponse(
-          responseCode = "400",
-          description = "잘못된 요청",
+          responseCode = CODE_BAD_REQUEST,
+          description = BAD_REQUEST_DESCRIPTION,
           content =
               @Content(
-                  mediaType = CancelPaymentOperationConstants.MEDIA_TYPE,
+                  mediaType = MEDIA_TYPE,
+                  examples = {
+                    @ExampleObject(name = FAILED_PAYMENT_NAME, value = FAILED_PAYMENT_VALUE),
+                    @ExampleObject(
+                        name = ORDER_NOT_CANCELABLE_NAME,
+                        value = ORDER_NOT_CANCELABLE_VALUE)
+                  })),
+      @ApiResponse(
+          responseCode = CODE_SERVICE_UNAVAILABLE,
+          description = SERVICE_UNAVAILABLE_DESCRIPTION,
+          content =
+              @Content(
+                  mediaType = MEDIA_TYPE,
                   examples = {
                     @ExampleObject(
-                        name = "실패된 결제입니다(결제된 적이 없습니다).",
-                        value = CancelPaymentOperationConstants.FAILED_PAYMENT_RESPONSE),
+                        name = PAYMENT_CANCELLATION_IN_PROGRESS_NAME,
+                        value = PAYMENT_CANCELLATION_IN_PROGRESS_VALUE),
                     @ExampleObject(
-                        name = "주문이 취소될 수 없어 결제를 취소할 수 없습니다.",
-                        value = CancelPaymentOperationConstants.ORDER_NOT_CANCELABLE_RESPONSE)
+                        name = PAYMENT_CANCELLATION_ERROR_NAME,
+                        value = PAYMENT_CANCELLATION_ERROR_VALUE)
                   })),
       @ApiResponse(
-          responseCode = "503",
-          description = "서비스가 사용 불가능",
+          responseCode = CODE_INTERNAL_SERVER_ERROR,
+          description = INTERNAL_SERVER_ERROR_DESCRIPTION,
           content =
               @Content(
-                  mediaType = CancelPaymentOperationConstants.MEDIA_TYPE,
-                  examples = {
-                    @ExampleObject(
-                        name = "결제 취소가 진행 중입니다. 잠시 후 다시 시도해주세요.",
-                        value =
-                            CancelPaymentOperationConstants
-                                .PAYMENT_CANCELLATION_IN_PROGRESS_RESPONSE),
-                    @ExampleObject(
-                        name = "결제 취소 요청이 거부되었습니다.",
-                        value =
-                            CancelPaymentOperationConstants.PAYMENT_CANCELLATION_FAILED_RESPONSE)
-                  })),
-      @ApiResponse(
-          responseCode = "500",
-          description = "서버 오류",
-          content =
-              @Content(
-                  mediaType = CancelPaymentOperationConstants.MEDIA_TYPE,
-                  examples =
-                      @ExampleObject(
-                          value =
-                              CancelPaymentOperationConstants.PAYMENT_CANCELLATION_ERROR_RESPONSE)))
+                  mediaType = MEDIA_TYPE,
+                  examples = @ExampleObject(value = PAYMENT_CANCELLATION_FAILED_VALUE)))
     })
 public @interface CancelPaymentOperation {}
-
-final class CancelPaymentOperationConstants {
-  static final String SUMMARY = "결제 취소 API";
-  static final String DESCRIPTION =
-      """
-- 결제를 취소할 수 있는 API입니다.
-    - 메서드: **PATCH**
-    - 경로: /api/v1/payments/{id}
-    - 권한: `CUSTOMER`, `OWNER`, `MANAGER`, `MASTER` 역할 접근 가능
-    - 요청: `CancelPaymentRequest` (검증 어노테이션 적용)
-    - 응답: 200 OK + `CancelPaymentResponse`
-
-- 역할: 취소 가능 범위
-    - `CUSTOMER`: 자신의 결제만 취소 가능
-    - `OWNER`: 자신의 매장 결제만 취소 가능
-    - `MANAGER`, `MASTER`: 모든 결제 취소 가능
-""";
-  static final String SECURITY_REQUIREMENT = "Bearer Authentication";
-  static final String MEDIA_TYPE = "application/json";
-
-  // == 200 OK 응답 ==
-  static final String SUCCESS_EXAMPLE =
-      """
-{
-  "isSuccess": true,
-  "status": "결제 취소됨",
-  "cancelRequestedAt": "2024-02-21T15:30:00Z"
-}
-            """;
-
-  // == 에러 응답 예시 ==
-  static final String UNAUTHORIZED_RESPONSE =
-      """
-                                      {
-                                        "httpMethod": "PATCH",
-                                        "httpStatus": "401",
-                                        "errorCode": "UNAUTHORIZED",
-                                        "timestamp": "2025-02-23T15:32:45.123456",
-                                        "message": "로그인이 필요한 서비스입니다. 로그인 후 다시 시도해주세요.",
-                                        "path": "/api/v1/orders/{id}"
-                                      }
-                                  """;
-  static final String NOT_FOUND_PAYMENT_RESPONSE =
-      """
-            {
-                "httpMethod": "PATCH",
-                "httpStatus": "404",
-                "errorCode": "NOT_FOUND_PAYMENT",
-                "timestamp": "2025-02-23T15:32:45.123456",
-                "message": "해당 결제 내역을 찾을 수 없습니다.",
-                "path": "/api/v1/payments/{id}"
-            }
-            """;
-
-  static final String ORDER_CUSTOMER_ACCESS_DENIED_RESPONSE =
-      """
-            {
-                "httpMethod": "PATCH",
-                "httpStatus": "403",
-                "errorCode": "ORDER_CUSTOMER_ACCESS_DENIED",
-                "timestamp": "2025-02-23T15:32:45.123456",
-                "message": "접근 권한이 없습니다. 해당 주문의 소유자가 아닙니다.",
-                "path": "/api/v1/payments/{id}"
-            }
-            """;
-
-  static final String ORDER_STORE_OWNER_ACCESS_DENIED_RESPONSE =
-      """
-            {
-                "httpMethod": "PATCH",
-                "httpStatus": "403",
-                "errorCode": "ORDER_STORE_OWNER_ACCESS_DENIED",
-                "timestamp": "2025-02-23T15:32:45.123456",
-                "message": "접근 권한이 없습니다. 해당 매장의 소유자가 아닙니다.",
-                "path": "/api/v1/payments/{id}"
-            }
-            """;
-
-  static final String CANCEL_PERMISSION_DENIED_RESPONSE =
-      """
-            {
-                "httpMethod": "PATCH",
-                "httpStatus": "403",
-                "errorCode": "CANCEL_PERMISSION_DENIED",
-                "timestamp": "2025-02-23T15:32:45.123456",
-                "message": "결제 취소 권한이 없습니다.",
-                "path": "/api/v1/payments/{id}"
-            }
-            """;
-
-  static final String PAYMENT_ALREADY_CANCELED_RESPONSE =
-      """
-            {
-                "httpMethod": "PATCH",
-                "httpStatus": "409",
-                "errorCode": "PAYMENT_ALREADY_CANCELED",
-                "timestamp": "2025-02-23
-            "httpStatus": "409",
-            "errorCode": "PAYMENT_ALREADY_CANCELED",
-            "timestamp": "2025-02-23T15:32:45.123456",
-            "message": "이미 취소된 결제입니다.",
-            "path": "/api/v1/payments/{id}"
-        }
-        """;
-
-  static final String FAILED_PAYMENT_RESPONSE =
-      """
-            {
-                "httpMethod": "PATCH",
-                "httpStatus": "400",
-                "errorCode": "FAILED_PAYMENT",
-                "timestamp": "2025-02-23T15:32:45.123456",
-                "message": "실패된 결제입니다(결제된 적이 없습니다).",
-                "path": "/api/v1/payments/{id}"
-            }
-            """;
-
-  static final String ORDER_NOT_CANCELABLE_RESPONSE =
-      """
-            {
-                "httpMethod": "PATCH",
-                "httpStatus": "400",
-                "errorCode": "ORDER_NOT_CANCELABLE",
-                "timestamp": "2025-02-23T15:32:45.123456",
-                "message": "주문이 취소될 수 없어 결제를 취소할 수 없습니다.",
-                "path": "/api/v1/payments/{id}"
-            }
-            """;
-
-  static final String PAYMENT_CANCELLATION_IN_PROGRESS_RESPONSE =
-      """
-            {
-                "httpMethod": "PATCH",
-                "httpStatus": "503",
-                "errorCode": "PAYMENT_CANCELLATION_IN_PROGRESS",
-                "timestamp": "2025-02-23T15:32:45.123456",
-                "message": "결제 취소가 진행 중입니다. 잠시 후 다시 시도해주세요.",
-                "path": "/api/v1/payments/{id}"
-            }
-            """;
-
-  static final String PAYMENT_CANCELLATION_ERROR_RESPONSE =
-      """
-            {
-                "httpMethod": "PATCH",
-                "httpStatus": "500",
-                "errorCode": "PAYMENT_CANCELLATION_ERROR",
-                "timestamp": "2025-02-23T15:32:45.123456",
-                "message": "결제 취소 처리 중 오류가 발생했습니다.",
-                "path": "/api/v1/payments/{id}"
-            }
-            """;
-
-  static final String PAYMENT_CANCELLATION_FAILED_RESPONSE =
-      """
-            {
-                "httpMethod": "PATCH",
-                "httpStatus": "503",
-                "errorCode": "PAYMENT_CANCELLATION_FAILED",
-                "timestamp": "2025-02-23T15:32:45.123456",
-                "message": "결제 취소 요청이 거부되었습니다.",
-                "path": "/api/v1/payments/{id}"
-            }
-            """;
-}

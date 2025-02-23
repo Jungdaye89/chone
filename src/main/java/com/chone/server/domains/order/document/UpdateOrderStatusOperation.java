@@ -1,21 +1,21 @@
 package com.chone.server.domains.order.document;
 
+import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.BAD_REQUEST_DESCRIPTION;
 import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.CODE_BAD_REQUEST;
 import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.CODE_CONFLICT;
 import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.CODE_FORBIDDEN;
 import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.CODE_NOT_FOUND;
 import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.CODE_OK;
 import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.CODE_UNAUTHORIZED;
+import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.CONFLICT_DESCRIPTION;
+import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.FORBIDDEN_DESCRIPTION;
 import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.MEDIA_TYPE;
+import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.ORDER_NOT_FOUND_DESCRIPTION;
 import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.SECURITY_REQUIREMENT;
+import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.UNAUTHORIZED_DESCRIPTION;
 import static com.chone.server.domains.order.document.constants.OrderOperationDescriptionConstants.UPDATE_DESCRIPTION;
 import static com.chone.server.domains.order.document.constants.OrderOperationDescriptionConstants.UPDATE_STATUS_SUMMARY;
-import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.BAD_REQUEST_DESCRIPTION;
-import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.CONFLICT_DESCRIPTION;
-import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.FORBIDDEN_DESCRIPTION;
-import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.ORDER_NOT_FOUND_DESCRIPTION;
 import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.ORDER_NOT_FOUND_NAME;
-import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.UNAUTHORIZED_DESCRIPTION;
 import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.UNAUTHORIZED_NAME;
 import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.UpdateStatus.NOT_FOUND_ORDER_VALUE;
 import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.UpdateStatus.OFFLINE_ORDER_DELIVERY_STATUS_NAME;

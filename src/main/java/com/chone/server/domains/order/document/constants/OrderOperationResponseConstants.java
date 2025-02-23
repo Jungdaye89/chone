@@ -1,12 +1,6 @@
 package com.chone.server.domains.order.document.constants;
 
 public final class OrderOperationResponseConstants {
-  public static final String FORBIDDEN_DESCRIPTION = "접근 권한이 없음";
-  public static final String UNAUTHORIZED_DESCRIPTION = "인증이 필요함";
-  public static final String ORDER_NOT_FOUND_DESCRIPTION = "주문을 찾을 수 없음";
-  public static final String BAD_REQUEST_DESCRIPTION = "잘못된 요청";
-  public static final String CONFLICT_DESCRIPTION = "잘못된 요청";
-
   public static final String UNAUTHORIZED_NAME = "인증이 필요함";
   public static final String ORDER_NOT_FOUND_NAME = "해당 주문을 찾을 수 없음";
   public static final String ORDER_CUSTOMER_ACCESS_DENIED_NAME = "해당 주문의 소유자가 아니라 리소스 접근 권한 없음";

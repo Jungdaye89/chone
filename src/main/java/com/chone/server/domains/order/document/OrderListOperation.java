@@ -3,11 +3,12 @@ package com.chone.server.domains.order.document;
 import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.CODE_FORBIDDEN;
 import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.CODE_OK;
 import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.CODE_UNAUTHORIZED;
+import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.FORBIDDEN_DESCRIPTION;
 import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.MEDIA_TYPE;
 import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.SECURITY_REQUIREMENT;
+import static com.chone.server.domains.order.document.constants.OrderOperationCommonConstants.UNAUTHORIZED_DESCRIPTION;
 import static com.chone.server.domains.order.document.constants.OrderOperationDescriptionConstants.LIST_DESCRIPTION;
 import static com.chone.server.domains.order.document.constants.OrderOperationDescriptionConstants.LIST_SUMMARY;
-import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.FORBIDDEN_DESCRIPTION;
 import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.List.CUSTOMER_ORDER_FILTERING_ACCESS_DENIED_NAME;
 import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.List.CUSTOMER_ORDER_FILTERING_ACCESS_DENIED_VALUE;
 import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.List.STORE_ORDER_FILTERING_ACCESS_DENIED_NAME;
@@ -15,7 +16,6 @@ import static com.chone.server.domains.order.document.constants.OrderOperationRe
 import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.List.SUCCESS_DESCRIPTION;
 import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.List.SUCCESS_EXAMPLE;
 import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.List.UNAUTHORIZED_VALUE;
-import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.UNAUTHORIZED_DESCRIPTION;
 import static com.chone.server.domains.order.document.constants.OrderOperationResponseConstants.UNAUTHORIZED_NAME;
 
 import com.chone.server.domains.order.dto.request.OrderFilterParams;
