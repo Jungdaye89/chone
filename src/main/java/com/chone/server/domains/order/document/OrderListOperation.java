@@ -1,7 +1,10 @@
 package com.chone.server.domains.order.document;
 
+import com.chone.server.domains.order.dto.request.OrderFilterParams;
 import com.chone.server.domains.order.dto.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -17,7 +20,37 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Operation(
     summary = OrderListOperationConstants.SUMMARY,
-    description = OrderListOperationConstants.DESCRIPTION)
+    description = OrderListOperationConstants.DESCRIPTION,
+    parameters = {
+      @Parameter(
+          name = "filterParams",
+          description = "주문 필터링 파라미터",
+          in = ParameterIn.QUERY,
+          schema = @Schema(implementation = OrderFilterParams.class)),
+      @Parameter(
+          name = "page",
+          description = "페이지 번호 (0부터 시작)",
+          in = ParameterIn.QUERY,
+          schema = @Schema(type = "integer", defaultValue = "0")),
+      @Parameter(
+          name = "size",
+          description = "페이지 크기",
+          in = ParameterIn.QUERY,
+          schema = @Schema(type = "integer", defaultValue = "10")),
+      @Parameter(
+          name = "sort",
+          description = "정렬 기준 (예: createdat,desc)",
+          in = ParameterIn.QUERY,
+          schema = @Schema(type = "string", defaultValue = "createdat,desc"),
+          examples = {
+            @ExampleObject(value = "createdat,desc"),
+            @ExampleObject(value = "createdat,asc"),
+            @ExampleObject(value = "updatedat,desc"),
+            @ExampleObject(value = "updatedat,asc"),
+            @ExampleObject(value = "totalprice,desc"),
+            @ExampleObject(value = "totalprice,asc")
+          })
+    })
 @SecurityRequirement(name = OrderListOperationConstants.SECURITY_REQUIREMENT)
 @ApiResponses(
     value = {

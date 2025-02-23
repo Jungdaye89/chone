@@ -1,7 +1,10 @@
 package com.chone.server.domains.payment.document;
 
+import com.chone.server.domains.payment.dto.request.PaymentFilterParams;
 import com.chone.server.domains.payment.dto.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -17,7 +20,37 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Operation(
     summary = PaymentListOperationConstants.SUMMARY,
-    description = PaymentListOperationConstants.DESCRIPTION)
+    description = PaymentListOperationConstants.DESCRIPTION,
+    parameters = {
+      @Parameter(
+          name = "filterParams",
+          in = ParameterIn.QUERY,
+          description = "결제 필터링 파라미터",
+          schema = @Schema(implementation = PaymentFilterParams.class)),
+      @Parameter(
+          name = "page",
+          in = ParameterIn.QUERY,
+          description = "페이지 번호 (0부터 시작)",
+          schema = @Schema(type = "integer", defaultValue = "0")),
+      @Parameter(
+          name = "size",
+          in = ParameterIn.QUERY,
+          description = "페이지 크기",
+          schema = @Schema(type = "integer", defaultValue = "10")),
+      @Parameter(
+          name = "sort",
+          in = ParameterIn.QUERY,
+          description = "정렬 기준",
+          schema = @Schema(type = "string", defaultValue = "createdat,desc"),
+          examples = {
+            @ExampleObject(value = "createdat,desc"),
+            @ExampleObject(value = "createdat,asc"),
+            @ExampleObject(value = "updatedat,desc"),
+            @ExampleObject(value = "updatedat,asc"),
+            @ExampleObject(value = "totalprice,desc"),
+            @ExampleObject(value = "totalprice,asc")
+          })
+    })
 @SecurityRequirement(name = PaymentListOperationConstants.SECURITY_REQUIREMENT)
 @ApiResponses(
     value = {
@@ -66,24 +99,40 @@ final class PaymentListOperationConstants {
   static final String SUMMARY = "결제 목록 조회 API";
   static final String DESCRIPTION =
       """
-- 결제 내역을 조회할 수 있는 API입니다.
-    - 메서드: GET
-    - 경로: /api/v1/payments
-    - 권한: 모든 역할 접근 가능 (역할별 조회 범위 제한)
-    - 페이지네이션: page, size, sort 지원 (기본값: page=0, size=10, sort=createdat,desc)
-    - 응답: 200 OK
+        - 결제 내역을 조회할 수 있는 API입니다.
+            - 메서드: GET
+            - 경로: /api/v1/payments
+            - 권한: 모든 역할 접근 가능 (역할별 조회 범위 제한)
 
-- 역할별 조회 가능 범위
-    - CUSTOMER
-        - 조회 가능 범위: 자신의 결제만 조회
-        - 필터링 제한: 고객 필터링 불가, 매장 필터링 가능
-    - OWNER
-        - 조회 가능 범위: 자신의 매장 결제만 조회
-        - 필터링 제한: 고객 필터링 가능, 매장 필터링 불가
-    - MANAGER, MASTER
-        - 조회 가능 범위: 모든 결제 조회
-        - 필터링 제한: 모든 필터링 가능
-""";
+        - 필터링 파라미터
+            - startDate: 조회 시작일 (yyyy-MM-dd)
+            - endDate: 조회 종료일 (yyyy-MM-dd)
+            - storeId: 가게 ID
+            - userId: 사용자 ID
+            - status: 결제 상태 (PENDING, COMPLETED, CANCELED, FAILED)
+            - method: 결제 수단 (CASH, CARD)
+            - totalPrice: 정확한 결제 금액
+            - minPrice: 최소 결제 금액
+            - maxPrice: 최대 결제 금액
+
+        - 페이지네이션
+            - page: 페이지 번호 (0부터 시작, 기본값: 0)
+            - size: 페이지 크기 (기본값: 10)
+            - sort: 정렬 기준 (기본값: createdat,desc)
+                - 정렬 가능 필드: createdat, updatedat
+                - 정렬 방향: asc, desc
+
+        - 역할별 조회 가능 범위
+            - CUSTOMER
+                - 조회 가능 범위: 자신의 결제만 조회
+                - 필터링 제한: 고객 필터링 불가, 매장 필터링 가능
+            - OWNER
+                - 조회 가능 범위: 자신의 매장 결제만 조회
+                - 필터링 제한: 고객 필터링 가능, 매장 필터링 불가
+            - MANAGER, MASTER
+                - 조회 가능 범위: 모든 결제 조회
+                - 필터링 제한: 모든 필터링 가능
+        """;
   static final String SECURITY_REQUIREMENT = "Bearer Authentication";
   static final String MEDIA_TYPE = "application/json";
 

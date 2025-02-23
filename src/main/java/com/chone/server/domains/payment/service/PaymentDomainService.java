@@ -44,21 +44,21 @@ public class PaymentDomainService {
   }
 
   public void validateEventBasedCancellation(Payment payment) {
-    if (payment.getStatus().isSameStauts(PaymentStatus.CANCELED)) {
+    if (payment.getStatus().isSameStatus(PaymentStatus.CANCELED)) {
       log.info("이미 취소된 결제: paymentId={}, orderId={}", payment.getId());
       throw new ApiBusinessException(PaymentExceptionCode.PAYMENT_ALREADY_CANCELED);
     }
-    if (payment.getStatus().isSameStauts(PaymentStatus.FAILED)) {
+    if (payment.getStatus().isSameStatus(PaymentStatus.FAILED)) {
       log.info("결제된 적 없는 결제: paymentId={}, orderId={}", payment.getId());
       throw new ApiBusinessException(PaymentExceptionCode.FAILED_PAYMENT);
     }
   }
 
   private void validateCancellation(Payment payment) {
-    if (payment.getStatus().isSameStauts(PaymentStatus.CANCELED)) {
+    if (payment.getStatus().isSameStatus(PaymentStatus.CANCELED)) {
       throw new ApiBusinessException(PaymentExceptionCode.PAYMENT_ALREADY_CANCELED);
     }
-    if (payment.getStatus().isSameStauts(PaymentStatus.FAILED)) {
+    if (payment.getStatus().isSameStatus(PaymentStatus.FAILED)) {
       throw new ApiBusinessException(PaymentExceptionCode.FAILED_PAYMENT);
     }
 
