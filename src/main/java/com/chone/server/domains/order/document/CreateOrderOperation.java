@@ -84,7 +84,6 @@ import java.lang.annotation.Target;
 public @interface CreateOrderOperation {}
 
 final class CreateOrderOperationConstants {
-
   static final String SUMMARY = "주문 생성 API";
   static final String DESCRIPTION =
       """
@@ -97,7 +96,6 @@ final class CreateOrderOperationConstants {
       """;
   static final String SECURITY_REQUIREMENT = "Bearer Authentication";
   static final String MEDIA_TYPE = "application/json";
-
   // == 200 OK 응답 ==
   static final String SUCCESS_RESPONSE_CODE = "201";
   static final String SUCCESS_EXAMPLE =
@@ -108,9 +106,6 @@ final class CreateOrderOperationConstants {
                 "message": "주문이 성공적으로 생성되었습니다."
             }
         """;
-
-  // == 에러 응답 예시 ==
-
   static final String UNAUTHORIZED_RESPONSE =
       """
                             {
@@ -123,6 +118,7 @@ final class CreateOrderOperationConstants {
                             }
                         """;
 
+  // == 에러 응답 예시 ==
   static final String MISSING_STORE_ID_RESPONSE =
       """
                             {
@@ -137,7 +133,6 @@ final class CreateOrderOperationConstants {
                               "path": "/api/v1/orders"
                             }
                         """;
-
   static final String MISSING_ORDER_ITEMS_RESPONSE =
       """
                             {
@@ -152,7 +147,6 @@ final class CreateOrderOperationConstants {
                               "path": "/api/v1/orders"
                             }
                         """;
-
   static final String STORE_NOT_FOUND_RESPONSE =
       """
                             {
@@ -164,7 +158,6 @@ final class CreateOrderOperationConstants {
                               "path": "/api/v1/orders"
                             }
                         """;
-
   static final String MULTIPLE_STORE_ORDER_RESPONSE =
       """
                             {
@@ -176,7 +169,6 @@ final class CreateOrderOperationConstants {
                               "path": "/api/v1/orders"
                             }
                         """;
-
   static final String MISSING_DELIVERY_ADDRESS_RESPONSE =
       """
                             {
@@ -188,7 +180,6 @@ final class CreateOrderOperationConstants {
                               "path": "/api/v1/orders"
                             }
                         """;
-
   static final String ORDER_STORE_OWNER_ACCESS_DENIED_RESPONSE =
       """
                             {
@@ -200,4 +191,6 @@ final class CreateOrderOperationConstants {
                               "path": "/api/v1/orders"
                             }
                         """;
+
+  private CreateOrderOperationConstants() {}
 }

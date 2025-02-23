@@ -114,7 +114,6 @@ import java.lang.annotation.Target;
 public @interface UpdateOrderStatusOperation {}
 
 final class UpdateOrderStatusOperationConstants {
-
   static final String SUMMARY = "주문 상태 업데이트 API";
   static final String DESCRIPTION =
       """
@@ -126,7 +125,6 @@ final class UpdateOrderStatusOperationConstants {
     """;
   static final String SECURITY_REQUIREMENT = "Bearer Authentication";
   static final String MEDIA_TYPE = "application/json";
-
   // == 200 OK 응답 ==
   static final String SUCCESS_RESPONSE_CODE = "200";
   static final String SUCCESS_EXAMPLE =
@@ -138,9 +136,6 @@ final class UpdateOrderStatusOperationConstants {
           "updatedAt": "2024-02-12T15:30:00"
         }
       """;
-
-  // == 에러 응답 예시 ==
-
   static final String UNAUTHORIZED_RESPONSE =
       """
                             {
@@ -153,6 +148,7 @@ final class UpdateOrderStatusOperationConstants {
                             }
                         """;
 
+  // == 에러 응답 예시 ==
   static final String NOT_FOUND_ORDER_RESPONSE =
       """
                             {
@@ -164,7 +160,6 @@ final class UpdateOrderStatusOperationConstants {
                               "path": "/api/v1/orders/{id}/status"
                             }
                         """;
-
   static final String ORDER_STATUS_CHANGE_NOT_OWNER_RESPONSE =
       """
                             {
@@ -176,7 +171,6 @@ final class UpdateOrderStatusOperationConstants {
                               "path": "/api/v1/orders/{id}/status"
                             }
                         """;
-
   static final String ORDER_STATUS_CHANGE_FORBIDDEN_RESPONSE =
       """
                             {
@@ -188,7 +182,6 @@ final class UpdateOrderStatusOperationConstants {
                               "path": "/api/v1/orders/{id}/status"
                             }
                         """;
-
   static final String ORDER_CANCEL_SEPARATE_API_RESPONSE =
       """
                             {
@@ -200,7 +193,6 @@ final class UpdateOrderStatusOperationConstants {
                               "path": "/api/v1/orders/{id}/status"
                             }
                         """;
-
   static final String ORDER_PAID_SEPARATE_RESPONSE =
       """
                             {
@@ -212,7 +204,6 @@ final class UpdateOrderStatusOperationConstants {
                               "path": "/api/v1/orders/{id}/status"
                             }
                         """;
-
   static final String ORDER_STATUS_NULL_RESPONSE =
       """
                             {
@@ -224,7 +215,6 @@ final class UpdateOrderStatusOperationConstants {
                               "path": "/api/v1/orders/{id}/status"
                             }
                         """;
-
   static final String ORDER_FINALIZED_STATE_CONFLICT_RESPONSE =
       """
                             {
@@ -236,7 +226,6 @@ final class UpdateOrderStatusOperationConstants {
                               "path": "/api/v1/orders/{id}/status"
                             }
                         """;
-
   static final String ORDER_STATUS_REGRESSION_RESPONSE =
       """
                             {
@@ -249,7 +238,6 @@ final class UpdateOrderStatusOperationConstants {
                         "path": "/api/v1/orders/{id}/status"
                       }
                   """;
-
   static final String OFFLINE_ORDER_DELIVERY_STATUS_RESPONSE =
       """
                             {
@@ -261,4 +249,6 @@ final class UpdateOrderStatusOperationConstants {
                               "path": "/api/v1/orders/{id}/status"
                             }
                         """;
+
+  private UpdateOrderStatusOperationConstants() {}
 }

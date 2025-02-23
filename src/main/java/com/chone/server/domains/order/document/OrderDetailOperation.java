@@ -72,7 +72,6 @@ import java.lang.annotation.Target;
 public @interface OrderDetailOperation {}
 
 final class OrderDetailOperationConstants {
-
   static final String SUMMARY = "주문 상세 조회 API";
   static final String DESCRIPTION =
       """
@@ -93,7 +92,6 @@ final class OrderDetailOperationConstants {
     """;
   static final String SECURITY_REQUIREMENT = "Bearer Authentication";
   static final String MEDIA_TYPE = "application/json";
-
   // == 200 OK 응답 ==
   static final String SUCCESS_RESPONSE_CODE = "200";
   static final String SUCCESS_EXAMPLE =
@@ -129,9 +127,6 @@ final class OrderDetailOperationConstants {
                           ]
                         }
                         """;
-
-  // == 에러 응답 예시 ==
-
   static final String ORDER_CUSTOMER_ACCESS_DENIED_RESPONSE =
       """
                       {
@@ -144,6 +139,7 @@ final class OrderDetailOperationConstants {
                       }
                   """;
 
+  // == 에러 응답 예시 ==
   static final String ORDER_STORE_OWNER_ACCESS_DENIED_RESPONSE =
       """
                       {
@@ -155,7 +151,6 @@ final class OrderDetailOperationConstants {
                         "path": "/api/orders/3ec24ba4-0164-45d1-9566-73dde029b2c1"
                       }
                   """;
-
   static final String NOT_FOUND_ORDER_RESPONSE =
       """
                       {
@@ -178,4 +173,5 @@ final class OrderDetailOperationConstants {
                           "path": "/api/orders/3ec24ba4-0164-45d1-9566-73dde029b2c1"
                         }
                     """;
+  private OrderDetailOperationConstants() {}
 }

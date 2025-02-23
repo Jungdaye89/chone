@@ -119,7 +119,6 @@ import java.lang.annotation.Target;
 public @interface CancelOrderOperation {}
 
 final class CancelOrderOperationConstants {
-
   static final String SUMMARY = "주문 취소 API";
   static final String DESCRIPTION =
       """
@@ -140,7 +139,6 @@ final class CancelOrderOperationConstants {
      """;
   static final String SECURITY_REQUIREMENT = "Bearer Authentication";
   static final String MEDIA_TYPE = "application/json";
-
   // == 200 OK 응답 ==
   static final String SUCCESS_RESPONSE_CODE = "200";
   static final String SUCCESS_EXAMPLE =
@@ -149,9 +147,6 @@ final class CancelOrderOperationConstants {
                                 "message": "주문이 성공적으로 취소되었습니다."
                               }
                               """;
-
-  // == 에러 응답 예시 ==
-
   static final String UNAUTHORIZED_RESPONSE =
       """
                             {
@@ -164,6 +159,7 @@ final class CancelOrderOperationConstants {
                             }
                         """;
 
+  // == 에러 응답 예시 ==
   static final String NOT_FOUND_ORDER_RESPONSE =
       """
                             {
@@ -175,7 +171,6 @@ final class CancelOrderOperationConstants {
                               "path": "/api/v1/orders/{id}"
                             }
                         """;
-
   static final String ORDER_CUSTOMER_ACCESS_DENIED_RESPONSE =
       """
                             {
@@ -187,7 +182,6 @@ final class CancelOrderOperationConstants {
                               "path": "/api/v1/orders/{id}"
                             }
                         """;
-
   static final String ORDER_STORE_OWNER_ACCESS_DENIED_RESPONSE =
       """
                             {
@@ -199,7 +193,6 @@ final class CancelOrderOperationConstants {
                               "path": "/api/v1/orders/{id}"
                             }
                         """;
-
   static final String ORDER_CANCEL_PERMISSION_DENIED_RESPONSE =
       """
                             {
@@ -211,7 +204,6 @@ final class CancelOrderOperationConstants {
                               "path": "/api/v1/orders/{id}"
                             }
                         """;
-
   static final String ORDER_ALREADY_CANCELED_RESPONSE =
       """
                             {
@@ -223,7 +215,6 @@ final class CancelOrderOperationConstants {
                               "path": "/api/v1/orders/{id}"
                             }
                         """;
-
   static final String ORDER_NOT_CANCELABLE_RESPONSE =
       """
                             {
@@ -235,7 +226,6 @@ final class CancelOrderOperationConstants {
                               "path": "/api/v1/orders/{id}"
                             }
                         """;
-
   static final String ORDER_CANCELLATION_TIMEOUT_RESPONSE =
       """
                             {
@@ -247,7 +237,6 @@ final class CancelOrderOperationConstants {
                               "path": "/api/v1/orders/{id}"
                             }
                         """;
-
   static final String FAILED_PAYMENT_RESPONSE =
       """
                             {
@@ -259,7 +248,6 @@ final class CancelOrderOperationConstants {
                               "path": "/api/v1/orders/{id}"
                             }
                         """;
-
   static final String ORDER_ALREADY_COMPLETED_RESPONSE =
       """
                             {
@@ -271,7 +259,6 @@ final class CancelOrderOperationConstants {
                               "path": "/api/v1/orders/{id}"
                             }
                         """;
-
   static final String ORDER_PREPARATION_STARTED_RESPONSE =
       """
                             {
@@ -283,7 +270,6 @@ final class CancelOrderOperationConstants {
                               "path": "/api/v1/orders/{id}"
                             }
                         """;
-
   static final String PAYMENT_ALREADY_CANCELED_RESPONSE =
       """
                             {
@@ -295,7 +281,6 @@ final class CancelOrderOperationConstants {
                               "path": "/api/v1/orders/{id}"
                             }
                         """;
-
   static final String PAYMENT_CANCELLATION_FAILED_RESPONSE =
       """
                             {
@@ -307,7 +292,6 @@ final class CancelOrderOperationConstants {
                               "path": "/api/v1/orders/{id}"
                             }
                         """;
-
   // 추가된 요청 본문 검증 에러 응답
   static final String ORDER_REASON_NULL_RESPONSE =
       """
@@ -320,4 +304,6 @@ final class CancelOrderOperationConstants {
                               "path": "/api/v1/orders/{id}"
                             }
                         """;
+
+  private CancelOrderOperationConstants() {}
 }

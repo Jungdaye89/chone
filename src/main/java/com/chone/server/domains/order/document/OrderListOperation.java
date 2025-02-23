@@ -95,7 +95,6 @@ import java.lang.annotation.Target;
 public @interface OrderListOperation {}
 
 final class OrderListOperationConstants {
-
   static final String SUMMARY = "주문 조회 API";
   static final String DESCRIPTION =
       """
@@ -119,7 +118,6 @@ final class OrderListOperationConstants {
         """;
   static final String SECURITY_REQUIREMENT = "Bearer Authentication";
   static final String MEDIA_TYPE = "application/json";
-
   // == 200 OK 응답 ==
   static final String SUCCESS_RESPONSE_CODE = "200";
   static final String SUCCESS_EXAMPLE =
@@ -146,9 +144,6 @@ final class OrderListOperationConstants {
     }
 }
 """;
-
-  // == 에러 응답 예시 ==
-
   static final String UNAUTHORIZED_RESPONSE =
       """
                                   {
@@ -161,6 +156,7 @@ final class OrderListOperationConstants {
                                   }
                               """;
 
+  // == 에러 응답 예시 ==
   static final String CUSTOMER_ORDER_FILTERING_ACCESS_DENIED_RESPONSE =
       """
                                   {
@@ -172,7 +168,6 @@ final class OrderListOperationConstants {
                                     "path": "/api/v1/orders"
                                   }
                               """;
-
   static final String STORE_ORDER_FILTERING_ACCESS_DENIED_RESPONSE =
       """
                                   {
@@ -184,4 +179,6 @@ final class OrderListOperationConstants {
                                     "path": "/api/v1/orders"
                                   }
                               """;
+
+  private OrderListOperationConstants() {}
 }

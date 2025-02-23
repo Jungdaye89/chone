@@ -67,7 +67,6 @@ import java.lang.annotation.Target;
 public @interface DeleteOrderOperation {}
 
 final class DeleteOrderOperationConstants {
-
   static final String SUMMARY = "주문 삭제 API";
   static final String DESCRIPTION =
       """
@@ -84,7 +83,6 @@ final class DeleteOrderOperationConstants {
     """;
   static final String SECURITY_REQUIREMENT = "Bearer Authentication";
   static final String MEDIA_TYPE = "application/json";
-
   // == 200 OK 응답 ==
   static final String SUCCESS_RESPONSE_CODE = "200";
   static final String SUCCESS_EXAMPLE =
@@ -93,9 +91,6 @@ final class DeleteOrderOperationConstants {
           "deletedRequestedAt": "2024-02-19T14:30:00Z"
         }
       """;
-
-  // == 에러 응답 예시 ==
-
   static final String UNAUTHORIZED_RESPONSE =
       """
                             {
@@ -108,6 +103,7 @@ final class DeleteOrderOperationConstants {
                             }
                         """;
 
+  // == 에러 응답 예시 ==
   static final String NOT_FOUND_ORDER_RESPONSE =
       """
                             {
@@ -119,7 +115,6 @@ final class DeleteOrderOperationConstants {
                               "path": "/api/v1/orders/{id}"
                             }
                         """;
-
   static final String ORDER_NOT_DELETABLE_RESPONSE =
       """
                             {
@@ -131,4 +126,6 @@ final class DeleteOrderOperationConstants {
                               "path": "/api/v1/orders/{id}"
                             }
                         """;
+
+  private DeleteOrderOperationConstants() {}
 }
