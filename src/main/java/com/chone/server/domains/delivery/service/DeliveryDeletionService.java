@@ -27,6 +27,7 @@ public class DeliveryDeletionService {
       Delivery delivery = repository.findByOrderIdOrNull(deletedOrder.getId());
       if (delivery == null) {
         log.info("주문과 관련된 배송이 없습니다.");
+        return;
       }
       log.info("배송 삭제가 완료되었습니다={}", delivery.getId());
       delivery.delete(event.getDeletedBy());
