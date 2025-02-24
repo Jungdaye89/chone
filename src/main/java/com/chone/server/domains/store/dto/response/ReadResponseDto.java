@@ -44,7 +44,10 @@ public class ReadResponseDto {
   @Schema(description = "가게 오픈 여부")
   private Boolean isOpen;
 
-  public static ReadResponseDto from(Store store) {
+  @Schema(description = "평균 평점")
+  private Double rating;
+
+  public static ReadResponseDto from(Store store, Double avgRating) {
 
     List<String> categoryNames = store.getStoreCategoryMaps().stream()
         .map(scm -> scm.getCategory().getName())
@@ -60,6 +63,7 @@ public class ReadResponseDto {
         .category(categoryNames)
         .phoneNumber(store.getPhoneNumber())
         .isOpen(store.getIsOpen())
+        .rating(avgRating)
         .build();
   }
 }
