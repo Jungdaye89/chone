@@ -1,15 +1,23 @@
 package com.chone.server.domains.store.repository.custom;
 
+import com.chone.server.domains.review.domain.QReview;
 import com.chone.server.domains.store.domain.QCategory;
 import com.chone.server.domains.store.domain.QStore;
 import com.chone.server.domains.store.domain.QStoreCategoryMap;
 import com.chone.server.domains.store.domain.Store;
+import com.chone.server.domains.store.dto.response.ReadResponseDto;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.dsl.NumberExpression;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -26,9 +34,10 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
   QStore qStore = QStore.store;
   QCategory qCategory = QCategory.category;
   QStoreCategoryMap qStoreCategoryMap = QStoreCategoryMap.storeCategoryMap;
+  QReview qReview = QReview.review;
 
   @Override
-  public Page<Store> searchStores(int page, int size, String sort, String direction,
+  public Page<ReadResponseDto> searchStores(int page, int size, String sort, String direction,
       LocalDate startDate, LocalDate endDate, String category, String sido, String sigungu,
       String dong, Long userId) {
 
@@ -69,6 +78,18 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
     Order order = direction.equalsIgnoreCase("asc") ? Order.ASC : Order.DESC;
 
     switch (sort) {
+      case "rating" -> {
+        NumberExpression<Double> ratingSubquery = (NumberExpression<Double>) JPAExpressions
+            .select(qReview.rating.avg())
+            .from(qReview)
+            .where(qReview.store.eq(qStore));
+
+        if (order == Order.ASC) {
+          orderSpecifier = new OrderSpecifier<>(Order.ASC, ratingSubquery);
+        } else {
+          orderSpecifier = new OrderSpecifier<>(Order.DESC, ratingSubquery);
+        }
+      }
       case "name" -> {
         orderSpecifier = (order == Order.ASC) ? qStore.name.asc() : qStore.name.desc();
       }
@@ -102,6 +123,30 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
         sort
     );
 
-    return new PageImpl<>(content, pageRequest, total);
+    List<UUID> storeIds = content.stream()
+        .map(Store::getId)
+        .collect(Collectors.toList());
+
+    List<Tuple> ratingTuples = jpaQueryFactory
+        .select(qReview.store.id, qReview.rating.avg())
+        .from(qReview)
+        .where(qReview.store.id.in(storeIds))
+        .groupBy(qReview.store.id)
+        .fetch();
+
+    Map<UUID, Double> ratingMap = ratingTuples.stream()
+        .collect(Collectors.toMap(
+            t -> t.get(qReview.store.id),
+            t -> t.get(qReview.rating.avg())
+        ));
+
+    List<ReadResponseDto> dtos = content.stream()
+        .map(store -> {
+          Double avgRating = ratingMap.getOrDefault(store.getId(), 0.0);
+          return ReadResponseDto.from(store, avgRating);
+        })
+        .collect(Collectors.toList());
+
+    return new PageImpl<>(dtos, pageRequest, total);
   }
 }
