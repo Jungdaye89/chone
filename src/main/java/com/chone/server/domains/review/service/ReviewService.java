@@ -97,19 +97,20 @@ public class ReviewService {
   }
 
   public ReviewListResponseDto getReviews(
-      ReviewListRequestDto request, CustomUserDetails principal, Pageable pageable) {
+      ReviewListRequestDto filterParams, CustomUserDetails principal, Pageable pageable) {
+
     User user = principal.getUser();
 
     return switch (user.getRole()) {
       case CUSTOMER ->
           ReviewListResponseDto.from(
-              reviewSearchRepository.findReviewsByCustomer(user, request, pageable));
+              reviewSearchRepository.findReviewsByCustomer(user, filterParams, pageable));
       case OWNER ->
           ReviewListResponseDto.from(
-              reviewSearchRepository.findReviewsByOwner(user, request, pageable));
+              reviewSearchRepository.findReviewsByOwner(user, filterParams, pageable));
       case MANAGER, MASTER ->
           ReviewListResponseDto.from(
-              reviewSearchRepository.findReviewsByManagerOrMaster(user, request, pageable));
+              reviewSearchRepository.findReviewsByManagerOrMaster(user, filterParams, pageable));
     };
   }
 

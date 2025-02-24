@@ -20,10 +20,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -147,13 +148,13 @@ public class ReviewController {
   @GetMapping
   public ResponseEntity<ReviewListResponseDto> getReviews(
       @AuthenticationPrincipal CustomUserDetails principal,
-      @RequestParam Map<String, String> params) {
+      @ModelAttribute ReviewListRequestDto filterParams,
+      @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
+          Pageable pageable) {
 
-    ReviewListRequestDto requestDto = ReviewListRequestDto.from(params);
-    Pageable pageable = requestDto.toPageable();
+    ReviewListResponseDto responseDto = reviewService.getReviews(filterParams, principal, pageable);
 
-    ReviewListResponseDto response = reviewService.getReviews(requestDto, principal, pageable);
-    return ResponseEntity.ok(response);
+    return ResponseEntity.ok(responseDto);
   }
 
   @Operation(summary = "리뷰 상세 조회 API", description = "리뷰의 상세 정보를 조회한다.")
