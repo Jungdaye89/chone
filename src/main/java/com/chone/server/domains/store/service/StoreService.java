@@ -90,13 +90,14 @@ public class StoreService {
       String dong,
       Long userId) {
 
-    Page<Store> stores =
+    Page<ReadResponseDto> stores =
         storeRepository.searchStores(
-            page, size, sort, direction, startDate, endDate, category, sido, sigungu, dong, userId);
+            page, size, sort, direction, startDate, endDate, category, sido, sigungu, dong,
+            userId);
 
     return SearchResponseDto.builder()
         .content(
-            stores.getContent().stream().map(ReadResponseDto::from).collect(Collectors.toList()))
+            stores.getContent())
         .pageInfo(
             PageInfoDto.builder()
                 .page(stores.getNumber())
@@ -112,7 +113,7 @@ public class StoreService {
 
     Store store = storeFacade.findStoreById(storeId);
 
-    return ReadResponseDto.from(store);
+    return ReadResponseDto.from(store, 0.0);
   }
 
   @Transactional
