@@ -111,7 +111,7 @@ public class StoreController {
   public ResponseEntity<SearchResponseDto> searchStores(
       @RequestParam(name = "page", required = false, defaultValue = "0") int page,
       @RequestParam(name = "size", required = false, defaultValue = "10") int size,
-      @RequestParam(name = "sort", required = false, defaultValue = "createdAt") String sort,
+      @RequestParam(name = "sort", required = false, defaultValue = "rating") String sort,
       @RequestParam(name = "direction", required = false, defaultValue = "desc") String direction,
       @RequestParam(name = "startDate", required = false, defaultValue = "1970-01-01") LocalDate startDate,
       @RequestParam(name = "endDate", required = false, defaultValue = "9999-01-01") LocalDate endDate,
