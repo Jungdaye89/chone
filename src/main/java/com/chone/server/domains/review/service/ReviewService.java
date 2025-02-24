@@ -73,11 +73,21 @@ public class ReviewService {
 
     String imageUrl = request.getImageUrl();
     if (file != null && !file.isEmpty()) {
-      imageUrl = s3Service.uploadFile(file);
+      try {
+        imageUrl = s3Service.uploadFile(file);
+      } catch (Exception e) {
+        throw new ApiBusinessException(ReviewExceptionCode.FILE_UPLOAD_ERROR);
+      }
     }
 
     Review review =
-        Review.builder(order, store, user, request.getContent(), request.getRating(), true)
+        Review.builder(
+                order,
+                store,
+                user,
+                request.getContent(),
+                request.getRating(),
+                request.getIsPublic() != null ? request.getIsPublic() : true)
             .imageUrl(imageUrl)
             .build();
 
