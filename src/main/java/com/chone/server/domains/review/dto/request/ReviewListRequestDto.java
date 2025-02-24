@@ -58,13 +58,38 @@ public class ReviewListRequestDto {
   private String endDate;
 
   public static ReviewListRequestDto from(Map<String, String> params) {
-
     int defaultPage = 0;
     int defaultSize = 10;
 
+    String pageParam = params.get("page");
+    String sizeParam = params.get("size");
+
+    int page;
+
+    if (pageParam == null || pageParam.isEmpty()) {
+      page = defaultPage;
+    } else {
+      try {
+        page = Integer.parseInt(pageParam);
+      } catch (NumberFormatException e) {
+        page = defaultPage;
+      }
+    }
+
+    int size;
+    if (sizeParam == null || sizeParam.isEmpty()) {
+      size = defaultSize;
+    } else {
+      try {
+        size = Integer.parseInt(sizeParam);
+      } catch (NumberFormatException e) {
+        size = defaultSize;
+      }
+    }
+
     return ReviewListRequestDto.builder()
-        .page(params.containsKey("page") ? Integer.parseInt(params.get("page")) : defaultPage)
-        .size(params.containsKey("size") ? Integer.parseInt(params.get("size")) : defaultSize)
+        .page(page)
+        .size(size)
         .sort(params.getOrDefault("sort", "createdAt"))
         .direction(params.getOrDefault("direction", "desc"))
         .storeId(params.containsKey("storeId") ? UUID.fromString(params.get("storeId")) : null)
@@ -83,13 +108,19 @@ public class ReviewListRequestDto {
   }
 
   public Pageable toPageable() {
-    String[] sortParams = this.sort.split(",");
-    String sortField = sortParams[0];
-    String sortDirection = sortParams.length > 1 ? sortParams[1] : this.direction;
+    int defaultPage = 0;
+    int defaultSize = 10;
+    String defaultSort = "createdAt";
+    String defaultDirection = "desc";
+
+    int page = (this.page != null) ? this.page : defaultPage;
+    int size = (this.size != null) ? this.size : defaultSize;
+    String sortField = (this.sort != null) ? this.sort : defaultSort;
+    String sortDirection = (this.direction != null) ? this.direction : defaultDirection;
 
     Sort.Direction direction =
         "asc".equalsIgnoreCase(sortDirection) ? Sort.Direction.ASC : Sort.Direction.DESC;
 
-    return PageRequest.of(this.page, this.size, Sort.by(direction, sortField));
+    return PageRequest.of(page, size, Sort.by(direction, sortField));
   }
 }

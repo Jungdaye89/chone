@@ -43,6 +43,7 @@ public class ReviewPageResponseDto {
   private LocalDateTime writtenAt;
 
   public static ReviewPageResponseDto from(Review review) {
+
     return ReviewPageResponseDto.builder()
         .reviewId(review.getId())
         .orderId(review.getOrder().getId())

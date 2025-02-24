@@ -31,4 +31,7 @@ public class CreateRequestDto {
       description = "리뷰 이미지 URL",
       example = "https://mybucket.s3.ap-northeast-2.amazonaws.com/images/product123.jpg")
   private String imageUrl;
+
+  @Schema(description = "리뷰 공개 여부", example = "true")
+  private Boolean isPublic;
 }
