@@ -1,6 +1,7 @@
 package com.chone.server.domains.store.service;
 
 import com.chone.server.commons.exception.ApiBusinessException;
+import com.chone.server.commons.facade.ReviewFacade;
 import com.chone.server.commons.facade.StoreFacade;
 import com.chone.server.commons.facade.UserFacade;
 import com.chone.server.domains.store.domain.Category;
@@ -39,6 +40,7 @@ public class StoreService {
   private final StoreCategoryMapRepository storeCategoryMapRepository;
   private final UserFacade userFacade;
   private final StoreFacade storeFacade;
+  private final ReviewFacade reviewFacade;
 
   // MANAGER, MASTER 사용자가 OWNER 사용자의 ID로 가게 생성
   @Transactional
@@ -112,8 +114,10 @@ public class StoreService {
   public ReadResponseDto getStore(UUID storeId) {
 
     Store store = storeFacade.findStoreById(storeId);
+    Double averageRating = reviewFacade.getReviewStatistics(storeId).getAverageRating()
+        .doubleValue();
 
-    return ReadResponseDto.from(store, 0.0);
+    return ReadResponseDto.from(store, averageRating);
   }
 
   @Transactional
