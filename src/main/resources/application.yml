@@ -3,3 +3,13 @@ spring:
     name: chone
   profiles:
     active: dev
+
+# Spring 문서
+springdoc:
+  # 스웨거
+  swagger-ui:
+    # Model 정렬 (내림차순)
+    groups-order: DESC
+
+server:
+  url: http://localhost:8080/

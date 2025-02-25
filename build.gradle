@@ -7,6 +7,14 @@ plugins {
 group = 'com.chone'
 version = '0.0.1-SNAPSHOT'
 
+jar {
+    enabled = false
+}
+
+bootJar {
+    archiveFileName = "chone.jar"
+}
+
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
@@ -24,6 +32,16 @@ repositories {
 }
 
 dependencies {
+    
+    // Querydsl
+    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+    annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+
+    // https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-s3
+    implementation 'com.amazonaws:aws-java-sdk-s3:1.12.781'
+
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
@@ -40,8 +58,40 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
+
+    //swagger
+    implementation group: 'io.swagger.core.v3', name: 'swagger-annotations', version: '2.2.28'
+    implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.8.5'
+
+    // test mockito
+    testImplementation 'org.mockito:mockito-core'
+    testImplementation 'org.mockito:mockito-junit-jupiter'
+
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+// Querydsl 설정부
+def generated = 'src/main/generated'
+
+// querydsl QClass 파일 생성 위치를 지정
+tasks.withType(JavaCompile) {
+    options.getGeneratedSourceOutputDirectory().set(file(generated))
+}
+
+// java source set 에 querydsl QClass 위치 추가
+sourceSets {
+    main.java.srcDirs += [generated]
+}
+
+// gradle clean 시에 QClass 디렉토리 삭제
+clean {
+    delete file(generated)
 }
