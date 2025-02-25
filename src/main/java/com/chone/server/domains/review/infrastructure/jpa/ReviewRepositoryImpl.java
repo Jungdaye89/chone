@@ -16,11 +16,14 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
 
   @Override
   public List<Review> findAllByUserId(Long userId) {
-
     QReview review = QReview.review;
 
     return queryFactory
         .selectFrom(review)
+        .join(review.user)
+        .fetchJoin()
+        .join(review.store)
+        .fetchJoin()
         .where(review.user.id.eq(userId), review.deletedAt.isNull())
         .fetch();
   }
