@@ -8,9 +8,9 @@ import com.chone.server.domains.store.domain.Store;
 import com.chone.server.domains.store.dto.response.ReadResponseDto;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.LocalDate;
@@ -79,7 +79,7 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
 
     switch (sort) {
       case "rating" -> {
-        NumberExpression<Double> ratingSubquery = (NumberExpression<Double>) JPAExpressions
+        Expression<Double> ratingSubquery = JPAExpressions
             .select(qReview.rating.avg())
             .from(qReview)
             .where(qReview.store.eq(qStore));
