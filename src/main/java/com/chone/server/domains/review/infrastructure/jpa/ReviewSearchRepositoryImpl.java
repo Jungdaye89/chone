@@ -1,6 +1,7 @@
 package com.chone.server.domains.review.infrastructure.jpa;
 
 import com.chone.server.domains.review.domain.QReview;
+import com.chone.server.domains.review.domain.Review;
 import com.chone.server.domains.review.dto.request.ReviewListRequestDto;
 import com.chone.server.domains.review.dto.response.ReviewPageResponseDto;
 import com.chone.server.domains.review.repository.ReviewSearchRepository;
@@ -74,23 +75,23 @@ public class ReviewSearchRepositoryImpl implements ReviewSearchRepository {
   private Page<ReviewPageResponseDto> executeQuery(
       BooleanBuilder predicate, Pageable pageable, QReview review) {
 
-    List<OrderSpecifier<?>> orderSpecifiers = getSortOrders(review, pageable);
-
-    List<ReviewPageResponseDto> content =
+    List<Review> content =
         queryFactory
             .selectFrom(review)
+            .join(review.user)
+            .fetchJoin()
+            .join(review.store)
+            .fetchJoin()
             .where(predicate)
-            .orderBy(orderSpecifiers.toArray(new OrderSpecifier[0]))
+            .orderBy(getSortOrders(review, pageable).toArray(new OrderSpecifier[0]))
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize())
-            .fetch()
-            .stream()
-            .map(ReviewPageResponseDto::from)
-            .toList();
+            .fetch();
 
-    long total = queryFactory.selectFrom(review).where(predicate).fetchCount();
+    long total = queryFactory.select(review.count()).from(review).where(predicate).fetchOne();
 
-    return new PageImpl<>(content, pageable, total);
+    return new PageImpl<>(
+        content.stream().map(ReviewPageResponseDto::from).toList(), pageable, total);
   }
 
   private void applyFilters(
