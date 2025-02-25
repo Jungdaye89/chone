@@ -30,7 +30,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -217,21 +216,6 @@ public class ReviewService {
   @Transactional(readOnly = true)
   public ReviewStatisticsResponseDto getReviewStatistics(UUID storeId) {
 
-    boolean storeExists = storeRepository.existsById(storeId);
-    if (!storeExists) {
-      throw new ApiBusinessException(ReviewExceptionCode.STORE_NOT_FOUND);
-    }
-
-    BigDecimal averageRating = reviewStatisticsRepository.calculateAverageRating(storeId);
-
-    int totalReviews = reviewStatisticsRepository.countTotalReviews(storeId);
-
-    Map<Integer, Integer> ratingDistribution =
-        reviewStatisticsRepository.countRatingDistribution(storeId);
-
-    LocalDateTime lastUpdatedAt = LocalDateTime.now();
-
-    return new ReviewStatisticsResponseDto(
-        averageRating, totalReviews, ratingDistribution, lastUpdatedAt);
+    return reviewFacade.getReviewStatistics(storeId);
   }
 }
