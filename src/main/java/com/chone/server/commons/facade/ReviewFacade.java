@@ -2,6 +2,7 @@ package com.chone.server.commons.facade;
 
 import com.chone.server.domains.review.domain.Review;
 import com.chone.server.domains.review.dto.response.ReviewDetailResponseDto;
+import com.chone.server.domains.review.dto.response.ReviewStatisticsResponseDto;
 import com.chone.server.domains.user.domain.User;
 import java.util.List;
 import java.util.Optional;
@@ -20,4 +21,6 @@ public interface ReviewFacade {
   Optional<Review> findByOrderId(UUID orderId);
 
   void deleteReview(User user, Review review);
+
+  ReviewStatisticsResponseDto getReviewStatistics(UUID storeId);
 }
